@@ -15,6 +15,10 @@ $tables_to_drop = [
     'wp2static_jobs',
     'wp2static_log',
     'wp2static_urls',
+    // Non viene più creata: era la tabella che teneva quali annunci Strattic
+    // l'utente aveva chiuso. Resta nell'elenco perché va rimossa dalle
+    // installazioni che l'hanno già.
+    'wp2static_notices',
 ];
 
 foreach ( $tables_to_drop as $table ) {

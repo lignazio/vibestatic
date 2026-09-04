@@ -835,12 +835,6 @@ parameters:
 			path: src/ViewRenderer.php
 
 		-
-			rawMessage: 'Parameter #2 $src of function wp_register_script expects non-empty-string|false, string given.'
-			identifier: argument.type
-			count: 1
-			path: src/WordPressAdmin.php
-
-		-
 			rawMessage: 'Method WP2Static\WsLog::getAll() should return array<mixed> but returns list<stdClass>|null.'
 			identifier: return.type
 			count: 1

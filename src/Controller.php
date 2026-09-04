@@ -108,7 +108,6 @@ class Controller {
         DeployCache::createTable();
         JobQueue::createTable();
         Addons::createTable();
-        AdminNotices::createTable();
     }
 
     public static function activate( ?bool $network_wide = null ) : void {
@@ -237,14 +236,6 @@ class Controller {
             );
         }
 
-        add_submenu_page(
-            'wp2static',
-            'WP2Static - Try 1-Click Publish',
-            'Try 1-Click Publish',
-            'manage_options',
-            'wp2static-try-1-click-publish',
-            [ ViewRenderer::class, 'renderTry1ClickPublish' ]
-        );
 
         add_submenu_page(
             '',

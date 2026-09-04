@@ -300,18 +300,6 @@ class WordPressAdmin {
             0
         );
 
-        add_action(
-            'admin_enqueue_scripts',
-            [ self::class, 'wp2staticAdminStyles' ],
-            0
-        );
-
-        add_action(
-            'admin_enqueue_scripts',
-            [ self::class, 'wp2staticAdminScripts' ],
-            0
-        );
-
         /*
          * Register actions for when we should invalidate cache for
          * a URL(s) or whole site
@@ -335,33 +323,6 @@ class WordPressAdmin {
             );
         }
 
-        add_filter(
-            'plugin_row_meta',
-            [ self::class, 'wp2staticPluginMetaLinks' ],
-            10,
-            2
-        );
-
-        add_action(
-            'wp_ajax_wp2static_admin_notice_dismissal',
-            [ AdminNotices::class, 'handleDismissedNotice' ],
-            10,
-            1
-        );
-
-        // show admin notices on WP2Static pages if rules are met
-        if ( str_contains( URLHelper::getCurrent(), 'page=wp2static' ) ) {
-            add_action(
-                'admin_notices',
-                [ AdminNotices::class, 'showAdminNotices' ],
-                0
-            );
-
-            add_filter(
-                'admin_footer_text',
-                [ self::class, 'wp2staticAdminFooterText' ]
-            );
-        }
     }
 
     /**
@@ -398,49 +359,4 @@ class WordPressAdmin {
         Controller::wp2staticProcessQueue();
     }
 
-    public static function wp2staticAdminStyles() : void {
-        wp_register_style(
-            'wp2static_admin_styles',
-            plugins_url( '../css/admin/style.css', __FILE__ ),
-            [],
-            WP2STATIC_VERSION
-        );
-        wp_enqueue_style( 'wp2static_admin_styles' );
-    }
-
-    public static function wp2staticAdminScripts() : void {
-        wp_register_script(
-            'wp2static_admin_scripts',
-            plugins_url( '../js/admin/override-menu-style.js', __FILE__ ),
-            [],
-            WP2STATIC_VERSION,
-            false
-        );
-        wp_enqueue_script( 'wp2static_admin_scripts' );
-    }
-
-    public static function wp2staticAdminFooterText( string $content ) : string {
-        return 'Thank you for using ' .
-            // @phpcs:ignore Generic.Files.LineLength.TooLong
-            '<a href="https://link.strattic.com/wp2static-footer" target="_blank">WP2Static</a> by ' .
-            // @phpcs:ignore Generic.Files.LineLength.TooLong
-            '<a href="https://link.strattic.com/strattic-wp2static-footer" target="_blank">Strattic</a>.';
-    }
-
-    /**
-     * Add extra link to WP2Static's Plugins page entry
-     *
-     * @param mixed[] $links plugin meta links
-     * @param string $file path to the plugin's entrypoint
-     * @return mixed[] $links plugin meta links
-     */
-    public static function wp2staticPluginMetaLinks( $links, $file ) {
-        if ( $file === 'wp2static/wp2static.php' ) {
-            // phpcs:ignore Generic.Files.LineLength.MaxExceeded
-            $links[] = '<a id="wp2static-try-1-click-publish-plugin-screen" target="_blank" href="https://link.strattic.com/plugins-try-strattic">Try 1-Click Publish</a>';
-        }
-
-        return $links;
-    }
 }
-

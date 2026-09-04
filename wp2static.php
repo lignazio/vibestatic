@@ -1,12 +1,20 @@
 <?php
 /**
  * Plugin Name: WP2Static
- * Plugin URI:  https://wp2static.com
+ * Plugin URI:  https://github.com/lignazio/vibestatic
  * Description: Static site generator functionality for WordPress.
  * Version:     7.2
- * Author:      Strattic by Elementor
- * Author URI:  https://link.strattic.com/strattic-by-elementor
+ * Author:      Ignazio Lucenti
+ * Author URI:  https://lucenti.studio
  * Text Domain: wp2static
+ *
+ * Fork di WP2Static, creato da Leon Stafford e poi mantenuto da Strattic by
+ * Elementor fino al 2024. L'originale è rilasciato nel pubblico dominio
+ * (Unlicense); questo fork esce sotto GPLv2 o successiva.
+ *
+ * Il nome e lo slug diventano VibeStatic alla fase 0. Restano "wp2static" qui
+ * perché cambiarli tocca la cartella del plugin, il text domain e il comando
+ * WP-CLI in un colpo solo, ed è un cambio che va fatto per intero o non fatto.
  *
  * @package     WP2Static
  */
@@ -45,7 +53,7 @@ WP2Static\Controller::init( __FILE__ );
 function plugin_action_links( $links ) {
     $settings_link =
         '<a href="admin.php?page=wp2static">' .
-        __( 'Settings', 'static-html-output-plugin' ) .
+        __( 'Settings', 'wp2static' ) .
         '</a>';
     array_unshift( $links, $settings_link );
 

@@ -52,7 +52,7 @@ rm -rf "$ROOT/vendor"
 ( cd "$ROOT" && composer install --quiet --no-dev --optimize-autoloader --classmap-authoritative )
 
 mkdir -p "$BUILD/$SLUG"
-for item in src vendor views css js languages; do
+for item in src vendor views languages; do
     [ -e "$ROOT/$item" ] && cp -R "$ROOT/$item" "$BUILD/$SLUG/"
 done
 cp "$ROOT"/*.php "$BUILD/$SLUG/"
