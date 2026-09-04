@@ -41,10 +41,10 @@ $row = function ( $name ) use ( $options ) {
             </tr>
         </thead>
         <tbody>
-            <?php echo esc_html( $row( 'detectCustomPostTypes' ) ); ?>
-            <?php echo esc_html( $row( 'detectPages' ) ); ?>
-            <?php echo esc_html( $row( 'detectPosts' ) ); ?>
-            <?php echo esc_html( $row( 'detectUploads' ) ); ?>
+            <?php echo $row( 'detectCustomPostTypes' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
+            <?php echo $row( 'detectPages' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
+            <?php echo $row( 'detectPosts' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
+            <?php echo $row( 'detectUploads' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
         </tbody>
     </table>
 
@@ -52,9 +52,9 @@ $row = function ( $name ) use ( $options ) {
 
     <table class="widefat striped">
         <tbody>
-            <?php echo esc_html( $row( 'basicAuthUser' ) ); ?>
-            <?php echo esc_html( $row( 'basicAuthPassword' ) ); ?>
-            <?php echo esc_html( $row( 'useCrawlCaching' ) ); ?>
+            <?php echo $row( 'basicAuthUser' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
+            <?php echo $row( 'basicAuthPassword' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
+            <?php echo $row( 'useCrawlCaching' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
         </tbody>
     </table>
 
@@ -62,7 +62,7 @@ $row = function ( $name ) use ( $options ) {
 
     <table class="widefat striped">
         <tbody>
-            <?php echo esc_html( $row( 'deploymentURL' ) ); ?>
+            <?php echo $row( 'deploymentURL' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
         </tbody>
     </table>
 
@@ -70,10 +70,10 @@ $row = function ( $name ) use ( $options ) {
 
     <table class="widefat striped">
         <tbody>
-            <?php echo esc_html( $row( 'completionEmail' ) ); ?>
+            <?php echo $row( 'completionEmail' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
             <tr>
                 <td style="width:50%;">
-                    <?php echo esc_html( OptionRenderer::optionLabel( (array) $options['completionWebhook'] ) ); ?>
+                    <?php echo OptionRenderer::optionLabel( (array) $options['completionWebhook'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
                 </td>
                 <td>
                     <input
@@ -90,11 +90,11 @@ $row = function ( $name ) use ( $options ) {
                         >
                         <option
                             value="POST"
-                            <?php echo esc_html( $options['completionWebhookMethod']->value === 'POST' ? 'selected' : '' ); ?>
+                            <?php echo esc_attr( $options['completionWebhookMethod']->value === 'POST' ? 'selected' : '' ); ?>
                             >POST</option>
                         <option
                             value="GET"
-                            <?php echo esc_html( $options['completionWebhookMethod']->value === 'GET' ? 'selected' : '' ); ?>
+                            <?php echo esc_attr( $options['completionWebhookMethod']->value === 'GET' ? 'selected' : '' ); ?>
                             >GET</option>
                     </select>
                 </td>

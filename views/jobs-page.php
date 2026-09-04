@@ -59,24 +59,24 @@ $row = function ( $name ) use ( $options ) {
         <tbody>
             <tr>
                 <td style="width:33%;">
-                    <?php echo esc_html( $label( 'queueJobOnPostSave' ) ); ?>
+                    <?php echo $label( 'queueJobOnPostSave' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
                 </td>
                 <td>
                     <?php echo esc_html( $options['queueJobOnPostSave']->description ); ?>
                 </td>
                 <td>
-                    <?php echo esc_html( $input( 'queueJobOnPostSave' ) ); ?>
+                    <?php echo $input( 'queueJobOnPostSave' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
                 </td>
             </tr>
             <tr>
                 <td style="width:33%;">
-                    <?php echo esc_html( $label( 'queueJobOnPostDelete' ) ); ?>
+                    <?php echo $label( 'queueJobOnPostDelete' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
                 </td>
                 <td>
                     <?php echo esc_html( $options['queueJobOnPostDelete']->description ); ?>
                 </td>
                 <td>
-                    <?php echo esc_html( $input( 'queueJobOnPostDelete' ) ); ?>
+                    <?php echo $input( 'queueJobOnPostDelete' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
                 </td>
             </tr>
         </tbody>
@@ -89,25 +89,25 @@ $row = function ( $name ) use ( $options ) {
         <thead>
             <tr>
                 <td style="text-align:center;">
-                    <?php echo esc_html( $label( 'autoJobQueueDetection' ) ); ?>
+                    <?php echo $label( 'autoJobQueueDetection' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
                 </td>
                 <td style="text-align:center;">
-                    <?php echo esc_html( $label( 'autoJobQueueCrawling' ) ); ?>
+                    <?php echo $label( 'autoJobQueueCrawling' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
                 </td>
                 <td style="text-align:center;">
-                    <?php echo esc_html( $label( 'autoJobQueuePostProcessing' ) ); ?>
+                    <?php echo $label( 'autoJobQueuePostProcessing' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
                 </td>
                 <td style="text-align:center;">
-                    <?php echo esc_html( $label( 'autoJobQueueDeployment' ) ); ?>
+                    <?php echo $label( 'autoJobQueueDeployment' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
                 </td>
             </tr>
         </thead>
         <tbody>
             <tr style="text-align:center;">
-                <td><?php echo esc_html( $input( 'autoJobQueueDetection' ) ); ?></td>
-                <td><?php echo esc_html( $input( 'autoJobQueueCrawling' ) ); ?></td>
-                <td><?php echo esc_html( $input( 'autoJobQueuePostProcessing' ) ); ?></td>
-                <td><?php echo esc_html( $input( 'autoJobQueueDeployment' ) ); ?></td>
+                <td><?php echo $input( 'autoJobQueueDetection' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?></td>
+                <td><?php echo $input( 'autoJobQueueCrawling' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?></td>
+                <td><?php echo $input( 'autoJobQueuePostProcessing' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?></td>
+                <td><?php echo $input( 'autoJobQueueDeployment' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?></td>
             </tr>
         </tbody>
     </table>
@@ -118,7 +118,7 @@ $row = function ( $name ) use ( $options ) {
         <tbody>
             <tr>
                 <td style="width: 50%">
-                    <?php echo esc_html( $label( 'processQueueInterval', true ) ); ?>
+                    <?php echo $label( 'processQueueInterval', true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
                     <p><i>If WP-Cron is not expected to be triggered by site visitors, you can also call `wp-cron.php` directly, run the WP-CLI command `wp wp2static process_queue` or call the hook `wp2staticProcessQueue` from within your own theme or plugin.</i></p>
                 </td>
                 <td>
@@ -128,21 +128,21 @@ $row = function ( $name ) use ( $options ) {
                         value="<?php echo esc_attr( (int) $options['processQueueInterval']->value ); ?>"
                     >
                     <option
-                        <?php echo esc_html( (int) $options['processQueueInterval']->value === 0 ? 'selected' : '' ); ?>
+                        <?php echo esc_attr( (int) $options['processQueueInterval']->value === 0 ? 'selected' : '' ); ?>
                         value="0">disable (never)</option>
                     <option
-                        <?php echo esc_html( (int) $options['processQueueInterval']->value === 1 ? 'selected' : '' ); ?>
+                        <?php echo esc_attr( (int) $options['processQueueInterval']->value === 1 ? 'selected' : '' ); ?>
                         value="1">every minute</option>
                     <option
-                        <?php echo esc_html( (int) $options['processQueueInterval']->value === 5 ? 'selected' : '' ); ?>
+                        <?php echo esc_attr( (int) $options['processQueueInterval']->value === 5 ? 'selected' : '' ); ?>
                         value="5">every 5 minutes</option>
                     <option
-                        <?php echo esc_html( (int) $options['processQueueInterval']->value === 10 ? 'selected' : '' ); ?>
+                        <?php echo esc_attr( (int) $options['processQueueInterval']->value === 10 ? 'selected' : '' ); ?>
                         value="10">every 10 minutes</option>
                     </select>
                 </td>
             </tr>
-            <?php echo esc_html( $row( 'processQueueImmediately' ) ); ?>
+            <?php echo $row( 'processQueueImmediately' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
         </tbody>
     </table>
 

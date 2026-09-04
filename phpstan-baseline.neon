@@ -613,48 +613,6 @@ parameters:
 			path: src/JobQueue.php
 
 		-
-			rawMessage: Binary operation "." between '<br>' and mixed results in an error.
-			identifier: binaryOp.invalid
-			count: 1
-			path: src/OptionRenderer.php
-
-		-
-			rawMessage: 'Binary operation "." between ''<input class=…'' and mixed results in an error.'
-			identifier: binaryOp.invalid
-			count: 3
-			path: src/OptionRenderer.php
-
-		-
-			rawMessage: 'Binary operation "." between ''<input id="'' and mixed results in an error.'
-			identifier: binaryOp.invalid
-			count: 1
-			path: src/OptionRenderer.php
-
-		-
-			rawMessage: 'Binary operation "." between ''<label for="'' and mixed results in an error.'
-			identifier: binaryOp.invalid
-			count: 1
-			path: src/OptionRenderer.php
-
-		-
-			rawMessage: 'Binary operation "." between ''<textarea class=…'' and mixed results in an error.'
-			identifier: binaryOp.invalid
-			count: 1
-			path: src/OptionRenderer.php
-
-		-
-			rawMessage: Binary operation "." between non-falsy-string and mixed results in an error.
-			identifier: binaryOp.invalid
-			count: 7
-			path: src/OptionRenderer.php
-
-		-
-			rawMessage: 'Parameter #1 $value of function strval expects bool|float|GMP|int|resource|string|null, mixed given.'
-			identifier: argument.type
-			count: 3
-			path: src/OptionRenderer.php
-
-		-
 			rawMessage: Possibly invalid array key type mixed.
 			identifier: offsetAccess.invalidOffset
 			count: 1

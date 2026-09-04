@@ -32,8 +32,8 @@ $row = function ( $name ) use ( $options ) {
 
     <table class="widefat striped">
         <tbody>
-            <?php echo esc_html( $row( 'filenamesToIgnore' ) ); ?>
-            <?php echo esc_html( $row( 'fileExtensionsToIgnore' ) ); ?>
+            <?php echo $row( 'filenamesToIgnore' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
+            <?php echo $row( 'fileExtensionsToIgnore' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
         </tbody>
     </table>
 
@@ -43,9 +43,9 @@ $row = function ( $name ) use ( $options ) {
 
     <table class="widefat striped">
         <tbody>
-            <?php echo esc_html( $row( 'crawlConcurrency' ) ); ?>
-            <?php echo esc_html( $row( 'skipURLRewrite' ) ); ?>
-            <?php echo esc_html( $row( 'hostsToRewrite' ) ); ?>
+            <?php echo $row( 'crawlConcurrency' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
+            <?php echo $row( 'skipURLRewrite' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
+            <?php echo $row( 'hostsToRewrite' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
         </tbody>
     </table>
 
