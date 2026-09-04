@@ -73,7 +73,18 @@ class WPCron {
     }
 
     /**
-     * Override WP-Cron to use WP2Static's http basic auth creds if set
+     * Override WP-Cron to use VibeStatic's http basic auth creds if set
+     *
+     * Il filtro `cron_request` riceve e deve restituire l'intera richiesta —
+     * `url`, `key` e `args` — perche' WordPress subito dopo fa
+     * `wp_remote_post( $cron_request['url'], $cron_request['args'] )`.
+     * Questa funzione restituiva i soli header: l'URL spariva, gli argomenti
+     * sparivano, e WP-Cron smetteva di partire.
+     *
+     * E smetteva **solo** con la basic auth configurata, cioe' esattamente
+     * nella situazione per cui questa funzione esiste: senza credenziali il
+     * primo `return` restituisce la richiesta intatta e tutto va bene. Chi non
+     * ne ha bisogno non se ne accorge mai; chi ne ha bisogno resta senza cron.
      *
      * @param mixed[] $cron_request WP-Cron request
      * @return mixed[] WP-Cron request
@@ -86,14 +97,18 @@ class WPCron {
             return $cron_request;
         }
 
-        $auth_headers = [
-            'Authorization' =>
-                sprintf( 'Basic %s', base64_encode( $auth_user . ':' . $auth_password ) ),
-        ];
+        $args = (array) ( $cron_request['args'] ?? [] );
+        $headers = (array) ( $args['headers'] ?? [] );
 
-        $cron_request_args = (array) ( $cron_request['args'] ?? [] );
-        $cron_request_headers = (array) ( $cron_request_args['headers'] ?? [] );
+        $headers['Authorization'] = sprintf(
+            'Basic %s',
+            // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- è la codifica che HTTP Basic richiede, non offuscamento.
+            base64_encode( $auth_user . ':' . $auth_password )
+        );
 
-        return array_merge( $cron_request_headers, $auth_headers );
+        $args['headers'] = $headers;
+        $cron_request['args'] = $args;
+
+        return $cron_request;
     }
 }
