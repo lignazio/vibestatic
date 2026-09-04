@@ -103,6 +103,13 @@ I test d'integrazione dell'originale erano sei `deftest` in Clojure su NixOS
 puntati a nixpkgs 22.11, fuori supporto dal 2023: sono congelati, non rimossi.
 Vedi `integration-tests/` e `.github/workflows/README.md`.
 
+## Due readme, due lingue
+
+Questo file è per chi lavora sul progetto, ed è in italiano come i commenti nel
+codice e i messaggi dei commit. `readme.txt` è la scheda pubblica del plugin nel
+formato di wordpress.org, ed è in inglese come l'interfaccia del plugin: chi lo
+installa legge inglese, chi lo modifica legge italiano.
+
 ## Licenza
 
 GPL-2.0-or-later. Vedi [LICENSE](./LICENSE).

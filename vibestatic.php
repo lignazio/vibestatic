@@ -3,12 +3,25 @@
  * Plugin Name: VibeStatic
  * Plugin URI:  https://github.com/lignazio/vibestatic
  * Description: Static site generation for WordPress, with incremental deployment.
- * Version:     7.2
+ * Version:     8.0.0-dev
+ * Requires at least: 6.5
+ * Requires PHP: 8.2
  * Author:      Ignazio Lucenti
  * Author URI:  https://lucenti.studio
  * License:     GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: vibestatic
+ * Domain Path: /languages
+ * Update URI:  https://github.com/lignazio/vibestatic
+ *
+ * La versione riparte da dove WP2Static si era fermato — 7.2 — e non da 1.0.0:
+ * il codice ha sette anni di storia e fingere il contrario non aiuterebbe
+ * nessuno a capire cosa sta installando. `-dev` finche' non c'e' una release.
+ *
+ * `Requires at least: 6.5` non e' prudenza: le query usano il segnaposto `%i`
+ * di `$wpdb->prepare()`, che esiste da WordPress 6.2, e i sniff di i18n sono
+ * configurati su 6.5. `Update URI` dice a WordPress di non cercare
+ * aggiornamenti su wordpress.org per uno slug che li' non e' nostro.
  *
  * VibeStatic è un fork di WP2Static, creato da Leon Stafford e poi mantenuto da
  * Strattic by Elementor fino al 2024. L'originale è rilasciato nel pubblico
@@ -29,7 +42,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     die;
 }
 
-define( 'VIBESTATIC_VERSION', '7.2' );
+define( 'VIBESTATIC_VERSION', '8.0.0-dev' );
 define( 'VIBESTATIC_PATH', plugin_dir_path( __FILE__ ) );
 
 /*

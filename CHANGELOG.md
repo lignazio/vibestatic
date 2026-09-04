@@ -1,3 +1,13 @@
+# Changelog
+
+## VibeStatic
+
+Il fork riparte dalla 7.2 di WP2Static. Le voci di questo ciclo di lavoro stanno
+nella cronologia dei commit, che le descrive una per una con il perché; qui sotto
+resta il changelog dell'originale, per non perdere da dove viene il codice.
+
+---
+
 ## WP2Static 7.2 (2023-02-01)
 
  - [#876](https://github.com/WP2Static/wp2static/pull/876): Fix #240: ignore SSL errors when fetching sitemap from local site with self-signed certificate. @timothylcooke

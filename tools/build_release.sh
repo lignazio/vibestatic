@@ -50,6 +50,16 @@ DIST="$ROOT/dist"
 VERSION="$(grep -m1 -E '^\s*\*\s*Version:' "$PLUGIN_FILE" | sed -E 's/.*Version:[[:space:]]*//' | tr -d '[:space:]')"
 [ -n "$VERSION" ] || { echo "Versione non trovata in $PLUGIN_FILE" >&2; exit 1; }
 
+# La versione vive in due posti — l'header, che WordPress legge come testo, e la
+# costante, che legge il codice — e non c'e` modo di ridurli a uno senza far
+# rileggere il file a ogni caricamento. Quello che si puo` fare e` non lasciare
+# che divergano in silenzio.
+CONSTANT_VERSION="$(grep -m1 -E "define\( 'VIBESTATIC_VERSION'" "$PLUGIN_FILE" | sed -E "s/.*'([^']+)' *\).*/\1/")"
+if [ "$VERSION" != "$CONSTANT_VERSION" ]; then
+    echo "L'header dice $VERSION, VIBESTATIC_VERSION dice $CONSTANT_VERSION." >&2
+    exit 1
+fi
+
 SLUG="vibestatic"
 NAME="${1:-$SLUG-$VERSION}"
 BUILD="$(mktemp -d)"
