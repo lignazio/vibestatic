@@ -188,6 +188,19 @@ class DeployCacheRepository {
         return (bool) $hash;
     }
 
+    /**
+     * Svuota la cache di TUTTI i deployer.
+     *
+     * `truncate()` senza argomenti tocca il solo spazio dei nomi `default`,
+     * ed e` la cosa giusta quando un deployer vuole dimenticare cio` che ha
+     * pubblicato lui. Non lo e` dietro un pulsante che dice «cancella la Deploy
+     * Cache»: li` restavano in piedi le cache di tutti gli altri deployer, e
+     * l'utente vedeva un numero diverso da zero subito dopo aver cancellato.
+     */
+    public function truncateAll() : void {
+        $this->db->query( (string) $this->db->prepare( 'TRUNCATE TABLE %i', $this->table ) );
+    }
+
     public function truncate( string $namespace = self::DEFAULT_NAMESPACE ) : void {
         $this->db->query(
             (string) $this->db->prepare(

@@ -62,9 +62,18 @@ class DeployCache {
     public static function truncate(
         string $namespace = self::DEFAULT_NAMESPACE
     ) : void {
-        WsLog::l( 'Deleting DeployCache' );
+        WsLog::l( "Deleting DeployCache for namespace $namespace" );
 
         self::repository()->truncate( $namespace );
+    }
+
+    /**
+     * Svuota la cache di tutti i deployer.
+     */
+    public static function truncateAll() : void {
+        WsLog::l( 'Deleting DeployCache' );
+
+        self::repository()->truncateAll();
     }
 
     /**

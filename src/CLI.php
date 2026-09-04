@@ -991,7 +991,7 @@ class CLI {
                 }
             }
 
-            DeployCache::truncate();
+            DeployCache::truncateAll();
 
             WP_CLI::success( 'Deleted Deploy Cache' );
         }

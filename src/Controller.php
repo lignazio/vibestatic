@@ -349,7 +349,7 @@ class Controller {
     }
 
     public function deleteDeployCache() : void {
-        DeployCache::truncate();
+        DeployCache::truncateAll();
     }
 
     public static function wp2staticUISaveOptions() : void {
@@ -402,7 +402,7 @@ class Controller {
         CrawlCache::truncate();
         StaticSite::delete();
         ProcessedSite::delete();
-        DeployCache::truncate();
+        DeployCache::truncateAll();
     }
 
     public static function wp2staticProcessJobsQueue() : void {
@@ -423,7 +423,7 @@ class Controller {
         if ( $deploy_namespace !== '' ) {
             DeployCache::truncate( $deploy_namespace );
         } else {
-            DeployCache::truncate();
+            DeployCache::truncateAll();
         }
 
         wp_safe_redirect( admin_url( 'admin.php?page=wp2static-caches' ) );
@@ -778,17 +778,21 @@ class Controller {
     }
 
     /**
-     * Lancia il deploy, dicendo prima cosa cambiera'.
+     * Lancia il deploy.
      *
-     * Il rapporto viene prima dell'azione di proposito: un deploy incrementale
-     * che non dice quanti file tocca non e' verificabile, e chi non riesce a
-     * verificarlo finisce per ricaricare tutto — che e' il contrario di quello
-     * che serve. La riga di log e' la stessa forma di quella del crawl.
+     * L'unico punto da cui parte: prima lo stesso blocco era ripetuto tre
+     * volte, due qui e una in CLI.
+     *
+     * Il rapporto su cosa cambiera' non si stampa qui, e non e' una svista.
+     * `DeployCache::plan()` vuole sapere in quale spazio dei nomi il deployer
+     * ha registrato quello che ha gia' pubblicato, e quel nome lo conosce il
+     * deployer, non il core: stamparlo da qui vorrebbe dire indovinarlo, e un
+     * numero indovinato in un rapporto e' peggio di nessun rapporto. Chi
+     * deploya lo chiede e lo scrive — vedi l'addon directory-deployment.
      *
      * @param string $deployer Slug dell'addon che deploya.
      */
     public static function deploy( string $deployer ) : void {
-        WsLog::l( DeployCache::plan()->summary() );
         WsLog::l( 'Starting deployment' );
 
         do_action(

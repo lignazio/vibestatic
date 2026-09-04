@@ -27,12 +27,37 @@ L'originale è rilasciato nel pubblico dominio (Unlicense); questo fork esce sot
 - **Test veri.** Le classi che decidono cosa è cambiato e cosa va ripubblicato
   ora ricevono le proprie dipendenze dall'esterno e hanno una suite che le copre.
 
-## In lavorazione
+## Deploy incrementale
 
-**Deploy incrementale.** Il crawler sa già riconoscere quali pagine sono
-cambiate — misurato: modificando un post, 7 pagine su 1828 — ma il deployer su
-directory ricopia tutto lo stesso, 1822 file su 1822. È la funzionalità che
-distingue questo fork, ed è il prossimo lavoro grosso.
+È la funzionalità che distingue questo fork da Simply Static free, che
+ripubblica tutto il sito a ogni salvataggio.
+
+Il crawler riconosce già da sé quali pagine sono cambiate — confronta l'hash di
+ogni pagina scaricata con quello dell'ultima volta, quindi le pagine dipendenti
+da un post modificato si scoprono da sole, senza che nessuno debba dichiarare
+chi dipende da chi. Quello che mancava era il lato deploy: `DeployCache::plan()`
+confronta il sito generato con quello già pubblicato e dice cosa caricare, cosa
+rimuovere e cosa lasciare stare, in una query sola.
+
+Misurato sull'ambiente di sviluppo, 1806 file: dopo aver modificato **un** post,
+
+```
+Deploy plan: 13 to upload, 0 to remove, 1793 unchanged.
+Directory deployment complete: 13 copied, 0 removed.
+```
+
+mezzo secondo invece di tre e mezzo. Con niente da cambiare, zero file e nessuna
+scrittura. Cancellando un post, il file e la cartella rimasta vuota spariscono
+anche a destinazione — così non restano URL morti online.
+
+Il rapporto viene stampato **prima** di agire: un deploy incrementale che non
+dice quanti file tocca non è verificabile, e chi non riesce a verificarlo
+finisce per ricaricare tutto.
+
+L'addon `addons/directory-deployment` è adottato nel fork. L'originale non ha
+mai funzionato: il suo ultimo commit, del 2021, aveva lasciato un rinominamento
+a metà con cinque guasti indipendenti — non si attivava, e se si attivava non
+deployava e la sua pagina di configurazione dava un fatal error.
 
 ## Compatibilità con gli addon
 

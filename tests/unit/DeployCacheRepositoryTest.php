@@ -331,6 +331,26 @@ final class DeployCacheRepositoryTest extends TestCase {
         );
     }
 
+    public function testTruncateAllClearsEveryNamespace() : void {
+        $wpdb = $this->db();
+        $captured = null;
+
+        $wpdb->shouldReceive( 'query' )->once()->andReturnUsing(
+            function ( $sql ) use ( &$captured ) {
+                $captured = $sql;
+                return 1;
+            }
+        );
+
+        $this->repo( $wpdb )->truncateAll();
+
+        // Nessun WHERE: e' l'unico modo perche' un pulsante che dice «cancella
+        // la Deploy Cache» cancelli davvero la Deploy Cache. Prima chiamava la
+        // truncate con lo spazio dei nomi di default, e le cache degli altri
+        // deployer restavano in piedi.
+        $this->assertSame( 'TRUNCATE TABLE `wp_wp2static_deploy_cache`', $captured );
+    }
+
     public function testTheFacadeUsesTheInjectedRepository() : void {
         $repository = Mockery::mock( DeployCacheRepository::class );
         $repository->shouldReceive( 'isFileCached' )
