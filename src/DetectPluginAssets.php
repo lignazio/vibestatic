@@ -51,6 +51,10 @@ class DetectPluginAssets {
                 $active_plugins
             );
 
+            // Normalizzato una volta sola, con le stesse regole applicate ai
+            // percorsi dei file poco piu' sotto (Windows).
+            $plugins_prefix = rtrim( str_replace( '\\', '/', $plugins_path ), '/' ) . '/';
+
             foreach ( $iterator as $filename => $file_object ) {
                 /**
                  * @var string $filename
@@ -63,15 +67,37 @@ class DetectPluginAssets {
                     continue;
                 }
 
-                $matches_active_plugin_dir =
-                    ( str_replace( $active_plugin_dirs, '', $filename ) !== $filename );
+                // Standardise all paths to use / (Windows support)
+                $filename = str_replace( '\\', '/', $filename );
 
-                if ( ! $matches_active_plugin_dir ) {
+                /*
+                 * Il confronto era
+                 * `str_replace( $active_plugin_dirs, '', $filename ) !== $filename`,
+                 * cioe' «il nome di un plugin attivo compare da qualche parte
+                 * nel percorso ASSOLUTO». Non e' la stessa domanda di «questo
+                 * file sta dentro la cartella di un plugin attivo», e la
+                 * differenza si vede appena il percorso del sito contiene per
+                 * caso il nome di un plugin attivo: da li' in poi passa
+                 * qualunque file di qualunque plugin, compresi quelli
+                 * disattivati — cioe' codice che il proprietario del sito ha
+                 * deliberatamente spento e che finisce comunque pubblicato.
+                 *
+                 * Misurato qui: la cartella di lavoro si chiama `wp2static`,
+                 * quindi ogni percorso assoluto conteneva quella stringa, e i
+                 * quattordici file di Akismet — plugin non attivo — venivano
+                 * esportati a ogni deploy.
+                 *
+                 * La domanda giusta e' sul primo segmento dopo `plugins/`.
+                 */
+                if ( 0 !== strpos( $filename, $plugins_prefix ) ) {
                     continue;
                 }
 
-                // Standardise all paths to use / (Windows support)
-                $filename = str_replace( '\\', '/', $filename );
+                $plugin_dir = explode( '/', substr( $filename, strlen( $plugins_prefix ) ) )[0];
+
+                if ( ! in_array( $plugin_dir, $active_plugin_dirs, true ) ) {
+                    continue;
+                }
 
                 $detected_filename =
                     str_replace(
