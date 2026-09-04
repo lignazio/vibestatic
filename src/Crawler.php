@@ -39,9 +39,26 @@ class Crawler {
 
     /**
      * Crawler constructor
+     *
+     * I due parametri sono la giuntura che rende la classe verificabile.
+     * Omettendoli il comportamento e` quello di sempre — il client se lo
+     * costruisce da se` leggendo le opzioni — ma un test puo` passargli un
+     * client con un handler finto e provare il giro completo: cosa viene
+     * scritto, cosa finisce in cache, cosa succede su un 404 e su un redirect.
+     * Senza, l'unico modo di esercitare il crawler era avere un sito vero
+     * dall'altra parte.
+     *
+     * @param Client|null $client    Client HTTP; se null lo costruisce da se`.
+     * @param string|null $site_path Radice del sito; se null la chiede a SiteInfo.
      */
-    public function __construct() {
-        $this->site_path = rtrim( SiteInfo::getURL( 'site' ), '/' );
+    public function __construct( ?Client $client = null, ?string $site_path = null ) {
+        $this->site_path = $site_path ?? rtrim( SiteInfo::getURL( 'site' ), '/' );
+
+        if ( $client ) {
+            $this->client = $client;
+
+            return;
+        }
 
         $port_override = apply_filters(
             'wp2static_curl_port',
