@@ -5,10 +5,35 @@ namespace WP2Static;
 use Exception;
 
 class URLHelper {
+    /**
+     * Legge una variabile di $_SERVER.
+     *
+     * Non usa filter_input( INPUT_SERVER, ... ): sotto PHP-FPM, sul server
+     * integrato di PHP e in WP-Cron quella funzione legge l'array originale
+     * della richiesta, che spesso è vuoto, e restituisce null anche quando
+     * $_SERVER ha il valore. Il risultato era che getCurrent() costruiva
+     * l'URL "http://" e modifyUrl() lo rifiutava con "Unable to parse URL",
+     * cioè una schermata bianca sulle pagine Crawl Queue e Crawl Cache.
+     */
+    private static function server( string $key ) : string {
+        if ( ! isset( $_SERVER[ $key ] ) || ! is_scalar( $_SERVER[ $key ] ) ) {
+            return '';
+        }
+
+        return sanitize_text_field( wp_unslash( $_SERVER[ $key ] ) );
+    }
+
     public static function isSecure() : bool {
-        return ( ! empty( filter_input( INPUT_SERVER, 'HTTPS' ) ) &&
-            filter_input( INPUT_SERVER, 'HTTPS' ) !== 'off' ) ||
-            filter_input( INPUT_SERVER, 'SERVER_PORT' ) == 443;
+        // is_ssl() di WordPress copre anche i proxy davanti al sito, che
+        // parlano http all'origine e https al mondo.
+        if ( function_exists( 'is_ssl' ) && is_ssl() ) {
+            return true;
+        }
+
+        $https = self::server( 'HTTPS' );
+
+        return ( $https !== '' && strtolower( $https ) !== 'off' ) ||
+            self::server( 'SERVER_PORT' ) === '443';
     }
 
     /*
@@ -18,16 +43,28 @@ class URLHelper {
      */
     public static function getCurrent() : string {
         $scheme = self::isSecure() ? 'https' : 'http';
-        $url = $scheme . '://' . filter_input( INPUT_SERVER, 'HTTP_HOST' );
+        $host = self::server( 'HTTP_HOST' );
 
-        // Only include port number if needed
-        if ( ! in_array( filter_input( INPUT_SERVER, 'SERVER_PORT' ), [ 80, 443 ] ) ) {
-            $url .= ':' . filter_input( INPUT_SERVER, 'SERVER_PORT' );
+        if ( $host === '' ) {
+            // Nessun host nella richiesta: WP-Cron, WP-CLI, un test. L'URL del
+            // sito è la risposta giusta, e comunque è parsabile.
+            return function_exists( 'home_url' ) ? strval( home_url( '/' ) ) : '';
         }
 
-        $url .= filter_input( INPUT_SERVER, 'REQUEST_URI' );
+        $url = $scheme . '://' . $host;
 
-        return $url;
+        // Only include port number if needed
+        $port = self::server( 'SERVER_PORT' );
+
+        // L'host può già portare la porta con sé, come 'localhost:8080'.
+        if ( $port !== '' && ! in_array( $port, [ '80', '443' ], true ) &&
+            ! str_contains( $host, ':' ) ) {
+            $url .= ':' . $port;
+        }
+
+        $request_uri = self::server( 'REQUEST_URI' );
+
+        return $url . ( $request_uri !== '' ? $request_uri : '/' );
     }
 
     /**

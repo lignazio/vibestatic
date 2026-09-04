@@ -43,7 +43,8 @@ $paginator_last_page = $view['paginatorLastPage'];
 <div class="wrap">
     <br>
 
-    <form id="posts-filter" method="GET">
+    <form id="posts-filter" method="POST">
+        <?php wp_nonce_field( $view['nonce_action'] ); ?>
         <input type="hidden" name="page" value="<?php echo $paginator_index; ?>" />
         <input type="hidden" name="paged" value="<?php echo $paginator_page; ?>" />
 

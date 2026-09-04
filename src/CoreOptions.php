@@ -643,7 +643,18 @@ class CoreOptions {
 
     /**
      * Save all options POST'ed via UI
+     *
+     * Il nonce e la capability li verifica Controller::authorize(), che ogni
+     * handler admin_post_* chiama come prima istruzione — prima di arrivare
+     * qui. phpcs non può seguirlo attraverso il confine fra due classi.
+     *
+     * @todo Fase 5: questo metodo non dovrebbe leggere $_POST da sé. Deve
+     *       ricevere i dati già validati; finché li legge, la verifica del
+     *       nonce e il posto dove si usano i dati restano in due file diversi,
+     *       ed è esattamente la distanza che aveva permesso ai tre handler di
+     *       scrivere prima di controllare.
      */
+    // phpcs:disable WordPress.Security.NonceVerification
     public static function savePosted( string $screen = 'core' ) : void {
         /** @var \wpdb $wpdb */
         global $wpdb;
@@ -774,9 +785,9 @@ class CoreOptions {
                 /**
                  * @var int $process_queue_interval
                  */
-                $process_queue_interval =
-                    isset( $_POST['processQueueInterval'] ) ?
-                     $_POST['processQueueInterval'] : 0;
+                $process_queue_interval = isset( $_POST['processQueueInterval'] )
+                    ? absint( wp_unslash( $_POST['processQueueInterval'] ) )
+                    : 0;
 
                 $wpdb->update(
                     $table_name,
@@ -812,7 +823,9 @@ class CoreOptions {
 
                 break;
             case 'advanced':
-                $crawl_concurrency = intval( $_POST['crawlConcurrency'] );
+                $crawl_concurrency = isset( $_POST['crawlConcurrency'] )
+                    ? absint( wp_unslash( $_POST['crawlConcurrency'] ) )
+                    : 1;
                 $wpdb->update(
                     $table_name,
                     [ 'value' => $crawl_concurrency < 1 ? 1 : $crawl_concurrency ],
@@ -860,6 +873,7 @@ class CoreOptions {
                 break;
         }
     }
+    // phpcs:enable WordPress.Security.NonceVerification
 
     /**
      * Save individual option

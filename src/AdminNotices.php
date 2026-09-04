@@ -103,9 +103,11 @@ class AdminNotices {
     }
 
     public static function handleDismissedNotice() : void {
-        check_ajax_referer( 'wp2static-admin-notice', 'security' );
+        Controller::authorizeAjax( 'wp2static-admin-notice' );
 
-        $dismissed_notice = strval( filter_input( INPUT_POST, 'dismissedNotice' ) );
+        $dismissed_notice = sanitize_text_field(
+            strval( filter_input( INPUT_POST, 'dismissedNotice' ) )
+        );
 
         ( new self() )->logNoticeAction( $dismissed_notice, 'dismissed' );
 

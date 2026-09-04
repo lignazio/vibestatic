@@ -315,15 +315,42 @@ class Controller {
         }
     }
 
-    public function userIsAllowed() : bool {
-        if ( defined( 'WP_CLI' ) ) {
-            return true;
+    /**
+     * Guardia per gli handler admin_post_*: prima il permesso, poi il nonce,
+     * e comunque prima di qualunque scrittura.
+     *
+     * Il nonce dice da DOVE arriva la richiesta, non CHI la manda: da solo
+     * lascia passare qualunque utente autenticato che sia stato indotto a
+     * caricare la pagina delle opzioni. Su un multisite, un amministratore di
+     * sotto-sito supera il primo controllo e non il secondo.
+     */
+    public static function authorize( string $nonce_action ) : void {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die(
+                esc_html__(
+                    'You do not have permission to manage WP2Static.',
+                    'wp2static'
+                ),
+                '',
+                [ 'response' => 403 ]
+            );
         }
 
-        $referred_by_admin = check_admin_referer( 'wp2static-options' );
-        $user_can_manage_options = current_user_can( 'manage_options' );
+        check_admin_referer( $nonce_action );
+    }
 
-        return $referred_by_admin && $user_can_manage_options;
+    /**
+     * Come authorize(), per gli endpoint AJAX.
+     */
+    public static function authorizeAjax( string $nonce_action ) : void {
+        check_ajax_referer( $nonce_action, 'security' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error(
+                [ 'message' => 'Insufficient permissions.' ],
+                403
+            );
+        }
     }
 
     public function resetDefaultSettings() : void {
@@ -335,18 +362,18 @@ class Controller {
     }
 
     public static function wp2staticUISaveOptions() : void {
+        self::authorize( 'wp2static-ui-options' );
+
         CoreOptions::savePosted( 'core' );
 
         do_action( 'wp2static_addon_ui_save_options' );
-
-        check_admin_referer( 'wp2static-ui-options' );
 
         wp_safe_redirect( admin_url( 'admin.php?page=wp2static-options' ) );
         exit;
     }
 
     public static function wp2staticCrawlQueueDelete() : void {
-        check_admin_referer( 'wp2static-caches-page' );
+        self::authorize( 'wp2static-caches-page' );
 
         CrawlQueue::truncate();
 
@@ -355,14 +382,14 @@ class Controller {
     }
 
     public static function wp2staticCrawlQueueShow() : void {
-        check_admin_referer( 'wp2static-caches-page' );
+        self::authorize( 'wp2static-caches-page' );
 
         wp_safe_redirect( admin_url( 'admin.php?page=wp2static-crawl-queue' ) );
         exit;
     }
 
     public static function wp2staticDeleteJobsQueue() : void {
-        check_admin_referer( 'wp2static-ui-job-options' );
+        self::authorize( 'wp2static-ui-job-options' );
 
         JobQueue::truncate();
 
@@ -371,7 +398,7 @@ class Controller {
     }
 
     public static function wp2staticDeleteAllCaches() : void {
-        check_admin_referer( 'wp2static-caches-page' );
+        self::authorize( 'wp2static-caches-page' );
 
         self::deleteAllCaches();
 
@@ -388,7 +415,7 @@ class Controller {
     }
 
     public static function wp2staticProcessJobsQueue() : void {
-        check_admin_referer( 'wp2static-ui-job-options' );
+        self::authorize( 'wp2static-ui-job-options' );
 
         WsLog::l( 'Manually processing JobQueue' );
 
@@ -399,7 +426,7 @@ class Controller {
     }
 
     public static function wp2staticDeployCacheDelete() : void {
-        check_admin_referer( 'wp2static-caches-page' );
+        self::authorize( 'wp2static-caches-page' );
 
         $deploy_namespace = strval( filter_input( INPUT_POST, 'deploy_namespace' ) );
         if ( $deploy_namespace !== '' ) {
@@ -413,7 +440,7 @@ class Controller {
     }
 
     public static function wp2staticDeployCacheShow() : void {
-        check_admin_referer( 'wp2static-caches-page' );
+        self::authorize( 'wp2static-caches-page' );
 
         $deploy_namespace = strval( filter_input( INPUT_POST, 'deploy_namespace' ) );
         if ( $deploy_namespace !== '' ) {
@@ -431,7 +458,7 @@ class Controller {
     }
 
     public static function wp2staticCrawlCacheDelete() : void {
-        check_admin_referer( 'wp2static-caches-page' );
+        self::authorize( 'wp2static-caches-page' );
 
         CrawlCache::truncate();
 
@@ -440,14 +467,14 @@ class Controller {
     }
 
     public static function wp2staticCrawlCacheShow() : void {
-        check_admin_referer( 'wp2static-caches-page' );
+        self::authorize( 'wp2static-caches-page' );
 
         wp_safe_redirect( admin_url( 'admin.php?page=wp2static-crawl-cache' ) );
         exit;
     }
 
     public static function wp2staticPostProcessedSiteDelete() : void {
-        check_admin_referer( 'wp2static-caches-page' );
+        self::authorize( 'wp2static-caches-page' );
 
         ProcessedSite::delete();
 
@@ -456,14 +483,14 @@ class Controller {
     }
 
     public static function wp2staticPostProcessedSiteShow() : void {
-        check_admin_referer( 'wp2static-caches-page' );
+        self::authorize( 'wp2static-caches-page' );
 
         wp_safe_redirect( admin_url( 'admin.php?page=wp2static-post-processed-site' ) );
         exit;
     }
 
     public static function wp2staticLogDelete() : void {
-        check_admin_referer( 'wp2static-log-page' );
+        self::authorize( 'wp2static-log-page' );
 
         WsLog::truncate();
 
@@ -472,7 +499,7 @@ class Controller {
     }
 
     public static function wp2staticStaticSiteDelete() : void {
-        check_admin_referer( 'wp2static-caches-page' );
+        self::authorize( 'wp2static-caches-page' );
 
         StaticSite::delete();
 
@@ -481,18 +508,18 @@ class Controller {
     }
 
     public static function wp2staticStaticSiteShow() : void {
-        check_admin_referer( 'wp2static-caches-page' );
+        self::authorize( 'wp2static-caches-page' );
 
         wp_safe_redirect( admin_url( 'admin.php?page=wp2static-static-site' ) );
         exit;
     }
 
     public static function wp2staticUISaveJobOptions() : void {
+        self::authorize( 'wp2static-ui-job-options' );
+
         CoreOptions::savePosted( 'jobs' );
 
         do_action( 'wp2static_addon_ui_save_job_options' );
-
-        check_admin_referer( 'wp2static-ui-job-options' );
 
         wp_safe_redirect( admin_url( 'admin.php?page=wp2static-jobs' ) );
         exit;
@@ -512,11 +539,11 @@ class Controller {
     }
 
     public static function wp2staticUISaveAdvancedOptions() : void {
+        self::authorize( 'wp2static-ui-advanced-options' );
+
         CoreOptions::savePosted( 'advanced' );
 
         do_action( 'wp2static_addon_ui_save_advanced_options' );
-
-        check_admin_referer( 'wp2static-ui-advanced-options' );
 
         wp_safe_redirect( admin_url( 'admin.php?page=wp2static-advanced' ) );
         exit;
@@ -552,7 +579,7 @@ class Controller {
 
             $addon_slug = sanitize_text_field( $addon_slug );
         } else {
-            check_admin_referer( 'wp2static-addons-page' );
+            self::authorize( 'wp2static-addons-page' );
 
             $addon_slug = sanitize_text_field( strval( filter_input( INPUT_POST, 'addon_slug' ) ) );
         }
@@ -602,7 +629,7 @@ class Controller {
     }
 
     public static function wp2staticManuallyEnqueueJobs() : void {
-        check_admin_referer( 'wp2static-manually-enqueue-jobs' );
+        self::authorize( 'wp2static-manually-enqueue-jobs' );
 
         // TODO: consider using a transient based notifications system to
         // persist through wp_safe_redirect calls
@@ -848,7 +875,7 @@ class Controller {
     }
 
     public static function wp2staticRun() : void {
-        check_ajax_referer( 'wp2static-run-page', 'security' );
+        self::authorizeAjax( 'wp2static-run-page' );
 
         WsLog::l( 'Running full workflow from UI' );
 
@@ -873,7 +900,7 @@ class Controller {
      * Give logs to UI
      */
     public static function wp2staticPollLog() : void {
-        check_ajax_referer( 'wp2static-run-page', 'security' );
+        self::authorizeAjax( 'wp2static-run-page' );
 
         $logs = WsLog::poll();
 

@@ -4,6 +4,72 @@ namespace WP2Static;
 
 class ViewRenderer {
 
+    /**
+     * Gestisce la rimozione in blocco dalle pagine Crawl Queue e Crawl Cache.
+     *
+     * Prima l'azione arrivava in GET, senza nonce e senza controllo di
+     * capability: bastava `is_admin()`, che dice soltanto «siamo dentro
+     * wp-admin» e che qualunque utente autenticato soddisfa. Per giunta non
+     * ha mai funzionato — filter_input() senza FILTER_REQUIRE_ARRAY torna
+     * null su un input array, quindi il ramo non scattava mai. Correggere
+     * solo l'autorizzazione avrebbe messo in sicurezza un ramo morto
+     * lasciandolo morto.
+     *
+     * @param callable(int[]):void $remove Rimozione vera e propria
+     */
+    private static function handleBulkRemoval( string $nonce_action, callable $remove ) : void {
+        // Questa prima lettura sceglie soltanto se c'è qualcosa da
+        // autorizzare: su una visita normale alla pagina il nonce non c'è, e
+        // chiedere authorize() a ogni caricamento renderebbe la pagina
+        // irraggiungibile. Non tocca nulla, e la riga dopo verifica.
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing
+        $action = isset( $_POST['action'] ) ? sanitize_key( wp_unslash( $_POST['action'] ) ) : '';
+
+        if ( $action !== 'remove' ) {
+            return;
+        }
+
+        Controller::authorize( $nonce_action );
+
+        // Il nonce è verificato dalla riga qui sopra. phpcs non lo riconosce
+        // perché WPCS scarta le chiamate precedute da :: — vedi
+        // has_object_operator_before() in NonceVerificationSniff — quindi
+        // nessuna guardia che sia un metodo statico può essergli dichiarata.
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing
+        $ids = isset( $_POST['id'] )
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing
+            ? array_map( 'absint', (array) wp_unslash( $_POST['id'] ) )
+            : [];
+        $ids = array_values( array_filter( $ids ) );
+
+        if ( ! $ids ) {
+            return;
+        }
+
+        $remove( $ids );
+    }
+
+    /**
+     * Il termine di ricerca e la pagina arrivano in GET dai link di
+     * paginazione e in POST dal form, che ora è POST per via del nonce.
+     */
+    private static function requestValue( string $key ) : string {
+        // Sola lettura: filtra e impagina un elenco, non cambia niente. Il
+        // nonce lo verifica handleBulkRemoval(), che è l'unica strada per
+        // arrivare a una scrittura.
+        // phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing
+        if ( isset( $_POST[ $key ] ) && is_scalar( $_POST[ $key ] ) ) {
+            return sanitize_text_field( wp_unslash( $_POST[ $key ] ) );
+        }
+
+        if ( isset( $_GET[ $key ] ) && is_scalar( $_GET[ $key ] ) ) {
+            return sanitize_text_field( wp_unslash( $_GET[ $key ] ) );
+        }
+        // phpcs:enable WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing
+
+        return '';
+    }
+
     public static function renderOptionsPage() : void {
         CoreOptions::init();
 
@@ -73,19 +139,18 @@ class ViewRenderer {
             die( 'Forbidden' );
         }
 
-        $action = filter_input( INPUT_GET, 'action' );
-        /**
-         * @var string[] $url_id
-         */
-        $url_id = filter_input( INPUT_GET, 'id' );
+        $nonce_action = 'wp2static-crawl-queue-page';
 
-        if ( $action === 'remove' && is_array( $url_id ) ) {
-            CrawlQueue::rmUrlsById( $url_id );
-        }
+        self::handleBulkRemoval(
+            $nonce_action,
+            function ( array $ids ) : void {
+                CrawlQueue::rmUrlsById( $ids );
+            }
+        );
 
         $urls = CrawlQueue::getCrawlablePaths();
         // Apply search
-        $search_term = strval( filter_input( INPUT_GET, 's' ) );
+        $search_term = self::requestValue( 's' );
         if ( $search_term !== '' ) {
             $urls = array_filter(
                 $urls,
@@ -96,9 +161,10 @@ class ViewRenderer {
         }
 
         $page_size = 200;
-        $page = isset( $_GET['paged'] ) ? max( 1, intval( $_GET['paged'] ) ) : 1;
+        $page = max( 1, intval( self::requestValue( 'paged' ) ) );
         $paginator = new Paginator( $urls, $page_size, $page );
         $view = [
+            'nonce_action' => $nonce_action,
             'paginatorFirstPage' => $paginator->firstPage(),
             'paginatorLastPage' => $paginator->lastPage(),
             'paginatorPage' => $paginator->page(),
@@ -115,19 +181,18 @@ class ViewRenderer {
             die( 'Forbidden' );
         }
 
-        $action = filter_input( INPUT_GET, 'action' );
-        /**
-         * @var string[] $url_id
-         */
-        $url_id = filter_input( INPUT_GET, 'id' );
+        $nonce_action = 'wp2static-crawl-cache-page';
 
-        if ( $action === 'remove' && is_array( $url_id ) ) {
-            CrawlCache::rmUrlsById( $url_id );
-        }
+        self::handleBulkRemoval(
+            $nonce_action,
+            function ( array $ids ) : void {
+                CrawlCache::rmUrlsById( $ids );
+            }
+        );
 
         $urls = CrawlCache::getURLs();
         // Apply search
-        $search_term = strval( filter_input( INPUT_GET, 's' ) );
+        $search_term = self::requestValue( 's' );
         if ( $search_term !== '' ) {
             $urls = array_filter(
                 $urls,
@@ -138,9 +203,10 @@ class ViewRenderer {
         }
 
         $page_size = 200;
-        $page = isset( $_GET['paged'] ) ? max( 1, intval( $_GET['paged'] ) ) : 1;
+        $page = max( 1, intval( self::requestValue( 'paged' ) ) );
         $paginator = new Paginator( $urls, $page_size, $page );
         $view = [
+            'nonce_action' => $nonce_action,
             'paginatorFirstPage' => $paginator->firstPage(),
             'paginatorLastPage' => $paginator->lastPage(),
             'paginatorPage' => $paginator->page(),
@@ -160,7 +226,7 @@ class ViewRenderer {
         $paths = ProcessedSite::getPaths();
 
         // Apply search
-        $search_term = strval( filter_input( INPUT_GET, 's' ) );
+        $search_term = self::requestValue( 's' );
         if ( $search_term !== '' ) {
             $paths = array_filter(
                 $paths,
@@ -171,7 +237,7 @@ class ViewRenderer {
         }
 
         $page_size = 200;
-        $page = isset( $_GET['paged'] ) ? max( 1, intval( $_GET['paged'] ) ) : 1;
+        $page = max( 1, intval( self::requestValue( 'paged' ) ) );
         $paginator = new Paginator( $paths, $page_size, $page );
         $view = [
             'paginatorFirstPage' => $paginator->firstPage(),
@@ -193,7 +259,7 @@ class ViewRenderer {
         $paths = StaticSite::getPaths();
 
         // Apply search
-        $search_term = strval( filter_input( INPUT_GET, 's' ) );
+        $search_term = self::requestValue( 's' );
         if ( $search_term !== '' ) {
             $paths = array_filter(
                 $paths,
@@ -204,7 +270,7 @@ class ViewRenderer {
         }
 
         $page_size = 200;
-        $page = isset( $_GET['paged'] ) ? max( 1, intval( $_GET['paged'] ) ) : 1;
+        $page = max( 1, intval( self::requestValue( 'paged' ) ) );
         $paginator = new Paginator( $paths, $page_size, $page );
         $view = [
             'paginatorFirstPage' => $paginator->firstPage(),
@@ -229,7 +295,7 @@ class ViewRenderer {
             : DeployCache::getPaths();
 
         // Apply search
-        $search_term = strval( filter_input( INPUT_GET, 's' ) );
+        $search_term = self::requestValue( 's' );
         if ( $search_term !== '' ) {
             $paths = array_filter(
                 $paths,
@@ -240,7 +306,7 @@ class ViewRenderer {
         }
 
         $page_size = 200;
-        $page = isset( $_GET['paged'] ) ? max( 1, intval( $_GET['paged'] ) ) : 1;
+        $page = max( 1, intval( self::requestValue( 'paged' ) ) );
         $paginator = new Paginator( $paths, $page_size, $page );
         $view = [
             'paginatorFirstPage' => $paginator->firstPage(),
