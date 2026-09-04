@@ -43,12 +43,20 @@ jobs:
       - name: Validate composer.json
         run: composer validate --strict
 
-      # Non bloccante, e c'è una data di scadenza: diventa bloccante alla fine
-      # della fase 3. Al momento riporta 292 violazioni di sicurezza — SQL non
-      # preparato, nonce, escaping, input non sanificato — che sono la lista di
-      # lavoro di quella fase. Erano invisibili perché la configurazione
-      # precedente escludeva esattamente quei quattro sniff.
-      - name: Coding standards (non bloccante fino a fine fase 3)
+      # Bloccante. Sono i cinque sniff che la configurazione originale
+      # escludeva — SQL preparato, nonce, escaping, input sanificato — cioè
+      # esattamente quelli che avrebbero trovato ogni difetto dell'audit. Sono
+      # a zero dalla fine della fase 3 e devono restarci: se questo passo
+      # diventa rosso, è una regressione di sicurezza, non un debito di stile.
+      - name: Sicurezza (bloccante)
+        run: composer run-script phpcs-security
+
+      # Non bloccante, e senza scadenza dichiarata: sono 422 violazioni di
+      # documentazione e stile, che si smaltiscono nel refactoring della fase 5
+      # invece che in un passaggio a parte. Sta dopo quello di sicurezza e in un
+      # passo suo di proposito: un unico phpcs rosso per la documentazione
+      # mancante renderebbe invisibile una SQLi nuova nello stesso output.
+      - name: Stile e documentazione (non bloccante)
         continue-on-error: true
         run: composer run-script phpcs
 
