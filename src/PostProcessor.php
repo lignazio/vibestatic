@@ -16,7 +16,6 @@ class PostProcessor {
      * PostProcessor constructor
      */
     public function __construct() {
-
     }
 
     /**
@@ -70,4 +69,3 @@ class PostProcessor {
         do_action( 'wp2static_post_process_complete', ProcessedSite::getPath() );
     }
 }
-

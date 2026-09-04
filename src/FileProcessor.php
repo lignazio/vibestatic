@@ -13,7 +13,6 @@ class FileProcessor {
      * FileProcessor constructor
      */
     public function __construct() {
-
     }
 
     /**
@@ -48,4 +47,3 @@ class FileProcessor {
         }
     }
 }
-
