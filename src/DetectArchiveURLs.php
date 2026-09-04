@@ -16,6 +16,7 @@ class DetectArchiveURLs {
      * @return string[] list of archive URLs
      */
     public static function detect() : array {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $archive_urls = [];

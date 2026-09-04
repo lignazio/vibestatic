@@ -5,6 +5,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
     exit();
 }
 
+/** @var \wpdb $wpdb */
 global $wpdb;
 
 $tables_to_drop = [
@@ -19,7 +20,7 @@ $tables_to_drop = [
 foreach ( $tables_to_drop as $table ) {
     $table_name = $wpdb->prefix . $table;
 
-    $wpdb->query( "DROP TABLE IF EXISTS $table_name" );
+    $wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $table_name ) );
 }
 
 // TODO: delete crawl_cache, processed_site and zip if exist

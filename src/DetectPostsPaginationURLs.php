@@ -10,20 +10,18 @@ class DetectPostsPaginationURLs {
      * @return string[] list of URLs
      */
     public static function detect( string $wp_site_url ) : array {
+        /** @var \wpdb $wpdb */
+        /** @var \WP_Rewrite $wp_rewrite */
         global $wpdb, $wp_rewrite;
 
         $post_urls = [];
         $unique_post_types = [];
 
-        $query = "
-            SELECT ID,post_type
-            FROM %s
-            WHERE post_status = '%s'
-            AND post_type NOT IN ('%s','%s')";
-
         $posts = $wpdb->get_results(
-            sprintf(
-                $query,
+            $wpdb->prepare(
+                'SELECT ID, post_type FROM %i
+                 WHERE post_status = %s
+                 AND post_type NOT IN ( %s, %s )',
                 $wpdb->posts,
                 'publish',
                 'revision',
@@ -44,12 +42,9 @@ class DetectPostsPaginationURLs {
         $urls_to_include = [];
 
         foreach ( $post_types as $post_type ) {
-            $query = "SELECT COUNT(*) FROM %s WHERE post_status = '%s'" .
-                " AND post_type = '%s'";
-
             $post_type_total = $wpdb->get_var(
-                sprintf(
-                    $query,
+                $wpdb->prepare(
+                    'SELECT COUNT(*) FROM %i WHERE post_status = %s AND post_type = %s',
                     $wpdb->posts,
                     'publish',
                     $post_type

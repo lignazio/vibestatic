@@ -10,6 +10,7 @@ namespace WP2Static;
 class AdminNotices {
 
     public static function createTable() : void {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_notices';
@@ -38,6 +39,7 @@ class AdminNotices {
         }
 
         // avoid missing table error for git users who don't re-activate plugin
+        /** @var \wpdb $wpdb */
         global $wpdb;
         $table_name = $wpdb->prefix . 'wp2static_notices';
 
@@ -47,6 +49,7 @@ class AdminNotices {
                 $wpdb->esc_like( $table_name )
             );
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $check_table_query è la prepare() qui sopra.
         if ( $wpdb->get_var( $check_table_query ) !== $table_name ) {
             return;
         }
@@ -110,6 +113,7 @@ class AdminNotices {
     }
 
     public static function logNoticeAction( string $notice_name, string $action ) : void {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_notices';
@@ -213,12 +217,11 @@ class AdminNotices {
             }
         } elseif ( is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
             // if at least one WooCommerce order exists, don't show any notices
+            /** @var \wpdb $wpdb */
             global $wpdb;
             $table_name = $wpdb->prefix . 'wc_order_stats';
             $woocommerce_orders = $wpdb->get_var(
-                $wpdb->prepare(
-                    "SELECT count(*) FROM $table_name"
-                )
+                $wpdb->prepare( 'SELECT count(*) FROM %i', $table_name )
             );
 
             if ( $woocommerce_orders ) {
@@ -243,18 +246,20 @@ class AdminNotices {
         $current_user_id = get_current_user_id();
 
         // query for notice matching name, user id and 'dismissed' action
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_notices';
 
-        $sql = $wpdb->prepare(
-            "SELECT count(*) FROM $table_name WHERE" .
-            ' name = %s AND user_id = %s AND action = "dismissed"',
-            $notice_name,
-            $current_user_id
+        $already_dismissed = $wpdb->get_var(
+            $wpdb->prepare(
+                'SELECT count(*) FROM %i WHERE name = %s AND user_id = %s AND action = %s',
+                $table_name,
+                $notice_name,
+                $current_user_id,
+                'dismissed'
+            )
         );
-
-        $already_dismissed = $wpdb->get_var( $sql );
 
         return $already_dismissed != 0;
     }

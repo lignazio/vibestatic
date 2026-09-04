@@ -5,6 +5,7 @@ namespace WP2Static;
 class JobQueue {
 
     public static function createTable() : void {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_jobs';
@@ -24,8 +25,11 @@ class JobQueue {
         dbDelta( $sql );
 
         // There was an improper unique index which we must be sure to remove
-        if ( 1 === $wpdb->query( "SHOW INDEX FROM $table_name WHERE KEY_NAME = 'status'" ) ) {
-            $wpdb->query( "DROP INDEX status ON $table_name" );
+        $has_old_index = $wpdb->query(
+            $wpdb->prepare( 'SHOW INDEX FROM %i WHERE KEY_NAME = %s', $table_name, 'status' )
+        );
+        if ( 1 === $has_old_index ) {
+            $wpdb->query( $wpdb->prepare( 'DROP INDEX %i ON %i', 'status', $table_name ) );
         }
 
         Controller::ensureIndex( $table_name, 'status2', [ 'status' ] );
@@ -40,6 +44,7 @@ class JobQueue {
     public static function addJob( string $job_type ) : void {
         WsLog::l( 'Adding job: ' . $job_type );
 
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_jobs';
@@ -47,10 +52,14 @@ class JobQueue {
         // TODO: squash any of same job_types with 'waiting' status
         // setting this one to be the one that runs next
 
-        $query_string = "INSERT INTO $table_name (job_type, status) VALUES (%s, 'waiting');";
-        $query = $wpdb->prepare( $query_string, $job_type );
-
-        $wpdb->query( $query );
+        $wpdb->query(
+            $wpdb->prepare(
+                'INSERT INTO %i (job_type, status) VALUES (%s, %s)',
+                $table_name,
+                $job_type,
+                'waiting'
+            )
+        );
     }
 
     /**
@@ -59,12 +68,15 @@ class JobQueue {
      *  @return string[] All jobs
      */
     public static function getJobs() : array {
+        /** @var \wpdb $wpdb */
         global $wpdb;
         $urls = [];
 
         $table_name = $wpdb->prefix . 'wp2static_jobs';
 
-        $rows = $wpdb->get_results( "SELECT * FROM $table_name ORDER BY id DESC" );
+        $rows = $wpdb->get_results(
+            $wpdb->prepare( 'SELECT * FROM %i ORDER BY id DESC', $table_name )
+        );
 
         foreach ( $rows as $row ) {
             $urls[] = $row;
@@ -79,14 +91,18 @@ class JobQueue {
      *  @return bool All waiting jobs
      */
     public static function jobsInProgress() : bool {
+        /** @var \wpdb $wpdb */
         global $wpdb;
         $jobs = [];
 
         $table_name = $wpdb->prefix . 'wp2static_jobs';
 
         $jobs_in_progress = $wpdb->get_var(
-            "SELECT COUNT(*) FROM $table_name
-            WHERE status = 'processing'"
+            $wpdb->prepare(
+                'SELECT COUNT(*) FROM %i WHERE status = %s',
+                $table_name,
+                'processing'
+            )
         );
 
         return $jobs_in_progress > 0;
@@ -98,15 +114,18 @@ class JobQueue {
      *  @return mixed[] All waiting jobs
      */
     public static function getProcessableJobs() : array {
+        /** @var \wpdb $wpdb */
         global $wpdb;
         $jobs = [];
 
         $table_name = $wpdb->prefix . 'wp2static_jobs';
 
         $rows = $wpdb->get_results(
-            "SELECT * FROM $table_name
-            WHERE status = 'waiting'
-            ORDER BY id ASC"
+            $wpdb->prepare(
+                'SELECT * FROM %i WHERE status = %s ORDER BY id ASC',
+                $table_name,
+                'waiting'
+            )
         );
 
         foreach ( $rows as $row ) {
@@ -122,13 +141,15 @@ class JobQueue {
      * @return int[] keys are job type and values are count
      */
     public static function getJobCountByType() : array {
+        /** @var \wpdb $wpdb */
         global $wpdb;
         $jobs = [];
 
         $table_name = $wpdb->prefix . 'wp2static_jobs';
-        $query = "SELECT job_type, count(*) FROM $table_name GROUP BY job_type";
-
-        $rows = $wpdb->get_results( $query, 'ARRAY_N' );
+        $rows = $wpdb->get_results(
+            $wpdb->prepare( 'SELECT job_type, count(*) FROM %i GROUP BY job_type', $table_name ),
+            'ARRAY_N'
+        );
         foreach ( $rows as $row ) {
             $jobs[ $row[0] ] = $row[1];
         }
@@ -141,6 +162,7 @@ class JobQueue {
 
     */
     public static function squashQueue() : void {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_jobs';
@@ -156,10 +178,12 @@ class JobQueue {
         foreach ( $job_types as $job_type ) {
             // get all jobs for a type where status is 'waiting'
             $waiting_jobs = $wpdb->get_results(
-                "SELECT * FROM $table_name
-                WHERE job_type = '$job_type'
-                AND status = 'waiting'
-                ORDER BY created_at DESC"
+                $wpdb->prepare(
+                    'SELECT * FROM %i WHERE job_type = %s AND status = %s ORDER BY created_at DESC',
+                    $table_name,
+                    $job_type,
+                    'waiting'
+                )
             );
 
             // abort if less than 2 jobs of same type in waiting status
@@ -171,10 +195,12 @@ class JobQueue {
 
             // select all
             $waiting_jobs = $wpdb->get_results(
-                "SELECT * FROM $table_name
-                WHERE job_type = '$job_type'
-                AND status = 'waiting'
-                ORDER BY created_at DESC"
+                $wpdb->prepare(
+                    'SELECT * FROM %i WHERE job_type = %s AND status = %s ORDER BY created_at DESC',
+                    $table_name,
+                    $job_type,
+                    'waiting'
+                )
             );
 
             // remove latest one
@@ -193,6 +219,7 @@ class JobQueue {
     }
 
     public static function setStatus( int $id, string $status ) : void {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_jobs';
@@ -210,11 +237,14 @@ class JobQueue {
      *  @return int Total jobs
      */
     public static function getTotalJobs() : int {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_jobs';
 
-        $total_jobs = $wpdb->get_var( "SELECT COUNT(*) FROM $table_name" );
+        $total_jobs = $wpdb->get_var(
+            $wpdb->prepare( 'SELECT COUNT(*) FROM %i', $table_name )
+        );
 
         return $total_jobs;
     }
@@ -229,11 +259,18 @@ class JobQueue {
      *  @return int Waiting jobs
      */
     public static function getWaitingJobsCount() : int {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_jobs';
 
-        $total_jobs = $wpdb->get_var( "SELECT COUNT(*) FROM $table_name WHERE status = 'waiting'" );
+        $total_jobs = $wpdb->get_var(
+            $wpdb->prepare(
+                'SELECT COUNT(*) FROM %i WHERE status = %s',
+                $table_name,
+                'waiting'
+            )
+        );
 
         return $total_jobs;
     }
@@ -244,11 +281,12 @@ class JobQueue {
     public static function truncate() : void {
         WsLog::l( 'Deleting all jobs from JobQueue' );
 
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_jobs';
 
-        $wpdb->query( "TRUNCATE TABLE $table_name" );
+        $wpdb->query( $wpdb->prepare( 'TRUNCATE TABLE %i', $table_name ) );
 
         $total_jobs = self::getTotalJobs();
 
@@ -263,6 +301,7 @@ class JobQueue {
      *  @throws \Throwable
      */
     public static function markFailedJobs() : void {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $job_types = [ 'detect', 'crawl', 'post_process', 'deploy' ];
@@ -273,14 +312,21 @@ class JobQueue {
         foreach ( $job_types as $type ) {
             try {
                 $lock = "{$wpdb->prefix}.wp2static_jobs.$type";
-                $query = "SELECT IS_FREE_LOCK('$lock') AS free";
-                $free = intval( $wpdb->get_row( $query )->free );
+                $free = intval(
+                    $wpdb->get_row(
+                        $wpdb->prepare( 'SELECT IS_FREE_LOCK(%s) AS free', $lock )
+                    )->free
+                );
 
                 if ( $free ) {
                     $failed_jobs = $wpdb->query(
-                        "UPDATE $table_name
-                         SET status = 'failed'
-                         WHERE job_type = '$type' AND status = 'processing'"
+                        $wpdb->prepare(
+                            'UPDATE %i SET status = %s WHERE job_type = %s AND status = %s',
+                            $table_name,
+                            'failed',
+                            $type,
+                            'processing'
+                        )
                     );
                     if ( $failed_jobs ) {
                         $s = $failed_jobs === 1 ? '' : 's';

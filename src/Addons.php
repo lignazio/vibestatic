@@ -4,6 +4,7 @@ namespace WP2Static;
 
 class Addons {
     public static function createTable() : void {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_addons';
@@ -33,16 +34,23 @@ class Addons {
     ) : void {
         // TODO: guard against unknown addon type
 
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_addons';
 
-        $sql = "INSERT IGNORE INTO {$table_name} (slug,type,name,docs_url,description)" .
-            ' VALUES (%s,%s,%s,%s,%s)';
-
-        $sql = $wpdb->prepare( $sql, $slug, $type, $name, $docs_url, $description );
-
-        $wpdb->query( $sql );
+        $wpdb->query(
+            $wpdb->prepare(
+                'INSERT IGNORE INTO %i (slug, type, name, docs_url, description)
+                 VALUES (%s, %s, %s, %s, %s)',
+                $table_name,
+                $slug,
+                $type,
+                $name,
+                $docs_url,
+                $description
+            )
+        );
     }
 
     /**
@@ -51,20 +59,23 @@ class Addons {
      * @return mixed[] array of Addon objects
      */
     public static function getAll( string $type = 'all' ) : array {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_addons';
 
-        $query_string = "SELECT * FROM $table_name";
-        $query_params = [];
-        if ( $type !== 'all' ) {
-            $query_string .= ' WHERE type = %s';
-            $query_params[] = $type;
+        if ( $type === 'all' ) {
+            return $wpdb->get_results(
+                $wpdb->prepare( 'SELECT * FROM %i ORDER BY type DESC', $table_name )
+            );
         }
-        $query_string .= ' ORDER BY type DESC';
 
         return $wpdb->get_results(
-            $wpdb->prepare( $query_string, $query_params )
+            $wpdb->prepare(
+                'SELECT * FROM %i WHERE type = %s ORDER BY type DESC',
+                $table_name,
+                $type
+            )
         );
     }
 
@@ -75,28 +86,30 @@ class Addons {
      * @return mixed[] array of Addon objects
      */
     public static function getType( string $type ) : array {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_addons';
 
-        $query = $wpdb->prepare(
-            "SELECT * FROM $table_name WHERE type = %s AND enabled = 1 ORDER BY slug",
-            $type
+        return $wpdb->get_results(
+            $wpdb->prepare(
+                'SELECT * FROM %i WHERE type = %s AND enabled = 1 ORDER BY slug',
+                $table_name,
+                $type
+            )
         );
-        $addons = $wpdb->get_results( $query );
-
-        return $addons;
     }
 
     /**
      *  Deregister Addons
      */
     public static function truncate() : void {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_addons';
 
-        $wpdb->query( "TRUNCATE TABLE $table_name" );
+        $wpdb->query( $wpdb->prepare( 'TRUNCATE TABLE %i', $table_name ) );
 
         WsLog::l( 'Deregistered all Addons' );
     }

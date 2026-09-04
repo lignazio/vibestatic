@@ -77,6 +77,7 @@ class Controller {
 
     public static function deactivate( ?bool $network_wide = null ) : void {
         if ( $network_wide ) {
+            /** @var \wpdb $wpdb */
             global $wpdb;
 
             $site_ids = $wpdb->get_col(
@@ -112,6 +113,7 @@ class Controller {
 
     public static function activate( ?bool $network_wide = null ) : void {
         if ( $network_wide ) {
+            /** @var \wpdb $wpdb */
             global $wpdb;
 
             $site_ids = $wpdb->get_col(
@@ -159,6 +161,7 @@ class Controller {
      */
     public static function ensureIndex( string $table_name, string $index_name,
                                         array $columns, bool $unique = false ) : bool {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $indexes = $wpdb->query(
@@ -292,6 +295,7 @@ class Controller {
     // TODO: why is this here? Move to CrawlQueue if still needed
     public function deleteCrawlCache() : void {
         // we now have modified file list in DB
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_crawl_cache';
@@ -553,6 +557,7 @@ class Controller {
             $addon_slug = sanitize_text_field( strval( filter_input( INPUT_POST, 'addon_slug' ) ) );
         }
 
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_addons';
@@ -614,6 +619,7 @@ class Controller {
         earlier jobs of the same type having been "squashed" first
     */
     public static function wp2staticProcessQueue() : void {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         JobQueue::markFailedJobs();

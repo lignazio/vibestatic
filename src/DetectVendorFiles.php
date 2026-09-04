@@ -46,19 +46,14 @@ class DetectVendorFiles {
         }
 
         if ( class_exists( 'Custom_Permalinks' ) ) {
+            /** @var \wpdb $wpdb */
             global $wpdb;
-
-            $query = "
-                SELECT meta_value
-                FROM %s
-                WHERE meta_key = '%s'
-                ";
 
             $custom_permalinks = [];
 
             $posts = $wpdb->get_results(
-                sprintf(
-                    $query,
+                $wpdb->prepare(
+                    'SELECT meta_value FROM %i WHERE meta_key = %s',
                     $wpdb->postmeta,
                     'custom_permalink'
                 )

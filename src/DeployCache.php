@@ -7,6 +7,7 @@ class DeployCache {
     const DEFAULT_NAMESPACE = 'default';
 
     public static function createTable() : void {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_deploy_cache';
@@ -20,18 +21,17 @@ class DeployCache {
             );
 
         // if table exists, check structure
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $check_table_query è la prepare() qui sopra.
         if ( $wpdb->get_var( $check_table_query ) === $table_name ) {
             // @todo We can remove this eventually
             // If the ID column is missing, just remove the table and start
             // again because dbDelta isn't adding it correctly
             $id_row = $wpdb->get_row(
-                "SHOW COLUMNS FROM $table_name WHERE Field = 'id'"
+                $wpdb->prepare( 'SHOW COLUMNS FROM %i WHERE Field = %s', $table_name, 'id' )
             );
 
             if ( ! $id_row ) {
-                $wpdb->query(
-                    "DROP TABLE IF EXISTS $table_name;"
-                );
+                $wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $table_name ) );
             }
         }
 
@@ -54,6 +54,7 @@ class DeployCache {
         string $namespace = self::DEFAULT_NAMESPACE,
         ?string $file_hash = null
     ) : void {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $deploy_cache_table = $wpdb->prefix . 'wp2static_deploy_cache';
@@ -74,22 +75,22 @@ class DeployCache {
             $file_hash = md5( $file_contents );
         }
 
-        $sql = "INSERT INTO {$deploy_cache_table} (path_hash,path,file_hash,namespace)" .
-            ' VALUES (%s,%s,%s,%s) ON DUPLICATE KEY UPDATE file_hash = %s, namespace = %s';
-
-        $sql = $wpdb->prepare(
-          // Insert values
-            $sql,
-            $path_hash,
-            $local_path,
-            $file_hash,
-            $namespace,
-            // Duplicate key values
-            $file_hash,
-            $namespace
+        $wpdb->query(
+            $wpdb->prepare(
+                'INSERT INTO %i (path_hash, path, file_hash, namespace)
+                 VALUES (%s, %s, %s, %s)
+                 ON DUPLICATE KEY UPDATE file_hash = %s, namespace = %s',
+                $deploy_cache_table,
+                // Insert values
+                $path_hash,
+                $local_path,
+                $file_hash,
+                $namespace,
+                // Duplicate key values
+                $file_hash,
+                $namespace
+            )
         );
-
-        $wpdb->query( $sql );
     }
 
     /**
@@ -101,6 +102,7 @@ class DeployCache {
         string $namespace = self::DEFAULT_NAMESPACE,
         ?string $file_hash = null
     ) : bool {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $post_processed_dir = ProcessedSite::getPath();
@@ -121,15 +123,16 @@ class DeployCache {
 
         $table_name = $wpdb->prefix . 'wp2static_deploy_cache';
 
-        $sql = $wpdb->prepare(
-            "SELECT path_hash FROM $table_name WHERE" .
-            ' path_hash = %s AND file_hash = %s AND namespace = %s LIMIT 1',
-            $path_hash,
-            $file_hash,
-            $namespace
+        $hash = $wpdb->get_var(
+            $wpdb->prepare(
+                'SELECT path_hash FROM %i
+                 WHERE path_hash = %s AND file_hash = %s AND namespace = %s LIMIT 1',
+                $table_name,
+                $path_hash,
+                $file_hash,
+                $namespace
+            )
         );
-
-        $hash = $wpdb->get_var( $sql );
 
         return (bool) $hash;
     }
@@ -139,13 +142,18 @@ class DeployCache {
     ) : void {
         WsLog::l( 'Deleting DeployCache' );
 
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_deploy_cache';
 
-        $sql = "DELETE FROM $table_name WHERE namespace = %s";
-        $sql = $wpdb->prepare( $sql, $namespace );
-        $wpdb->query( $sql );
+        $wpdb->query(
+            $wpdb->prepare(
+                'DELETE FROM %i WHERE namespace = %s',
+                $table_name,
+                $namespace
+            )
+        );
     }
 
     /**
@@ -154,13 +162,18 @@ class DeployCache {
     public static function getTotalByNamespace(
         string $namespace = self::DEFAULT_NAMESPACE
     ) : int {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_deploy_cache';
 
-        $sql = "SELECT count(*) FROM $table_name WHERE namespace = %s";
-        $sql = $wpdb->prepare( $sql, $namespace );
-        $total = $wpdb->get_var( $sql );
+        $total = $wpdb->get_var(
+            $wpdb->prepare(
+                'SELECT count(*) FROM %i WHERE namespace = %s',
+                $table_name,
+                $namespace
+            )
+        );
 
         return $total;
     }
@@ -171,13 +184,18 @@ class DeployCache {
      *  @return mixed[] namespace totals
      */
     public static function getTotal() : array {
+        /** @var \wpdb $wpdb */
         global $wpdb;
         $counts = [];
 
         $table_name = $wpdb->prefix . 'wp2static_deploy_cache';
 
-        $sql = "SELECT namespace, COUNT(*) AS count FROM $table_name GROUP BY namespace";
-        $rows = $wpdb->get_results( $sql );
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                'SELECT namespace, COUNT(*) AS count FROM %i GROUP BY namespace',
+                $table_name
+            )
+        );
 
         foreach ( $rows as $row ) {
             $counts[ $row->namespace ] = $row->count;
@@ -195,14 +213,19 @@ class DeployCache {
     public static function getPaths(
         string $namespace = self::DEFAULT_NAMESPACE
     ) : array {
+        /** @var \wpdb $wpdb */
         global $wpdb;
         $urls = [];
 
         $table_name = $wpdb->prefix . 'wp2static_deploy_cache';
 
-        $sql = "SELECT path FROM $table_name WHERE namespace = %s ORDER BY path";
-        $sql = $wpdb->prepare( $sql, $namespace );
-        $urls = $wpdb->get_col( $sql );
+        $urls = $wpdb->get_col(
+            $wpdb->prepare(
+                'SELECT path FROM %i WHERE namespace = %s ORDER BY path',
+                $table_name,
+                $namespace
+            )
+        );
 
         return $urls;
     }

@@ -25,6 +25,7 @@ class CoreOptions {
     }
 
     public static function createTable() : void {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . self::$table_name;
@@ -45,17 +46,22 @@ class CoreOptions {
         $columns = array_keys(
             array_merge(
                 ...$wpdb->get_results(
-                    sprintf( 'SELECT * FROM %s LIMIT 1', $table_name ),
+                    $wpdb->prepare( 'SELECT * FROM %i LIMIT 1', $table_name ),
                     ARRAY_A
                 )
             )
         );
 
-        if ( in_array( 'description', $columns ) ) {
-            $wpdb->query( "ALTER TABLE $table_name DROP COLUMN description" );
-        }
-        if ( in_array( 'label', $columns ) ) {
-            $wpdb->query( "ALTER TABLE $table_name DROP COLUMN label" );
+        foreach ( [ 'description', 'label' ] as $obsolete_column ) {
+            if ( in_array( $obsolete_column, $columns, true ) ) {
+                $wpdb->query(
+                    $wpdb->prepare(
+                        'ALTER TABLE %i DROP COLUMN %i',
+                        $table_name,
+                        $obsolete_column
+                    )
+                );
+            }
         }
 
         Controller::ensureIndex( $table_name, 'name', [ 'name' ], true );
@@ -356,22 +362,21 @@ class CoreOptions {
      * Seed options
      */
     public static function seedOptions() : void {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . self::$table_name;
 
-        $query_string =
-            "INSERT IGNORE INTO $table_name (name, value, blob_value)
-VALUES (%s, %s, %s);";
-
         foreach ( self::optionSpecs() as $os ) {
-            $query = $wpdb->prepare(
-                $query_string,
-                $os['name'],
-                $os['default_value'],
-                $os['default_blob_value']
+            $wpdb->query(
+                $wpdb->prepare(
+                    'INSERT IGNORE INTO %i (name, value, blob_value) VALUES (%s, %s, %s)',
+                    $table_name,
+                    $os['name'],
+                    $os['default_value'],
+                    $os['default_blob_value']
+                )
             );
-            $wpdb->query( $query );
         }
     }
 
@@ -382,6 +387,7 @@ VALUES (%s, %s, %s);";
      * @return string option value
      */
     public static function getValue( string $name ) : string {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $opt_spec = self::optionSpecs()[ $name ];
@@ -393,12 +399,13 @@ VALUES (%s, %s, %s);";
 
         $table_name = $wpdb->prefix . self::$table_name;
 
-        $sql = $wpdb->prepare(
-            "SELECT value FROM $table_name WHERE" . ' name = %s LIMIT 1',
-            $name
+        $option_value = $wpdb->get_var(
+            $wpdb->prepare(
+                'SELECT value FROM %i WHERE name = %s LIMIT 1',
+                $table_name,
+                $name
+            )
         );
-
-        $option_value = $wpdb->get_var( $sql );
 
         if ( ! $option_value || ! is_string( $option_value ) ) {
             $option_value = (string) $opt_spec['default_value'];
@@ -427,16 +434,18 @@ VALUES (%s, %s, %s);";
      * @return string option BLOB value
      */
     public static function getBlobValue( string $name ) : string {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . self::$table_name;
 
-        $sql = $wpdb->prepare(
-            "SELECT blob_value FROM $table_name WHERE" . ' name = %s LIMIT 1',
-            $name
+        $option_value = $wpdb->get_var(
+            $wpdb->prepare(
+                'SELECT blob_value FROM %i WHERE name = %s LIMIT 1',
+                $table_name,
+                $name
+            )
         );
-
-        $option_value = $wpdb->get_var( $sql );
 
         if ( ! is_string( $option_value ) ) {
             $os = self::optionSpecs()[ $name ];
@@ -498,17 +507,18 @@ VALUES (%s, %s, %s);";
      * @return mixed option
      */
     public static function get( string $name ) {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . self::$table_name;
 
-        $sql = $wpdb->prepare(
-            "SELECT name, value, blob_value
-             FROM $table_name WHERE" . ' name = %s LIMIT 1',
-            $name
+        $option = $wpdb->get_row(
+            $wpdb->prepare(
+                'SELECT name, value, blob_value FROM %i WHERE name = %s LIMIT 1',
+                $table_name,
+                $name
+            )
         );
-
-        $option = $wpdb->get_row( $sql );
         $opt_spec = self::optionSpecs() [ $name ];
 
         // decrypt password fields
@@ -544,13 +554,14 @@ VALUES (%s, %s, %s);";
      * @return array<string, mixed> array of option name to option object
      */
     public static function getAll() {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . self::$table_name;
 
-        $sql = "SELECT name, value, blob_value FROM $table_name";
-
-        $options = $wpdb->get_results( $sql );
+        $options = $wpdb->get_results(
+            $wpdb->prepare( 'SELECT name, value, blob_value FROM %i', $table_name )
+        );
 
         $options_map = [];
         foreach ( $options as $opt ) {
@@ -634,6 +645,7 @@ VALUES (%s, %s, %s);";
      * Save all options POST'ed via UI
      */
     public static function savePosted( string $screen = 'core' ) : void {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . self::$table_name;
@@ -855,6 +867,7 @@ VALUES (%s, %s, %s);";
      * @param mixed $value Updated option value
      */
     public static function save( string $name, $value ) : void {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . self::$table_name;

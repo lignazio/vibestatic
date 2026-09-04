@@ -5,6 +5,7 @@ namespace WP2Static;
 // TODO: add option in UI to also write to PHP error_log
 class WsLog {
     public static function createTable() : void {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_log';
@@ -23,6 +24,7 @@ class WsLog {
     }
 
     public static function l( string $text ) : void {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_log';
@@ -43,6 +45,7 @@ class WsLog {
     }
 
     public static function w( string $text ) : void {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_log';
@@ -68,19 +71,24 @@ class WsLog {
      * @param string[] $lines List of lines to log
      */
     public static function lines( array $lines ) : void {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_log';
 
         $current_time = current_time( 'mysql' );
 
-        $query = "INSERT INTO $table_name (log) VALUES " .
+        // Un '(%s)' per riga di log: la stringa si compone perché il numero di
+        // righe varia, ma è fatta di soli segnaposto e ogni riga passa da prepare().
+        $query = 'INSERT INTO %i (log) VALUES ' .
             implode(
                 ',',
                 array_fill( 0, count( $lines ), '(%s)' )
             );
 
-        $wpdb->query( $wpdb->prepare( $query, $lines ) );
+        // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders
+        $wpdb->query( $wpdb->prepare( $query, array_merge( [ $table_name ], $lines ) ) );
+        // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders
     }
 
     /**
@@ -89,12 +97,15 @@ class WsLog {
      * @return mixed[] array of Log items
      */
     public static function getAll() : array {
+        /** @var \wpdb $wpdb */
         global $wpdb;
         $logs = [];
 
         $table_name = $wpdb->prefix . 'wp2static_log';
 
-        $logs = $wpdb->get_results( "SELECT time, log FROM $table_name ORDER BY id DESC" );
+        $logs = $wpdb->get_results(
+            $wpdb->prepare( 'SELECT time, log FROM %i ORDER BY id DESC', $table_name )
+        );
 
         return $logs;
     }
@@ -103,14 +114,16 @@ class WsLog {
      * Poll latest log lines
      */
     public static function poll() : string {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_log';
 
         $logs = $wpdb->get_col(
-            "SELECT CONCAT_WS(': ', time, log)
-            FROM $table_name
-            ORDER BY id DESC"
+            $wpdb->prepare(
+                "SELECT CONCAT_WS(': ', time, log) FROM %i ORDER BY id DESC",
+                $table_name
+            )
         );
 
         $logs = implode( PHP_EOL, $logs );
@@ -122,11 +135,12 @@ class WsLog {
      *  Clear Log via truncation
      */
     public static function truncate() : void {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_log';
 
-        $wpdb->query( "TRUNCATE TABLE $table_name" );
+        $wpdb->query( $wpdb->prepare( 'TRUNCATE TABLE %i', $table_name ) );
 
         self::l( 'Deleted all Logs' );
     }

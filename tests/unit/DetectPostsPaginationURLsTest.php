@@ -23,11 +23,11 @@ final class DetectPostsPaginationURLsTest extends TestCase {
         $wpdb = Mockery::mock( '\WPDB' );
         // set table name
         $wpdb->posts = 'wp_posts';
-        $query_string = "
-            SELECT ID,post_type
-            FROM $wpdb->posts
-            WHERE post_status = 'publish'
-            AND post_type NOT IN ('revision','nav_menu_item')";
+        wp2static_test_mock_prepare( $wpdb );
+
+        $query_string = "SELECT ID, post_type FROM `wp_posts`
+                 WHERE post_status = 'publish'
+                 AND post_type NOT IN ( 'revision', 'nav_menu_item' )";
 
         $posts = [
             (object) [
@@ -75,8 +75,8 @@ final class DetectPostsPaginationURLsTest extends TestCase {
             ]
         );
 
-        $posts_query = "SELECT COUNT(*) FROM $wpdb->posts WHERE" .
-            " post_status = 'publish' AND post_type = 'post'";
+        $posts_query = "SELECT COUNT(*) FROM `wp_posts` WHERE post_status = 'publish'" .
+            " AND post_type = 'post'";
 
         $wpdb->shouldReceive( 'get_var' )
             ->with( $posts_query )
@@ -103,8 +103,8 @@ final class DetectPostsPaginationURLsTest extends TestCase {
             ]
         );
 
-        $pages_query = "SELECT COUNT(*) FROM $wpdb->posts WHERE" .
-            " post_status = 'publish' AND post_type = 'page'";
+        $pages_query = "SELECT COUNT(*) FROM `wp_posts` WHERE post_status = 'publish'" .
+            " AND post_type = 'page'";
 
         $wpdb->shouldReceive( 'get_var' )
             ->with( $pages_query )
@@ -122,8 +122,8 @@ final class DetectPostsPaginationURLsTest extends TestCase {
             ]
         );
 
-        $attachments_query = "SELECT COUNT(*) FROM $wpdb->posts WHERE" .
-            " post_status = 'publish' AND post_type = 'attachment'";
+        $attachments_query = "SELECT COUNT(*) FROM `wp_posts` WHERE post_status = 'publish'" .
+            " AND post_type = 'attachment'";
 
         $wpdb->shouldReceive( 'get_var' )
             ->with( $attachments_query )
@@ -141,8 +141,8 @@ final class DetectPostsPaginationURLsTest extends TestCase {
             ]
         );
 
-        $custom_type_query = "SELECT COUNT(*) FROM $wpdb->posts WHERE" .
-            " post_status = 'publish' AND post_type = 'mycustomtype'";
+        $custom_type_query = "SELECT COUNT(*) FROM `wp_posts` WHERE post_status = 'publish'" .
+            " AND post_type = 'mycustomtype'";
 
         $wpdb->shouldReceive( 'get_var' )
             ->with( $custom_type_query )
@@ -160,16 +160,16 @@ final class DetectPostsPaginationURLsTest extends TestCase {
             ]
         );
 
-        $type_without_posts_query = "SELECT COUNT(*) FROM $wpdb->posts WHERE" .
-            " post_status = 'publish' AND post_type = 'nonexistent'";
+        $type_without_posts_query = "SELECT COUNT(*) FROM `wp_posts` WHERE post_status = 'publish'" .
+            " AND post_type = 'nonexistent'";
 
         $wpdb->shouldReceive( 'get_var' )
             ->with( $type_without_posts_query )
             ->once()
             ->andReturn( null );
 
-        $type_not_returning_object_query = "SELECT COUNT(*) FROM $wpdb->posts WHERE" .
-            " post_status = 'publish' AND post_type = 'noobjecttype'";
+        $type_not_returning_object_query = "SELECT COUNT(*) FROM `wp_posts` WHERE post_status = 'publish'" .
+            " AND post_type = 'noobjecttype'";
 
         $wpdb->shouldReceive( 'get_var' )
             ->with( $type_not_returning_object_query )
@@ -185,8 +185,8 @@ final class DetectPostsPaginationURLsTest extends TestCase {
             ]
         );
 
-        $type_with_spaced_name = "SELECT COUNT(*) FROM $wpdb->posts WHERE" .
-            " post_status = 'publish' AND post_type = 'spacednametype'";
+        $type_with_spaced_name = "SELECT COUNT(*) FROM `wp_posts` WHERE post_status = 'publish'" .
+            " AND post_type = 'spacednametype'";
 
         $wpdb->shouldReceive( 'get_var' )
             ->with( $type_with_spaced_name )
@@ -242,11 +242,11 @@ final class DetectPostsPaginationURLsTest extends TestCase {
         $wpdb = Mockery::mock( '\WPDB' );
         // set table name
         $wpdb->posts = 'wp_posts';
-        $query_string = "
-            SELECT ID,post_type
-            FROM $wpdb->posts
-            WHERE post_status = 'publish'
-            AND post_type NOT IN ('revision','nav_menu_item')";
+        wp2static_test_mock_prepare( $wpdb );
+
+        $query_string = "SELECT ID, post_type FROM `wp_posts`
+                 WHERE post_status = 'publish'
+                 AND post_type NOT IN ( 'revision', 'nav_menu_item' )";
 
         $posts = [
             (object) [
@@ -270,8 +270,8 @@ final class DetectPostsPaginationURLsTest extends TestCase {
             ]
         );
 
-        $posts_query = "SELECT COUNT(*) FROM $wpdb->posts WHERE" .
-            " post_status = 'publish' AND post_type = 'post'";
+        $posts_query = "SELECT COUNT(*) FROM `wp_posts` WHERE post_status = 'publish'" .
+            " AND post_type = 'post'";
 
         $wpdb->shouldReceive( 'get_var' )
             ->with( $posts_query )

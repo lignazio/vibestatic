@@ -10,6 +10,7 @@ class DetectPageURLs {
      * @return string[] list of URLs
      */
     public static function detect() : array {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $page_urls = [];
