@@ -237,50 +237,75 @@ class Controller {
         }
 
 
-        add_submenu_page(
-            '',
-            'VibeStatic Crawl Queue',
-            'Crawl Queue',
-            'manage_options',
-            'wp2static-crawl-queue',
-            [ ViewRenderer::class, 'renderCrawlQueue' ]
-        );
+        $hidden_pages = [
+            'wp2static-crawl-queue' => [ 'Crawl Queue', 'renderCrawlQueue' ],
+            'wp2static-crawl-cache' => [ 'Crawl Cache', 'renderCrawlCache' ],
+            'wp2static-deploy-cache' => [ 'Deploy Cache', 'renderDeployCache' ],
+            'wp2static-static-site' => [ 'Static Site', 'renderStaticSitePaths' ],
+            'wp2static-post-processed-site' =>
+                [ 'Post Processed Site', 'renderPostProcessedSitePaths' ],
+        ];
 
-        add_submenu_page(
-            '',
-            'VibeStatic Crawl Cache',
-            'Crawl Cache',
-            'manage_options',
-            'wp2static-crawl-cache',
-            [ ViewRenderer::class, 'renderCrawlCache' ]
-        );
+        foreach ( $hidden_pages as $slug => $page ) {
+            self::addHiddenPage(
+                'VibeStatic ' . $page[0],
+                $slug,
+                [ ViewRenderer::class, $page[1] ]
+            );
+        }
+    }
 
-        add_submenu_page(
-            '',
-            'VibeStatic Deploy Cache',
-            'Deploy Cache',
-            'manage_options',
-            'wp2static-deploy-cache',
-            [ ViewRenderer::class, 'renderDeployCache' ]
-        );
+    /**
+     * @var array<string, string> slug della pagina => titolo
+     */
+    private static $hidden_page_titles = [];
 
-        add_submenu_page(
-            '',
-            'VibeStatic Static Site',
-            'Static Site',
-            'manage_options',
-            'wp2static-static-site',
-            [ ViewRenderer::class, 'renderStaticSitePaths' ]
-        );
+    /**
+     * Registra una pagina raggiungibile ma senza voce di menu.
+     *
+     * Il titolo va tenuto da parte, e non e' pignoleria. WordPress lo cerca con
+     * `get_admin_page_title()`, che quando il genitore e' vuoto — cioe' per ogni
+     * pagina nascosta — lo va a cercare fra i menu di primo livello, dove una
+     * pagina nascosta per definizione non c'e'. Non trovandolo lascia `$title`
+     * a null, e `admin-header.php` ci fa sopra `strip_tags()`: con WP_DEBUG
+     * acceso, una deprecation di WordPress in cima a ognuna delle nostre pagine.
+     *
+     * Registrarle sotto il genitore vero e poi toglierle dal menu non aiuta:
+     * `remove_submenu_page()` cancella proprio la voce da cui il titolo si
+     * leggerebbe. E il genitore resta la stringa vuota, non `null`: la prima
+     * cosa che `add_submenu_page()` fa e' passarlo a `plugin_basename()`, che
+     * su null emette la stessa deprecation che si sta togliendo.
+     *
+     * @param string   $title    Titolo della pagina.
+     * @param string   $slug     Slug, cioe' il valore di ?page=.
+     * @param callable $callback Chi la disegna.
+     */
+    public static function addHiddenPage( string $title, string $slug, $callback ) : void {
+        add_submenu_page( '', $title, $title, 'manage_options', $slug, $callback );
 
-        add_submenu_page(
-            '',
-            'VibeStatic Post Processed Site',
-            'Post Processed Site',
-            'manage_options',
-            'wp2static-post-processed-site',
-            [ ViewRenderer::class, 'renderPostProcessedSitePaths' ]
-        );
+        if ( ! self::$hidden_page_titles ) {
+            add_action( 'current_screen', [ self::class, 'setHiddenPageTitle' ] );
+        }
+
+        self::$hidden_page_titles[ $slug ] = $title;
+    }
+
+    /**
+     * Da` un titolo alla pagina nascosta che si sta aprendo.
+     *
+     * Gira su `current_screen`, che WordPress lancia prima di includere
+     * admin-header.php. `get_admin_page_title()` comincia con «se il titolo c'e'
+     * gia', tienilo»: riempirlo qui e' quindi tutto quello che serve.
+     */
+    public static function setHiddenPageTitle() : void {
+        $page = filter_input( INPUT_GET, 'page' );
+
+        if ( ! is_string( $page ) || ! isset( self::$hidden_page_titles[ $page ] ) ) {
+            return;
+        }
+
+        // @phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- è il titolo della nostra pagina.
+        $GLOBALS['title'] = self::$hidden_page_titles[ $page ];
     }
 
     // TODO: why is this here? Move to CrawlQueue if still needed

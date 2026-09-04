@@ -324,23 +324,10 @@ class Controller {
     }
 
     public function addOptionsPage() : void {
-        add_submenu_page(
-            /*
-             * `null`, non la stringa vuota: e' la forma documentata per dire
-             * «pagina raggiungibile, ma senza voce di menu».
-             *
-             * Non risolve pero' il fatto che con WP_DEBUG acceso queste pagine
-             * mostrino una deprecation di WordPress — strip_tags(null) in
-             * admin-header.php. La causa e' in get_admin_page_title(): con un
-             * genitore vuoto cerca il titolo fra i menu di primo livello, dove
-             * una pagina nascosta per definizione non c'e', e restituisce null.
-             * Vale per tutte e cinque le pagine nascoste del core allo stesso
-             * modo, quindi la soluzione va trovata li' una volta per tutte.
-             */
-            null,
+        // Passa dal core, che alla pagina nascosta da' anche un titolo: senza,
+        // WordPress non lo trova e admin-header.php fa strip_tags( null ).
+        \WP2Static\Controller::addHiddenPage(
             'Directory Deployment Options',
-            'Directory Deployment Options',
-            'manage_options',
             'wp2static-addon-directory-deployment',
             [ $this, 'renderDirectoryDeployerPage' ]
         );
