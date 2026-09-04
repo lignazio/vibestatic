@@ -235,6 +235,106 @@ class DeployCacheRepository {
     }
 
     /**
+     * Gli hash gia' pubblicati, per percorso.
+     *
+     * Una query sola. `isFileCached()` ne fa una per file, ed e' giusto cosi'
+     * quando si guarda un file solo; per confrontare un sito intero — qui sono
+     * milleottocento file — mille e ottocento interrogazioni sono il modo piu'
+     * rapido di rendere il deploy incrementale piu' lento di quello completo.
+     *
+     * @param string $namespace Spazio dei nomi del deployer.
+     * @return array<string, string> percorso => hash del file
+     */
+    public function getHashesByPath( string $namespace = self::DEFAULT_NAMESPACE ) : array {
+        /** @var list<object{path: string, file_hash: string}> $rows */
+        $rows = $this->db->get_results(
+            $this->db->prepare(
+                'SELECT path, file_hash FROM %i WHERE namespace = %s',
+                $this->table,
+                $namespace
+            )
+        ) ?? [];
+
+        $hashes = [];
+
+        foreach ( $rows as $row ) {
+            $hashes[ $row->path ] = $row->file_hash;
+        }
+
+        return $hashes;
+    }
+
+    /**
+     * Confronta il sito processato con quello gia' pubblicato.
+     *
+     * I percorsi devono arrivare nella stessa forma in cui il deployer li
+     * scrive in cache — quella di `ProcessedSite::getPaths()`, cioe' relativi
+     * alla radice e con lo slash iniziale. Se le due forme divergono, ogni file
+     * risulta nuovo e il deploy incrementale diventa un deploy completo che
+     * dice di essere incrementale: e' il modo peggiore di sbagliare, perche'
+     * non si vede.
+     *
+     * @param string[] $current_paths Percorsi presenti ora nel sito processato.
+     * @param string   $namespace     Spazio dei nomi del deployer.
+     */
+    public function plan(
+        array $current_paths,
+        string $namespace = self::DEFAULT_NAMESPACE
+    ) : DeployPlan {
+        $published = $this->getHashesByPath( $namespace );
+
+        $to_deploy = [];
+        $unchanged = 0;
+
+        foreach ( $current_paths as $path ) {
+            $hash = $this->fileHash( $path );
+
+            if ( null === $hash ) {
+                // Illeggibile o vuoto: non c'e' niente da caricare, e dirlo
+                // «invariato» sarebbe una bugia. Lo si lascia fuori da entrambe
+                // le liste.
+                continue;
+            }
+
+            if ( isset( $published[ $path ] ) && $published[ $path ] === $hash ) {
+                $unchanged++;
+
+                continue;
+            }
+
+            $to_deploy[] = $path;
+        }
+
+        $to_delete = array_values(
+            array_diff( array_keys( $published ), $current_paths )
+        );
+
+        return new DeployPlan( $to_deploy, $to_delete, $unchanged );
+    }
+
+    /**
+     * Toglie dalla cache i percorsi indicati.
+     *
+     * Va chiamata dopo averli rimossi a destinazione, non prima: se il deploy
+     * fallisce a meta', una cache che ha gia' dimenticato quei file li
+     * ripubblicherebbe al giro successivo.
+     *
+     * @param string[] $paths     Percorsi da dimenticare.
+     * @param string   $namespace Spazio dei nomi del deployer.
+     */
+    public function rmPaths( array $paths, string $namespace = self::DEFAULT_NAMESPACE ) : void {
+        foreach ( $paths as $path ) {
+            $this->db->delete(
+                $this->table,
+                [
+                    'path_hash' => $this->pathHash( $path ),
+                    'namespace' => $namespace,
+                ]
+            );
+        }
+    }
+
+    /**
      *  Get all cached paths
      *
      *  @return string[] All cached paths

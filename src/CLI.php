@@ -490,8 +490,11 @@ class CLI {
         if ( ! $deployer ) {
             WP_CLI::line( 'No deployment add-ons are enabled, skipping deployment.' );
         } else {
-            WsLog::l( 'Starting deployment' );
-            do_action( 'wp2static_deploy', ProcessedSite::getPath(), $deployer );
+            // Era la terza copia dello stesso blocco — le altre due stanno in
+            // Controller — e la sola a non passare per il rapporto di deploy:
+            // chi lanciava il deploy da riga di comando non vedeva quanti file
+            // sarebbero stati toccati.
+            Controller::deploy( $deployer );
         }
         WsLog::l( 'Starting post-deployment actions' );
         do_action( 'wp2static_post_deploy_trigger', $deployer );

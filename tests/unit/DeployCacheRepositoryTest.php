@@ -193,6 +193,144 @@ final class DeployCacheRepositoryTest extends TestCase {
         );
     }
 
+    public function testThePlanSeparatesNewChangedUnchangedAndGone() : void {
+        vfsStream::create(
+            [
+                'nuovo.html' => 'mai visto',
+                'cambiato.html' => 'contenuto nuovo',
+                'invariato.html' => 'sempre uguale',
+            ],
+            $this->fs
+        );
+
+        $wpdb = $this->db();
+
+        // Cosa risulta gia' pubblicato: uno invariato, uno con l'hash vecchio,
+        // e uno che nel sito processato non c'e' piu'.
+        $wpdb->shouldReceive( 'get_results' )->once()->andReturn(
+            [
+                (object) [
+                    'path' => '/invariato.html',
+                    'file_hash' => md5( 'sempre uguale' ),
+                ],
+                (object) [
+                    'path' => '/cambiato.html',
+                    'file_hash' => md5( 'contenuto vecchio' ),
+                ],
+                (object) [
+                    'path' => '/sparito.html',
+                    'file_hash' => md5( 'qualcosa' ),
+                ],
+            ]
+        );
+
+        $plan = $this->repo( $wpdb )->plan(
+            [ '/nuovo.html', '/cambiato.html', '/invariato.html' ]
+        );
+
+        $to_deploy = $plan->toDeploy();
+        sort( $to_deploy );
+
+        $this->assertSame( [ '/cambiato.html', '/nuovo.html' ], $to_deploy );
+        $this->assertSame( [ '/sparito.html' ], $plan->toDelete() );
+        $this->assertSame( 1, $plan->unchanged() );
+        $this->assertFalse( $plan->isEmpty() );
+        $this->assertSame(
+            'Deploy plan: 2 to upload, 1 to remove, 1 unchanged.',
+            $plan->summary()
+        );
+    }
+
+    public function testThePlanCostsOneQueryNoMatterHowManyFiles() : void {
+        $files = [];
+        $paths = [];
+
+        for ( $i = 0; $i < 50; $i++ ) {
+            $files[ "pagina-$i.html" ] = "contenuto $i";
+            $paths[] = "/pagina-$i.html";
+        }
+
+        vfsStream::create( $files, $this->fs );
+
+        $wpdb = $this->db();
+        $queries = 0;
+
+        $wpdb->shouldReceive( 'get_results' )->andReturnUsing(
+            function () use ( &$queries ) {
+                $queries++;
+                return [];
+            }
+        );
+        // Se il piano chiedesse al database un file per volta, `isFileCached()`
+        // farebbe cinquanta get_var. Su un sito vero sono milleottocento
+        // interrogazioni, cioe' il modo piu' rapido di rendere il deploy
+        // incrementale piu' lento di quello completo.
+        $wpdb->shouldNotReceive( 'get_var' );
+
+        $plan = $this->repo( $wpdb )->plan( $paths );
+
+        $this->assertSame( 1, $queries );
+        $this->assertCount( 50, $plan->toDeploy() );
+    }
+
+    public function testNothingToDoIsAnEmptyPlan() : void {
+        vfsStream::create( [ 'index.html' => 'uguale' ], $this->fs );
+
+        $wpdb = $this->db();
+        $wpdb->shouldReceive( 'get_results' )->once()->andReturn(
+            [
+                (object) [
+                    'path' => '/index.html',
+                    'file_hash' => md5( 'uguale' ),
+                ],
+            ]
+        );
+
+        $plan = $this->repo( $wpdb )->plan( [ '/index.html' ] );
+
+        $this->assertTrue( $plan->isEmpty() );
+        $this->assertSame(
+            'Deploy plan: 0 to upload, 0 to remove, 1 unchanged.',
+            $plan->summary()
+        );
+    }
+
+    public function testAnUnreadableFileIsNeitherDeployedNorCountedAsUnchanged() : void {
+        $wpdb = $this->db();
+        $wpdb->shouldReceive( 'get_results' )->once()->andReturn( [] );
+
+        // Dirlo «invariato» sarebbe una bugia, e metterlo fra quelli da
+        // caricare farebbe fallire il deploy su un file che non si puo' leggere.
+        $plan = $this->repo( $wpdb )->plan( [ '/mai-esistito.html' ] );
+
+        $this->assertSame( [], $plan->toDeploy() );
+        $this->assertSame( 0, $plan->unchanged() );
+    }
+
+    public function testRmPathsForgetsByPathHashAndNamespace() : void {
+        $wpdb = $this->db();
+        $deleted = [];
+
+        $wpdb->shouldReceive( 'delete' )->andReturnUsing(
+            function ( $table, $where ) use ( &$deleted ) {
+                $deleted[] = $where;
+                return 1;
+            }
+        );
+
+        $this->repo( $wpdb )->rmPaths( [ '/sparito.html' ], 's3' );
+
+        $this->assertSame(
+            [
+                [
+                    'path_hash' => md5( $this->processed_path . '/sparito.html' ),
+                    'namespace' => 's3',
+                ],
+            ],
+            $deleted
+        );
+    }
+
     public function testTheFacadeUsesTheInjectedRepository() : void {
         $repository = Mockery::mock( DeployCacheRepository::class );
         $repository->shouldReceive( 'isFileCached' )

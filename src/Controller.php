@@ -694,12 +694,7 @@ class Controller {
                         if ( ! $deployer ) {
                             WsLog::l( 'No deployment add-ons are enabled, skipping deployment.' );
                         } else {
-                            WsLog::l( 'Starting deployment' );
-                            do_action(
-                                'wp2static_deploy',
-                                ProcessedSite::getPath(),
-                                $deployer
-                            );
+                            self::deploy( $deployer );
                         }
                         WsLog::l( 'Starting post-deployment actions' );
                         do_action( 'wp2static_post_deploy_trigger', $deployer );
@@ -776,15 +771,31 @@ class Controller {
         if ( ! $deployer ) {
             WsLog::l( 'No deployment add-ons are enabled, skipping deployment.' );
         } else {
-            WsLog::l( 'Starting deployment' );
-            do_action(
-                'wp2static_deploy',
-                ProcessedSite::getPath(),
-                $deployer
-            );
+            self::deploy( $deployer );
         }
         WsLog::l( 'Starting post-deployment actions' );
         do_action( 'wp2static_post_deploy_trigger', $deployer );
+    }
+
+    /**
+     * Lancia il deploy, dicendo prima cosa cambiera'.
+     *
+     * Il rapporto viene prima dell'azione di proposito: un deploy incrementale
+     * che non dice quanti file tocca non e' verificabile, e chi non riesce a
+     * verificarlo finisce per ricaricare tutto — che e' il contrario di quello
+     * che serve. La riga di log e' la stessa forma di quella del crawl.
+     *
+     * @param string $deployer Slug dell'addon che deploya.
+     */
+    public static function deploy( string $deployer ) : void {
+        WsLog::l( DeployCache::plan()->summary() );
+        WsLog::l( 'Starting deployment' );
+
+        do_action(
+            'wp2static_deploy',
+            ProcessedSite::getPath(),
+            $deployer
+        );
     }
 
     public static function invalidateSingleURLCache(

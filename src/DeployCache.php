@@ -86,6 +86,38 @@ class DeployCache {
     }
 
     /**
+     * Cosa cambierebbe un deploy, prima di farlo.
+     *
+     * Senza argomenti guarda il sito processato cosi' com'e' adesso.
+     *
+     * @param string        $namespace     Spazio dei nomi del deployer.
+     * @param string[]|null $current_paths Percorsi da confrontare; null per
+     *                                     leggerli da ProcessedSite.
+     */
+    public static function plan(
+        string $namespace = self::DEFAULT_NAMESPACE,
+        ?array $current_paths = null
+    ) : DeployPlan {
+        return self::repository()->plan(
+            $current_paths ?? ProcessedSite::getPaths(),
+            $namespace
+        );
+    }
+
+    /**
+     * Toglie dalla cache i percorsi indicati, dopo averli rimossi a destinazione.
+     *
+     * @param string[] $paths     Percorsi da dimenticare.
+     * @param string   $namespace Spazio dei nomi del deployer.
+     */
+    public static function rmPaths(
+        array $paths,
+        string $namespace = self::DEFAULT_NAMESPACE
+    ) : void {
+        self::repository()->rmPaths( $paths, $namespace );
+    }
+
+    /**
      *  Get all cached paths
      *
      *  @return string[] All cached paths

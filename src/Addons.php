@@ -83,7 +83,7 @@ class Addons {
      * Get enabled Addons of a given type
      *
      * @param string $type Type of addon to return
-     * @return mixed[] array of Addon objects
+     * @return list<object{slug: string, type: string, enabled: int}> array of Addon objects
      */
     public static function getType( string $type ) : array {
         /** @var \wpdb $wpdb */
@@ -91,13 +91,16 @@ class Addons {
 
         $table_name = $wpdb->prefix . 'wp2static_addons';
 
-        return $wpdb->get_results(
+        /** @var list<object{slug: string, type: string, enabled: int}> $addons */
+        $addons = $wpdb->get_results(
             $wpdb->prepare(
                 'SELECT * FROM %i WHERE type = %s AND enabled = 1 ORDER BY slug',
                 $table_name,
                 $type
             )
-        );
+        ) ?? [];
+
+        return $addons;
     }
 
     /**
@@ -119,7 +122,11 @@ class Addons {
      *
      * "There can be only one!"
      *
-     * @return string|bool deployment add-on slug or false
+     * Il tipo dichiarato era `string|bool`, che dice «una stringa, oppure vero,
+     * oppure falso»: il vero non e' mai stato un valore possibile, e chi legge
+     * il risultato si trovava a doverlo escludere. Qui sotto e' `string|false`.
+     *
+     * @return string|false deployment add-on slug or false
      */
     public static function getDeployer() {
         $addons = self::getType( 'deploy' );
