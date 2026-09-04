@@ -524,7 +524,6 @@ VALUES (%s, %s, %s);";
         if ( $option ) {
             $option->unfiltered_value = $option->value;
             $option->value = apply_filters( (string) $opt_spec['filter_name'], $option->value );
-            /** @phpstan-ignore-next-line */
         } elseif ( $opt_spec ) {
             $opt = array_merge( $opt_spec ); // Make a copy so we don't modify $cached_option_specs
             $opt['unfiltered_value'] = $opt_spec['default_value'];

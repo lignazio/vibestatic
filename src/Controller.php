@@ -75,7 +75,7 @@ class Controller {
         WPCron::clearRecurringEvent();
     }
 
-    public static function deactivate( bool $network_wide = null ) : void {
+    public static function deactivate( ?bool $network_wide = null ) : void {
         if ( $network_wide ) {
             global $wpdb;
 
@@ -112,7 +112,7 @@ class Controller {
         AdminNotices::createTable();
     }
 
-    public static function activate( bool $network_wide = null ) : void {
+    public static function activate( ?bool $network_wide = null ) : void {
         if ( $network_wide ) {
             global $wpdb;
 
@@ -515,7 +515,7 @@ class Controller {
         }
     }
 
-    public static function wp2staticToggleAddon( string $addon_slug = null ) : void {
+    public static function wp2staticToggleAddon( ?string $addon_slug = null ) : void {
         if ( defined( 'WP_CLI' ) ) {
             if ( ! $addon_slug ) {
                 throw new WP2StaticException(
@@ -727,7 +727,7 @@ class Controller {
 
     public static function invalidateSingleURLCache(
         int $post_id = 0,
-        WP_Post $post = null
+        ?WP_Post $post = null
     ) : void {
         if ( ! $post ) {
             return;
