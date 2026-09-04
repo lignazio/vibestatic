@@ -1,15 +1,28 @@
+# La prima riga ignora ogni dotfile, e quelle che seguono riammettono uno per
+# uno quelli che servono. E' una lista da tenere aggiornata: .phpcs.xml.dist e
+# .phpcompat.xml.dist sono rimasti fuori dal repository per un'intera fase
+# senza che nulla lo segnalasse, perche' in locale i file c'erano. In CI il
+# passo phpcompat sarebbe fallito al primo push, cercando uno standard che nel
+# checkout non esiste.
 .*
 !.editorconfig
 !.envrc
 !.github
 !.gitignore
 !.htaccess
+!.phpcs.xml.dist
+!.phpcompat.xml.dist
 
 /integration-tests/bedrock/
 /integration-tests/mariadb/data/
 /integration-tests/wordpress/
 /vendor/
-/vendor_prefixed/
+
+# Generata da Strauss a ogni `composer install`, mai scritta a mano: contiene
+# Guzzle e le altre dipendenze di terze parti riscritte sotto WP2Static\Vendor\.
+# La riga precedente diceva `vendor_prefixed` con l'underscore, un nome che
+# nessuno strumento del progetto ha mai prodotto.
+/vendor-prefixed/
 node_modules/
 coverage/
 admin/*.js*

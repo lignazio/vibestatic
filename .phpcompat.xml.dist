@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<ruleset name="VibeStatic PHP compatibility">
+  <description>Compatibilità PHP fra versioni, da 8.2 in su.</description>
+
+  <!--
+    Sta in un file suo e non dentro phpcs.xml perché è una domanda diversa:
+    phpcs.xml chiede «è scritto secondo lo standard», questo chiede «gira su
+    tutte le versioni che dichiariamo di supportare». Prima erano tre script
+    composer identici (php74, php80, php81) che differivano per un numero.
+  -->
+  <config name="testVersion" value="8.2-"/>
+
+  <file>src</file>
+  <file>views</file>
+  <file>wp2static.php</file>
+  <file>uninstall.php</file>
+
+  <exclude-pattern>*/vendor/*</exclude-pattern>
+  <exclude-pattern>*/tests/*</exclude-pattern>
+  <exclude-pattern>*/integration-tests/*</exclude-pattern>
+  <exclude-pattern>*.js</exclude-pattern>
+
+  <arg name="colors"/>
+  <arg name="basepath" value="."/>
+  <arg name="extensions" value="php"/>
+  <arg name="parallel" value="8"/>
+
+  <!-- PHPCompatibilityWP conosce le funzioni che WordPress polyfilla da sé. -->
+  <rule ref="PHPCompatibilityWP"/>
+</ruleset>
