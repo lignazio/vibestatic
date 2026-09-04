@@ -59,24 +59,24 @@ $row = function ( $name ) use ( $options ) {
         <tbody>
             <tr>
                 <td style="width:33%;">
-                    <?php echo $label( 'queueJobOnPostSave' ); ?>
+                    <?php echo esc_html( $label( 'queueJobOnPostSave' ) ); ?>
                 </td>
                 <td>
-                    <?php echo $options['queueJobOnPostSave']->description; ?>
+                    <?php echo esc_html( $options['queueJobOnPostSave']->description ); ?>
                 </td>
                 <td>
-                    <?php echo $input( 'queueJobOnPostSave' ); ?>
+                    <?php echo esc_html( $input( 'queueJobOnPostSave' ) ); ?>
                 </td>
             </tr>
             <tr>
                 <td style="width:33%;">
-                    <?php echo $label( 'queueJobOnPostDelete' ); ?>
+                    <?php echo esc_html( $label( 'queueJobOnPostDelete' ) ); ?>
                 </td>
                 <td>
-                    <?php echo $options['queueJobOnPostDelete']->description; ?>
+                    <?php echo esc_html( $options['queueJobOnPostDelete']->description ); ?>
                 </td>
                 <td>
-                    <?php echo $input( 'queueJobOnPostDelete' ); ?>
+                    <?php echo esc_html( $input( 'queueJobOnPostDelete' ) ); ?>
                 </td>
             </tr>
         </tbody>
@@ -89,25 +89,25 @@ $row = function ( $name ) use ( $options ) {
         <thead>
             <tr>
                 <td style="text-align:center;">
-                    <?php echo $label( 'autoJobQueueDetection' ); ?>
+                    <?php echo esc_html( $label( 'autoJobQueueDetection' ) ); ?>
                 </td>
                 <td style="text-align:center;">
-                    <?php echo $label( 'autoJobQueueCrawling' ); ?>
+                    <?php echo esc_html( $label( 'autoJobQueueCrawling' ) ); ?>
                 </td>
                 <td style="text-align:center;">
-                    <?php echo $label( 'autoJobQueuePostProcessing' ); ?>
+                    <?php echo esc_html( $label( 'autoJobQueuePostProcessing' ) ); ?>
                 </td>
                 <td style="text-align:center;">
-                    <?php echo $label( 'autoJobQueueDeployment' ); ?>
+                    <?php echo esc_html( $label( 'autoJobQueueDeployment' ) ); ?>
                 </td>
             </tr>
         </thead>
         <tbody>
             <tr style="text-align:center;">
-                <td><?php echo $input( 'autoJobQueueDetection' ); ?></td>
-                <td><?php echo $input( 'autoJobQueueCrawling' ); ?></td>
-                <td><?php echo $input( 'autoJobQueuePostProcessing' ); ?></td>
-                <td><?php echo $input( 'autoJobQueueDeployment' ); ?></td>
+                <td><?php echo esc_html( $input( 'autoJobQueueDetection' ) ); ?></td>
+                <td><?php echo esc_html( $input( 'autoJobQueueCrawling' ) ); ?></td>
+                <td><?php echo esc_html( $input( 'autoJobQueuePostProcessing' ) ); ?></td>
+                <td><?php echo esc_html( $input( 'autoJobQueueDeployment' ) ); ?></td>
             </tr>
         </tbody>
     </table>
@@ -118,31 +118,31 @@ $row = function ( $name ) use ( $options ) {
         <tbody>
             <tr>
                 <td style="width: 50%">
-                    <?php echo $label( 'processQueueInterval', true ); ?>
+                    <?php echo esc_html( $label( 'processQueueInterval', true ) ); ?>
                     <p><i>If WP-Cron is not expected to be triggered by site visitors, you can also call `wp-cron.php` directly, run the WP-CLI command `wp wp2static process_queue` or call the hook `wp2staticProcessQueue` from within your own theme or plugin.</i></p>
                 </td>
                 <td>
                     <select
-                        id="<?php echo $options['processQueueInterval']->name; ?>"
-                        name="<?php echo $options['processQueueInterval']->name; ?>"
-                        value="<?php echo (int) $options['processQueueInterval']->value; ?>"
+                        id="<?php echo esc_attr( $options['processQueueInterval']->name ); ?>"
+                        name="<?php echo esc_attr( $options['processQueueInterval']->name ); ?>"
+                        value="<?php echo esc_attr( (int) $options['processQueueInterval']->value ); ?>"
                     >
                     <option
-                        <?php echo (int) $options['processQueueInterval']->value === 0 ? 'selected' : ''; ?>
+                        <?php echo esc_html( (int) $options['processQueueInterval']->value === 0 ? 'selected' : '' ); ?>
                         value="0">disable (never)</option>
                     <option
-                        <?php echo (int) $options['processQueueInterval']->value === 1 ? 'selected' : ''; ?>
+                        <?php echo esc_html( (int) $options['processQueueInterval']->value === 1 ? 'selected' : '' ); ?>
                         value="1">every minute</option>
                     <option
-                        <?php echo (int) $options['processQueueInterval']->value === 5 ? 'selected' : ''; ?>
+                        <?php echo esc_html( (int) $options['processQueueInterval']->value === 5 ? 'selected' : '' ); ?>
                         value="5">every 5 minutes</option>
                     <option
-                        <?php echo (int) $options['processQueueInterval']->value === 10 ? 'selected' : ''; ?>
+                        <?php echo esc_html( (int) $options['processQueueInterval']->value === 10 ? 'selected' : '' ); ?>
                         value="10">every 10 minutes</option>
                     </select>
                 </td>
             </tr>
-            <?php echo $row( 'processQueueImmediately' ); ?>
+            <?php echo esc_html( $row( 'processQueueImmediately' ) ); ?>
         </tbody>
     </table>
 
@@ -170,7 +170,7 @@ $row = function ( $name ) use ( $options ) {
 
     <h3>Job Queue/History</h3>
 
-    <p><i><a href="<?php echo admin_url( 'admin.php?page=wp2static-jobs' ); ?>">Refresh page</a> to see latest status</i><p>
+    <p><i><a href="<?php echo esc_url( admin_url( 'admin.php?page=wp2static-jobs' ) ); ?>">Refresh page</a> to see latest status</i><p>
 
     <hr>
 
@@ -185,9 +185,9 @@ $row = function ( $name ) use ( $options ) {
         <tbody>
             <?php foreach ( $jobs as $job ) : ?>
             <tr>
-                <td><?php echo $job->created_at; ?></td>
-                <td><?php echo $job->job_type; ?></td>
-                <td><?php echo $job->status; ?></td>
+                <td><?php echo esc_html( $job->created_at ); ?></td>
+                <td><?php echo esc_html( $job->job_type ); ?></td>
+                <td><?php echo esc_html( $job->status ); ?></td>
             </tr>
             <?php endforeach; ?>
         </tbody>

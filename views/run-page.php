@@ -11,14 +11,13 @@ var latest_log_row = 0;
 jQuery(document).ready(function($){
     var run_data = {
         action: 'wp2static_run',
-        security: '<?php echo $run_nonce; ?>',
+        security: '<?php echo esc_js( $run_nonce ); ?>',
     };
 
     var log_data = {
-        dataType: 'text',
         action: 'wp2static_poll_log',
         startRow: latest_log_row,
-        security: '<?php echo $run_nonce; ?>',
+        security: '<?php echo esc_js( $run_nonce ); ?>',
     };
 
     function responseErrorHandler( jqXHR, textStatus, errorThrown ) {
@@ -35,7 +34,8 @@ More information of the error may be logged in your browser's console.`);
 
     function pollLogs() {
         $.post(ajaxurl, log_data, function(response) {
-            $('#wp2static-run-log').val(response);
+            var log = response && response.data ? response.data.log : '';
+            $('#wp2static-run-log').val(log);
             $("#wp2static-poll-logs" ).prop('disabled', false);
         });
     }

@@ -382,23 +382,18 @@ class WordPressAdmin {
      * Do security checks before calling Controller::wp2staticProcessQueue
      */
     public static function adminPostProcessQueue() : void {
-        $method = filter_input( INPUT_SERVER, 'REQUEST_METHOD' );
-        if ( ! $method ) {
-            $msg = 'Empty method in request to admin-post.php (wp2static_process_queue)';
-        } elseif ( 'POST' !== $method ) {
-            $method = strval( $method );
-            $msg = "Invalid method in request to admin-post.php (wp2static_process_queue): $method";
-        }
-        $nonce = filter_input( INPUT_POST, '_wpnonce' );
-        $nonce_valid = $nonce && wp_verify_nonce( strval( $nonce ), 'wp2static_process_queue' );
-        if ( ! $nonce_valid ) {
-            $msg = 'Invalid nonce in request to admin-post.php (wpstatic_process_queue)';
+        // Prima questo metodo rifaceva a mano permesso e nonce, e li faceva
+        // peggio: nessun controllo di capability, REQUEST_METHOD letto con
+        // filter_input( INPUT_SERVER, ... ) che sotto FPM torna null, e un
+        // \RuntimeException lanciato da un handler admin_post_ — cioè una
+        // schermata bianca al posto di un messaggio. Il nome del nonce nel
+        // messaggio d'errore era per giunta scritto male, "wpstatic".
+        if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || $_SERVER['REQUEST_METHOD'] !== 'POST' ) {
+            WsLog::l( 'Non-POST request to admin-post.php (wp2static_process_queue)' );
+            wp_die( 'Invalid request method.', '', [ 'response' => 405 ] );
         }
 
-        if ( isset( $msg ) ) {
-            WsLog::l( $msg );
-            throw new \RuntimeException( $msg );
-        }
+        Controller::authorize( 'wp2static_process_queue' );
 
         Controller::wp2staticProcessQueue();
     }

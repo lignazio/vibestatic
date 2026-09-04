@@ -255,8 +255,11 @@ class SitemapParser {
                 return null;
             }
         } catch ( WP2StaticGuzzleHttp\Exception\TransferException $e ) {
+            // Messaggio letterale; $e è l'eccezione precedente, non output.
+            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
             throw new WP2StaticException( 'Unable to fetch URL contents', 0, $e );
         } catch ( WP2StaticGuzzleHttp\Exception\GuzzleException $e ) {
+            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
             throw new WP2StaticException( 'WP2StaticGuzzleHttp exception', 0, $e );
         }
     }

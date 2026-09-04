@@ -599,7 +599,7 @@ class Controller {
         );
 
         if ( ! $addon ) {
-            throw new WP2StaticException( "Unknown addon: $addon_slug" );
+            throw new WP2StaticException( esc_html( "Unknown addon: $addon_slug" ) );
         }
 
         // if deploy type, disable other deployers when enabling this one
@@ -902,10 +902,13 @@ class Controller {
     public static function wp2staticPollLog() : void {
         self::authorizeAjax( 'wp2static-run-page' );
 
-        $logs = WsLog::poll();
-
-        echo $logs;
-
-        wp_die();
+        // Prima era `echo $logs;` — testo arbitrario (URL crawlati, messaggi
+        // d'errore di terzi) stampato grezzo in risposta a una richiesta AJAX.
+        // Oggi finisce nel .val() di una textarea e non viene interpretato,
+        // ma il giorno che qualcuno passa a .html() diventa una XSS, e nel
+        // frattempo il sniff di escaping non ha modo di distinguere i due casi.
+        // wp_send_json_success() codifica in JSON, che è il contratto AJAX
+        // previsto da WordPress e che non altera il testo del log.
+        wp_send_json_success( [ 'log' => WsLog::poll() ] );
     }
 }

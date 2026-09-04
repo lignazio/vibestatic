@@ -22,11 +22,11 @@
             <tr>
                 <td>PHP max_execution_time</td>
                 <td>
-                    <?php echo $view['maxExecutionTime'] == 0 ? 'Unlimited' : $view['maxExecutionTime'] . ' secs'; ?>
+                    <?php echo esc_html( $view['maxExecutionTime'] == 0 ? 'Unlimited' : $view['maxExecutionTime'] . ' secs' ); ?>
 
                     <span
-                        class="dashicons <?php echo $view['maxExecutionTime'] == 0 ? 'dashicons-yes' : 'dashicons-no'; ?>"
-                        style="color: <?php echo $view['maxExecutionTime'] == 0 ? 'green' : 'red'; ?>;"
+                        class="dashicons <?php echo esc_attr( $view['maxExecutionTime'] == 0 ? 'dashicons-yes' : 'dashicons-no' ); ?>"
+                        style="color: <?php echo esc_attr( $view['maxExecutionTime'] == 0 ? 'green' : 'red' ); ?>;"
                     ></span>
                 </td>
                 <td>Generating a static site can involve long-running processes. Set your PHP max_execution_time setting to unlimited or find a better webhost if you're prevented from doing so.</td>
@@ -34,7 +34,7 @@
             <tr>
                 <td>PHP memory_limit</td>
                 <td>
-                    <?php echo $view['memoryLimit']; ?>
+                    <?php echo esc_html( $view['memoryLimit'] ); ?>
 
                 </td>
                 <td>WP2Static will use as much memory as is available to it during processing. Allocating more of your system RAM to PHP should improve performance.</td>
@@ -42,11 +42,11 @@
             <tr>
                 <td>Uploads directory writable</td>
                 <td>
-                    <?php echo $view['uploadsWritable'] ? 'Writable' : 'Non-writable'; ?>
+                    <?php echo esc_html( $view['uploadsWritable'] ? 'Writable' : 'Non-writable' ); ?>
 
                     <span
-                        class="dashicons <?php echo $view['uploadsWritable'] ? 'dashicons-yes' : 'dashicons-no'; ?>"
-                        style="color: <?php echo $view['uploadsWritable'] ? 'green' : 'red'; ?>;"
+                        class="dashicons <?php echo esc_attr( $view['uploadsWritable'] ? 'dashicons-yes' : 'dashicons-no' ); ?>"
+                        style="color: <?php echo esc_attr( $view['uploadsWritable'] ? 'green' : 'red' ); ?>;"
                     ></span>
                 </td>
                 <td>By default WP2Static writes the generated static site under wp-content/uploads directory. Make sure WP2Static has the permission to do so.</td>
@@ -54,11 +54,11 @@
             <tr>
                 <td>PHP version</td>
                 <td>
-                    <?php echo PHP_VERSION; ?>
+                    <?php echo esc_html( PHP_VERSION ); ?>
 
                     <span
-                        class="dashicons <?php echo ! $view['phpOutOfDate'] ? 'dashicons-yes' : 'dashicons-no'; ?>"
-                        style="color: <?php echo ! $view['phpOutOfDate'] ? 'green' : 'red'; ?>;"
+                        class="dashicons <?php echo esc_attr( ! $view['phpOutOfDate'] ? 'dashicons-yes' : 'dashicons-no' ); ?>"
+                        style="color: <?php echo esc_attr( ! $view['phpOutOfDate'] ? 'green' : 'red' ); ?>;"
                     ></span>
                 </td>
                 <td>
@@ -70,11 +70,11 @@
             <tr>
                 <td>cURL extension loaded</td>
                 <td>
-                    <?php echo $view['curlSupported'] ? 'Yes' : 'No'; ?>
+                    <?php echo esc_html( $view['curlSupported'] ? 'Yes' : 'No' ); ?>
 
                     <span
-                        class="dashicons <?php echo $view['curlSupported'] ? 'dashicons-yes' : 'dashicons-no'; ?>"
-                        style="color: <?php echo $view['curlSupported'] ? 'green' : 'red'; ?>;"
+                        class="dashicons <?php echo esc_attr( $view['curlSupported'] ? 'dashicons-yes' : 'dashicons-no' ); ?>"
+                        style="color: <?php echo esc_attr( $view['curlSupported'] ? 'green' : 'red' ); ?>;"
                     ></span>
                 </td>
                 <td>
@@ -86,15 +86,15 @@
             <tr>
                 <td>WordPress Permalinks Compatible</td>
                 <td>
-                    <?php echo $view['permalinksAreCompatible'] ? 'Yes' : 'No'; ?>
+                    <?php echo esc_html( $view['permalinksAreCompatible'] ? 'Yes' : 'No' ); ?>
 
                     <span
-                        class="dashicons <?php echo $view['permalinksAreCompatible'] ? 'dashicons-yes' : 'dashicons-no'; ?>"
-                        style="color: <?php echo $view['permalinksAreCompatible'] ? 'green' : 'red'; ?>;"
+                        class="dashicons <?php echo esc_attr( $view['permalinksAreCompatible'] ? 'dashicons-yes' : 'dashicons-no' ); ?>"
+                        style="color: <?php echo esc_attr( $view['permalinksAreCompatible'] ? 'green' : 'red' ); ?>;"
                     ></span>
                 </td>
                 <td>
-                    <p>Due to the nature of how static sites work, you'll need to have some kind of permalinks structure defined in your <a href="<?php echo admin_url( 'options-permalink.php' ); ?>">Permalink Settings</a> within WordPress. To learn more on how to do this, please see WordPress's official guide to the <a href="https://codex.wordpress.org/Settings_Permalinks_Screen">Settings Permalinks Screen</a>. The permalinks must end in a trailing slash (/).</p>
+                    <p>Due to the nature of how static sites work, you'll need to have some kind of permalinks structure defined in your <a href="<?php echo esc_url( admin_url( 'options-permalink.php' ) ); ?>">Permalink Settings</a> within WordPress. To learn more on how to do this, please see WordPress's official guide to the <a href="https://codex.wordpress.org/Settings_Permalinks_Screen">Settings Permalinks Screen</a>. The permalinks must end in a trailing slash (/).</p>
                 </td>
             </tr>
         </tbody>
@@ -121,8 +121,7 @@
         foreach ( $lists as $column ) {
             echo '<tr>';
             foreach ( $column as $item ) {
-                $loaded_extension = strval( $item );
-                echo "<td>$loaded_extension</td>";
+                echo '<td>' . esc_html( strval( $item ) ) . '</td>';
             }
             echo '</tr>';
         }
@@ -146,8 +145,8 @@
             <?php foreach ( $view['coreOptions'] as $option ) : ?>
 
             <tr>
-            <td><?php echo $option->label; ?></td>
-            <td><?php echo $option->value; ?></td>
+            <td><?php echo esc_html( $option->label ); ?></td>
+            <td><?php echo esc_html( $option->value ); ?></td>
             </tr>
 
             <?php endforeach; ?>
@@ -170,8 +169,8 @@
             // TODO: sort site infos alpha
             foreach ( $view['site_info'] as $name => $value ) : ?>
             <tr>
-            <td><?php echo $name; ?></td>
-            <td><?php echo $value; ?></td>
+            <td><?php echo esc_html( $name ); ?></td>
+            <td><?php echo esc_html( $value ); ?></td>
             </tr>
 
             <?php endforeach; ?>

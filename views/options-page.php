@@ -41,10 +41,10 @@ $row = function ( $name ) use ( $options ) {
             </tr>
         </thead>
         <tbody>
-            <?php echo $row( 'detectCustomPostTypes' ); ?>
-            <?php echo $row( 'detectPages' ); ?>
-            <?php echo $row( 'detectPosts' ); ?>
-            <?php echo $row( 'detectUploads' ); ?>
+            <?php echo esc_html( $row( 'detectCustomPostTypes' ) ); ?>
+            <?php echo esc_html( $row( 'detectPages' ) ); ?>
+            <?php echo esc_html( $row( 'detectPosts' ) ); ?>
+            <?php echo esc_html( $row( 'detectUploads' ) ); ?>
         </tbody>
     </table>
 
@@ -52,9 +52,9 @@ $row = function ( $name ) use ( $options ) {
 
     <table class="widefat striped">
         <tbody>
-            <?php echo $row( 'basicAuthUser' ); ?>
-            <?php echo $row( 'basicAuthPassword' ); ?>
-            <?php echo $row( 'useCrawlCaching' ); ?>
+            <?php echo esc_html( $row( 'basicAuthUser' ) ); ?>
+            <?php echo esc_html( $row( 'basicAuthPassword' ) ); ?>
+            <?php echo esc_html( $row( 'useCrawlCaching' ) ); ?>
         </tbody>
     </table>
 
@@ -62,7 +62,7 @@ $row = function ( $name ) use ( $options ) {
 
     <table class="widefat striped">
         <tbody>
-            <?php echo $row( 'deploymentURL' ); ?>
+            <?php echo esc_html( $row( 'deploymentURL' ) ); ?>
         </tbody>
     </table>
 
@@ -70,10 +70,10 @@ $row = function ( $name ) use ( $options ) {
 
     <table class="widefat striped">
         <tbody>
-            <?php echo $row( 'completionEmail' ); ?>
+            <?php echo esc_html( $row( 'completionEmail' ) ); ?>
             <tr>
                 <td style="width:50%;">
-                    <?php echo OptionRenderer::optionLabel( (array) $options['completionWebhook'] ); ?>
+                    <?php echo esc_html( OptionRenderer::optionLabel( (array) $options['completionWebhook'] ) ); ?>
                 </td>
                 <td>
                     <input
@@ -81,20 +81,20 @@ $row = function ( $name ) use ( $options ) {
                         type="url"
                         id="completionWebhook"
                         name="completionWebhook"
-                        value="<?php echo $options['completionWebhook']->value !== '' ? $options['completionWebhook']->value : ''; ?>"
+                        value="<?php echo esc_attr( $options['completionWebhook']->value !== '' ? $options['completionWebhook']->value : '' ); ?>"
                     />
 
                     <select
-                        id="<?php echo $options['completionWebhookMethod']->name; ?>"
-                        name="<?php echo $options['completionWebhookMethod']->name; ?>"
+                        id="<?php echo esc_attr( $options['completionWebhookMethod']->name ); ?>"
+                        name="<?php echo esc_attr( $options['completionWebhookMethod']->name ); ?>"
                         >
                         <option
                             value="POST"
-                            <?php echo $options['completionWebhookMethod']->value === 'POST' ? 'selected' : ''; ?>
+                            <?php echo esc_html( $options['completionWebhookMethod']->value === 'POST' ? 'selected' : '' ); ?>
                             >POST</option>
                         <option
                             value="GET"
-                            <?php echo $options['completionWebhookMethod']->value === 'GET' ? 'selected' : ''; ?>
+                            <?php echo esc_html( $options['completionWebhookMethod']->value === 'GET' ? 'selected' : '' ); ?>
                             >GET</option>
                     </select>
                 </td>

@@ -55,7 +55,7 @@ select.wp2static-select {
 </style>
 
 <div class="wrap">
-    <p><i><a href="<?php echo admin_url( 'admin.php?page=wp2static-caches' ); ?>">Refresh page</a> to see latest status</i><p>
+    <p><i><a href="<?php echo esc_url( admin_url( 'admin.php?page=wp2static-caches' ) ); ?>">Refresh page</a> to see latest status</i><p>
 
     <table class="widefat striped">
         <thead>
@@ -68,7 +68,7 @@ select.wp2static-select {
         <tbody>
             <tr>
                 <td>Crawl Queue (Detected URLs)</td>
-                <td><?php echo $crawl_queue_total_urls; ?> URLs in database</td>
+                <td><?php echo esc_html( $crawl_queue_total_urls ); ?> URLs in database</td>
                 <td>
     <!-- TODO: allow downloading zipped CSV of all lists  <a href="#"><button class="button btn-danger">Download List</button></a> -->
 
@@ -91,7 +91,7 @@ select.wp2static-select {
             </tr>
             <tr>
                 <td>Crawl Cache</td>
-                <td><?php echo $crawl_cache_total_urls; ?> URLs in database</td>
+                <td><?php echo esc_html( $crawl_cache_total_urls ); ?> URLs in database</td>
                 <td>
                     <form
                         name="wp2static-crawl-cache-delete"
@@ -112,10 +112,10 @@ select.wp2static-select {
             </tr>
             <tr>
                 <td>Generated Static Site</td>
-                <td><?php echo $exported_site_file_count; ?> files, using <?php echo $exported_site_disk_space; ?>
+                <td><?php echo esc_html( $exported_site_file_count ); ?> files, using <?php echo esc_html( $exported_site_disk_space ); ?>
                     <br>
 
-                    <a href="file://<?php echo $uploads_path; ?>wp2static-exported-site" />Path</a>
+                    <a href="file://<?php echo esc_url( $uploads_path ); ?>wp2static-exported-site" />Path</a>
 
                 </td>
                 <td>
@@ -138,10 +138,10 @@ select.wp2static-select {
             </tr>
             <tr>
                 <td>Post-processed Static Site</td>
-                <td><?php echo $processed_site_file_count; ?> files, using <?php echo $processed_site_disk_space; ?>
+                <td><?php echo esc_html( $processed_site_file_count ); ?> files, using <?php echo esc_html( $processed_site_disk_space ); ?>
                     <br>
 
-                    <a href="file://<?php echo $uploads_path; ?>wp2static-processed-site" />Path</a>
+                    <a href="file://<?php echo esc_url( $uploads_path ); ?>wp2static-processed-site" />Path</a>
                 </td>
                 <td>
                     <form
@@ -164,10 +164,10 @@ select.wp2static-select {
 
             <?php $deploy_cache_rows = count( $deploy_cache_total_paths ); ?>
             <tr>
-                <td rowspan="<?php echo $deploy_cache_rows; ?>">Deploy Cache</td>
+                <td rowspan="<?php echo esc_attr( $deploy_cache_rows ); ?>">Deploy Cache</td>
                     <?php $namespaces = array_keys( $deploy_cache_total_paths ); ?>
                     <?php if ( $namespaces ) { ?>
-                        <td><?php echo strval( $deploy_cache_total_paths[ $namespaces[0] ] ); ?> Paths in database for <code><?php echo $namespaces[0]; ?></code></td>
+                        <td><?php echo esc_html( strval( $deploy_cache_total_paths[ $namespaces[0] ] ) ); ?> Paths in database for <code><?php echo esc_html( $namespaces[0] ); ?></code></td>
                     <?php } else { ?>
                         <td>0 paths in database</td>
                     <?php } ?>
@@ -184,7 +184,7 @@ select.wp2static-select {
                                 <option value="wp2static_deploy_cache_delete">Delete Deploy Cache</option>
                             </select>
 
-                            <input name="deploy_namespace" type="hidden" value="<?php echo $namespaces[0]; ?>" />
+                            <input name="deploy_namespace" type="hidden" value="<?php echo esc_attr( $namespaces[0] ); ?>" />
 
                             <button class="button btn-danger">Go</button>
 
@@ -193,7 +193,7 @@ select.wp2static-select {
                     <?php for ( $i = 1; $i < $deploy_cache_rows; $i++ ) : ?>
                         </tr>
                         <tr>
-                        <td><?php echo strval( $deploy_cache_total_paths[ $namespaces[ $i ] ] ); ?> Paths in database for <code><?php echo strval( $namespaces[ $i ] ); ?></code></td>
+                        <td><?php echo esc_html( strval( $deploy_cache_total_paths[ $namespaces[ $i ] ] ) ); ?> Paths in database for <code><?php echo esc_html( strval( $namespaces[ $i ] ) ); ?></code></td>
                         <td>
                             <form
                                 name="wp2static-deploy-cache-delete"
@@ -207,7 +207,7 @@ select.wp2static-select {
                                     <option value="wp2static_deploy_cache_delete">Delete Deploy Cache</option>
                                 </select>
 
-                                <input name="deploy_namespace" type="hidden" value="<?php echo $namespaces[ $i ]; ?>" />
+                                <input name="deploy_namespace" type="hidden" value="<?php echo esc_attr( $namespaces[ $i ] ); ?>" />
 
                                 <button class="button btn-danger">Go</button>
 

@@ -146,7 +146,10 @@ class DetectSitemapsURLs {
             }
         } catch ( WP2StaticException $e ) {
             WsLog::l( $e->getMessage() );
-            throw new WP2StaticException( $e->getMessage(), 0, $e );
+            // Il sniff segnala $e, che è il terzo argomento del costruttore:
+            // l'eccezione precedente, non un messaggio da stampare.
+            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+            throw new WP2StaticException( esc_html( $e->getMessage() ), 0, $e );
         }
 
         return $sitemaps_urls;

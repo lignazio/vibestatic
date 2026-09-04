@@ -32,8 +32,8 @@ $row = function ( $name ) use ( $options ) {
 
     <table class="widefat striped">
         <tbody>
-            <?php echo $row( 'filenamesToIgnore' ); ?>
-            <?php echo $row( 'fileExtensionsToIgnore' ); ?>
+            <?php echo esc_html( $row( 'filenamesToIgnore' ) ); ?>
+            <?php echo esc_html( $row( 'fileExtensionsToIgnore' ) ); ?>
         </tbody>
     </table>
 
@@ -43,9 +43,9 @@ $row = function ( $name ) use ( $options ) {
 
     <table class="widefat striped">
         <tbody>
-            <?php echo $row( 'crawlConcurrency' ); ?>
-            <?php echo $row( 'skipURLRewrite' ); ?>
-            <?php echo $row( 'hostsToRewrite' ); ?>
+            <?php echo esc_html( $row( 'crawlConcurrency' ) ); ?>
+            <?php echo esc_html( $row( 'skipURLRewrite' ) ); ?>
+            <?php echo esc_html( $row( 'hostsToRewrite' ) ); ?>
         </tbody>
     </table>
 

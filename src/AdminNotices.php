@@ -62,36 +62,51 @@ class AdminNotices {
 
         ( new self() )->logNoticeAction( $notice_to_display['name'], 'displayed' );
 
-        $hostname = base64_encode( SiteInfo::getUrl( 'site' ) );
+        // ATTENZIONE, da decidere prima del rilascio pubblico: l'immagine qui
+        // sotto è ospitata su img.wp2static.com e riceve a ogni caricamento di
+        // una pagina admin l'URL del sito e quello di deploy, codificati in
+        // base64. È un pixel di tracciamento verso un dominio di terzi, e le
+        // linee guida di wordpress.org vietano di trasmettere dati senza
+        // consenso esplicito. Va tolto insieme al resto della promozione
+        // Strattic quando il fork prende identità propria.
+        $hostname = base64_encode( strval( SiteInfo::getUrl( 'site' ) ) );
         $deploy_url = base64_encode( CoreOptions::getValue( 'deploymentURL' ) );
+
+        $logo_url = add_query_arg(
+            [
+                'h' => $hostname,
+                'p' => $deploy_url,
+            ],
+            'https://img.wp2static.com/strattic-logo.svg'
+        );
 
         printf(
             '<div class="%1$s">' .
-            '<img style="height:20px;width:20px;" class="strattic-logo" ' .
-            'src="https://img.wp2static.com/strattic-logo.svg' .
-            '?h=' . $hostname . '&p=' . $deploy_url .
-            '" />' .
-            '<b>%2$s</b><p>%3$s</p>' .
-            // phpcs:disable Generic.Files.LineLength.TooLong
-            '<a href="%4$s" target="_blank"><button class="button button-primary">%5$s</button></a>' .
-            // phpcs:disable Generic.Files.LineLength.TooLong
-            '<a href="%6$s" target="_blank"><button class="button button-secondary">%7$s</button></a>' .
-            '' .
-            // phpcs:disable Generic.Files.LineLength.MaxExceeded
-            '<a href="#" class="wp2static-admin-notice-dismiss" id="wp2static-admin-notice-dismiss-' .
-            $notice_to_display['name'] . '"><span class="dashicons dashicons-dismiss"></span></a>' .
-            '<div id="wp2static-admin-notice-nonce">' .
-            wp_create_nonce( 'wp2static-admin-notice' ) . '</div>' .
-            '<div id="wp2static-admin-notice-user-id">' .
-            get_current_user_id() . '</div>' .
+            '<img style="height:20px;width:20px;" class="strattic-logo" src="%2$s" />' .
+            '<b>%3$s</b><p>%4$s</p>' .
+            '<a href="%5$s" target="_blank">' .
+            '<button class="button button-primary">%6$s</button></a>' .
+            '<a href="%7$s" target="_blank">' .
+            '<button class="button button-secondary">%8$s</button></a>' .
+            '<a href="#" class="wp2static-admin-notice-dismiss" ' .
+            'id="wp2static-admin-notice-dismiss-%9$s">' .
+            '<span class="dashicons dashicons-dismiss"></span></a>' .
+            '<div id="wp2static-admin-notice-nonce">%10$s</div>' .
+            '<div id="wp2static-admin-notice-user-id">%11$s</div>' .
             '</div>',
-            esc_attr( $notice_to_display['class'] ),
-            esc_html( $notice_to_display['title'] ),
-            nl2br( $notice_to_display['message'] ),
-            esc_html( $notice_to_display['primary_button_url'] ),
-            esc_html( $notice_to_display['primary_button_title'] ),
-            esc_html( $notice_to_display['secondary_button_url'] ),
-            esc_html( $notice_to_display['secondary_button_title'] )
+            esc_attr( strval( $notice_to_display['class'] ) ),
+            esc_url( $logo_url ),
+            esc_html( strval( $notice_to_display['title'] ) ),
+            // Il messaggio passa da nl2br(), che introduce <br />: l'escaping
+            // va fatto prima, o i tag vengono a loro volta escapati.
+            nl2br( esc_html( strval( $notice_to_display['message'] ) ) ),
+            esc_url( strval( $notice_to_display['primary_button_url'] ) ),
+            esc_html( strval( $notice_to_display['primary_button_title'] ) ),
+            esc_url( strval( $notice_to_display['secondary_button_url'] ) ),
+            esc_html( strval( $notice_to_display['secondary_button_title'] ) ),
+            esc_attr( strval( $notice_to_display['name'] ) ),
+            esc_attr( wp_create_nonce( 'wp2static-admin-notice' ) ),
+            esc_attr( strval( get_current_user_id() ) )
         );
     }
 

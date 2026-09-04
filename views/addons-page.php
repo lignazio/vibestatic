@@ -43,21 +43,21 @@ $addons = $view['addons'];
 
                         <?php wp_nonce_field( strval( $view['nonce_action'] ) ); ?>
                         <input name="action" type="hidden" value="wp2static_toggle_addon" />
-                        <input name="addon_slug" type="hidden" value="<?php echo $addon->slug; ?>" />
+                        <input name="addon_slug" type="hidden" value="<?php echo esc_attr( $addon->slug ); ?>" />
 
-                        <button><?php echo $addon->enabled ? 'Enabled' : 'Disabled'; ?></button>
+                        <button><?php echo esc_html( $addon->enabled ? 'Enabled' : 'Disabled' ); ?></button>
 
                         </form>
 
                     </td>
                     <td>
-                        <?php echo $addon->name; ?>
+                        <?php echo esc_html( $addon->name ); ?>
                         <br>
-                        <?php echo $addon->description; ?>
+                        <?php echo esc_html( $addon->description ); ?>
                     </td>
-                    <td><?php echo $addon->type; ?></td>
+                    <td><?php echo esc_html( $addon->type ); ?></td>
                     <td>
-                        <a href="<?php echo $addon->docs_url; ?>"><span class="dashicons dashicons-book-alt"></span></a>
+                        <a href="<?php echo esc_url( $addon->docs_url ); ?>"><span class="dashicons dashicons-book-alt"></span></a>
                     </td>
                     <td>
                         <a href="<?php echo esc_url( admin_url( "admin.php?page={$addon->slug}" ) ); ?>"><span class="dashicons dashicons-admin-generic"></span></a>
