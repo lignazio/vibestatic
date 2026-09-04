@@ -27,8 +27,11 @@ class Schema {
      *
      * Se non la si alza, la modifica arriva solo sulle installazioni nuove, e
      * il difetto si vede molto dopo e altrove.
+     *
+     * 2 — opzione `removeWordPressCruft`. Non e' una colonna nuova: e' una riga
+     *     che `seedOptions()` deve inserire anche dove il plugin c'e' gia'.
      */
-    const VERSION = 1;
+    const VERSION = 2;
 
     /**
      * @var string Dove si ricorda la versione applicata.

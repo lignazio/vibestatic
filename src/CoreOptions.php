@@ -330,6 +330,16 @@ class CoreOptions {
                 'Don\'t rewrite any URLs. This may give a slight speed-up when the'
                 . ' deployment URL is the same as WordPress\'s URL.'
             ),
+            self::makeOptionSpec(
+                'boolean',
+                'removeWordPressCruft',
+                '0',
+                'Remove WordPress emoji and RSD output',
+                'Removes the emoji scripts, the wlwmanifest link and the wp-embed and'
+                . ' comment-reply scripts. This changes your LIVE site as well as the'
+                . ' exported one, on purpose: a static copy should look like what your'
+                . ' visitors actually get.'
+            ),
         ];
 
         $ret = [];
@@ -801,6 +811,11 @@ class CoreOptions {
                 self::repository()->update(
                     'skipURLRewrite',
                     [ 'value' => isset( $_POST['skipURLRewrite'] ) ? 1 : 0 ]
+                );
+
+                self::repository()->update(
+                    'removeWordPressCruft',
+                    [ 'value' => isset( $_POST['removeWordPressCruft'] ) ? 1 : 0 ]
                 );
                 break;
         }

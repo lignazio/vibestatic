@@ -45,6 +45,7 @@ $row = function ( $name ) use ( $options ) {
         <tbody>
             <?php echo $row( 'crawlConcurrency' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
             <?php echo $row( 'skipURLRewrite' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
+            <?php echo $row( 'removeWordPressCruft' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
             <?php echo $row( 'hostsToRewrite' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
         </tbody>
     </table>

@@ -105,22 +105,55 @@ add_filter(
 );
 
 /**
- * Prevent WP scripts from loading which aren't useful
- * on a statically exported site
+ * Toglie dall'output di WordPress le cose che su un sito statico non servono.
+ *
+ * Erano quattro righe eseguite sempre, con accanto un TODO degli autori che
+ * diceva «non c'entrano col core». Il problema non e` che non c'entrino: e` che
+ * un plugin il cui mestiere e` esportare un sito ne stava riscrivendo l'output
+ * per tutti i visitatori, senza chiederlo e senza dirlo.
+ *
+ * Toglierle solo durante il crawl sarebbe stato peggio: la copia statica
+ * direbbe una cosa diversa da quella che i visitatori ricevono davvero, e una
+ * copia statica che non somiglia all'originale non serve a niente. Quindi o
+ * valgono per tutti o per nessuno — ed e` una decisione di chi possiede il
+ * sito, non del plugin. Di default: nessuno.
  */
-function vibestatic_deregister_scripts(): void {
-    wp_dequeue_script( 'wp-embed' );
-    wp_deregister_script( 'wp-embed' );
-    wp_dequeue_script( 'comment-reply' );
-    wp_deregister_script( 'comment-reply' );
+function vibestatic_remove_wordpress_cruft() : void {
+    if ( ! class_exists( 'WP2Static\CoreOptions' ) ) {
+        return;
+    }
+
+    if ( ! WP2Static\CoreOptions::getValue( 'removeWordPressCruft' ) ) {
+        return;
+    }
+
+    /*
+     * `wlwmanifest_link` non e' piu' agganciata a wp_head da WordPress 6.7:
+     * la funzione esiste ancora in deprecated.php ma nessuno la chiama, quindi
+     * questa riga non toglie niente. Resta per i siti su versioni piu' vecchie.
+     */
+    remove_action( 'wp_head', 'wlwmanifest_link' );
+    remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
+    remove_action( 'wp_print_styles', 'print_emoji_styles' );
+
+    add_action(
+        'wp_footer',
+        function () : void {
+            wp_dequeue_script( 'wp-embed' );
+            wp_deregister_script( 'wp-embed' );
+            wp_dequeue_script( 'comment-reply' );
+            wp_deregister_script( 'comment-reply' );
+        }
+    );
 }
 
-add_action( 'wp_footer', 'vibestatic_deregister_scripts' );
-
-// TODO: move into own plugin for WP cleanup, don't belong in core
-remove_action( 'wp_head', 'wlwmanifest_link' );
-remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
-remove_action( 'wp_print_styles', 'print_emoji_styles' );
+/*
+ * Su `init` e non subito: leggere l'opzione vuole il database, e a questo punto
+ * del caricamento di WordPress $wpdb c'e' ma le tabelle del plugin potrebbero
+ * non esserci ancora — e comunque i due wp_head da togliere si agganciano
+ * dopo.
+ */
+add_action( 'init', 'vibestatic_remove_wordpress_cruft' );
 
 if ( defined( 'WP_CLI' ) ) {
     WP_CLI::add_command( 'vibestatic', WP2Static\CLI::class );
