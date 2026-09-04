@@ -1,46 +1,51 @@
 {
-    "name": "leonstafford/wp2static",
-    "description": "Security & Performance via static website publishing.",
-    "homepage": "https://wp2static.com",
-    "license": "UNLICENSE",
+    "name": "lignazio/vibestatic",
+    "description": "Static site generation for WordPress, with incremental deployment.",
+    "homepage": "https://github.com/lignazio/vibestatic",
+    "license": "GPL-2.0-or-later",
     "authors": [
+        {
+            "name": "Ignazio Lucenti",
+            "homepage": "https://lucenti.studio"
+        },
         {
             "name": "Leon Stafford",
             "email": "me@ljs.dev",
-            "homepage": "https://ljs.dev"
+            "homepage": "https://ljs.dev",
+            "role": "Original author of WP2Static"
         }
     ],
     "type": "wordpress-plugin",
     "support": {
-        "issues": "https://github.com/WP2Static/wp2static/issues",
-        "forum": "https://wp2static.com/community",
-        "docs": "https://wp2static.com/documentation",
-        "source": "https://github.com/WP2Static/wp2static"
+        "issues": "https://github.com/lignazio/vibestatic/issues",
+        "source": "https://github.com/lignazio/vibestatic"
     },
     "replace": {
-        "guzzlehttp/guzzle":"*",
-        "guzzlehttp/promises":"*",
-        "guzzlehttp/psr7":"*"
+        "guzzlehttp/guzzle": "*",
+        "guzzlehttp/promises": "*",
+        "guzzlehttp/psr7": "*"
     },
     "require": {
-        "php": ">=7.4",
+        "php": ">=8.2",
         "wa72/url": "^0.7.1",
         "leonstafford/wp2staticguzzle": "^7.2.0",
-        "symfony/polyfill-php80": "^1.27.0",
         "ext-mbstring": "*",
         "ext-simplexml": "*",
-        "lib-libxml": "*"
+        "lib-libxml": "*",
+        "cweagans/composer-patches": "^1.7"
     },
     "require-dev": {
-        "thecodingmachine/phpstan-strict-rules": "*",
-        "szepeviktor/phpstan-wordpress": "*",
-        "squizlabs/php_codesniffer": "*",
-        "phpunit/phpunit": "9.5.24",
-        "dealerdirect/phpcodesniffer-composer-installer": "*",
-        "wp-coding-standards/wpcs": "*",
-        "phpcompatibility/php-compatibility": "*",
-        "php-parallel-lint/php-parallel-lint": "*",
-        "10up/wp_mock": "^0.5",
+        "phpstan/phpstan": "^2.1",
+        "thecodingmachine/phpstan-strict-rules": "^2.0",
+        "szepeviktor/phpstan-wordpress": "^2.0",
+        "php-stubs/wordpress-stubs": "^7.1",
+        "squizlabs/php_codesniffer": "^3.13",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+        "wp-coding-standards/wpcs": "^3.4",
+        "phpcompatibility/phpcompatibility-wp": "^2.1",
+        "php-parallel-lint/php-parallel-lint": "^1.4",
+        "phpunit/phpunit": "^9.6",
+        "10up/wp_mock": "^1.1",
         "mikey179/vfsstream": "^1.6"
     },
     "autoload": {
@@ -48,36 +53,55 @@
             "WP2Static\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "WP2Static\\Tests\\": "tests/unit/"
+        }
+    },
     "config": {
         "preferred-install": {
             "*": "dist"
         },
         "classmap-authoritative": true,
+        "sort-packages": true,
         "allow-plugins": {
-            "dealerdirect/phpcodesniffer-composer-installer": true
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "cweagans/composer-patches": true
         }
     },
     "scripts": {
-        "phpstan": "php -d memory_limit=-1 ./vendor/bin/phpstan analyse",
-        "phpcbf": "vendor/bin/phpcbf --standard=./tools/phpcs.xml --ignore=*/js/*,*/tests/phpstan/*,*/admin/*,*/coverage/*,*.js,*/vendor/*,*/integration-tests/bedrock/*,*/integration-tests/result*,*/integration-tests/wordpress/* ./",
-        "phpcs": "vendor/bin/phpcs -s --standard=./tools/phpcs.xml --ignore=*/tests/phpstan/*,*/admin/*,**/coverage/*,*.js,*/vendor/*,*/integration-tests/bedrock/*,*/integration-tests/result*,*/integration-tests/wordpress/* ./",
-        "php74": "vendor/bin/phpcs --standard=PHPCompatibility --runtime-set testVersion 7.4 --ignore=*/tests/*,*/admin/*,**/coverage/*,*.js,*/vendor/*,*/integration-tests/bedrock/*,*/integration-tests/result*,*/integration-tests/wordpress/* ./",
-        "php80": "vendor/bin/phpcs --standard=PHPCompatibility --runtime-set testVersion 8.0 --ignore=*/tests/*,*/admin/*,**/coverage/*,*.js,*/vendor/*,*/integration-tests/bedrock/*,*/integration-tests/result*,*/integration-tests/wordpress/* ./",
-        "php81": "vendor/bin/phpcs --standard=PHPCompatibility --runtime-set testVersion 8.1 --ignore=*/tests/*,*/admin/*,**/coverage/*,*.js,*/vendor/*,*/integration-tests/bedrock/*,*/integration-tests/result*,*/integration-tests/wordpress/* ./",
-        "phpunit": "vendor/bin/phpunit ./tests/unit/",
-        "coverage": "XDEBUG_MODE=coverage vendor/bin/phpunit tests/unit --coverage-html coverage --whitelist src/",
-        "lint": "vendor/bin/parallel-lint --exclude integration-tests --exclude vendor .",
+        "lint": "parallel-lint --exclude integration-tests --exclude vendor .",
+        "phpcs": "phpcs -s",
+        "phpcbf": "phpcbf",
+        "phpcompat": "phpcs -p --standard=./.phpcompat.xml.dist",
+        "phpstan": "@php -d memory_limit=-1 ./vendor/bin/phpstan analyse",
+        "phpstan-baseline": "@php -d memory_limit=-1 ./vendor/bin/phpstan analyse --generate-baseline",
+        "phpunit": "phpunit --testsuite unit",
+        "phpunit-external": "phpunit --testsuite external",
+        "coverage": "XDEBUG_MODE=coverage phpunit --testsuite unit --coverage-html coverage",
         "test": [
             "composer validate --strict",
             "@lint",
-            "@phpcs",
-            "@php74",
-            "@php80",
-            "@php81",
+            "@phpcompat",
             "@phpstan",
-            "@phpunit"
+            "@phpunit",
+            "@phpcs"
         ],
-        "test-integration": "integration-tests/test-matrix.sh",
         "build": "/bin/sh tools/build_release.sh"
+    },
+    "scripts-descriptions": {
+        "lint": "Parse every PHP file with the current interpreter.",
+        "phpcs": "WordPress coding standards, including the security sniffs.",
+        "phpcompat": "PHP cross-version compatibility, 8.2 and up.",
+        "phpstan": "Static analysis at level max, with the accepted debt in the baseline.",
+        "phpunit": "Unit tests. Excludes the suite that makes real network requests.",
+        "test": "Tutto quello che gira in CI. phpcs è per ultimo di proposito: è l'unico ancora rosso, e metterlo prima nasconderebbe l'esito di tutto il resto."
+    },
+    "extra": {
+        "patches": {
+            "leonstafford/wp2staticpromises": {
+                "PHP 8.4: nullable espliciti, senza cui i test in processo isolato falliscono tutti (vedi patches/README.md)": "patches/wp2staticpromises-nullable-params.patch"
+            }
+        }
     }
 }

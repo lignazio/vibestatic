@@ -16,3 +16,6 @@ admin/*.js*
 *.pid
 result
 result-*
+phpunit.xml
+.phpunit.cache/
+dist/

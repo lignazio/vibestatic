@@ -1,0 +1,1969 @@
+parameters:
+	ignoreErrors:
+		-
+			rawMessage: Binary operation "." between mixed and 'wp2static_addons' results in an error.
+			identifier: binaryOp.invalid
+			count: 5
+			path: src/Addons.php
+
+		-
+			rawMessage: Cannot access property $prefix on mixed.
+			identifier: property.nonObject
+			count: 5
+			path: src/Addons.php
+
+		-
+			rawMessage: Cannot access property $slug on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/Addons.php
+
+		-
+			rawMessage: 'Cannot call method get_charset_collate() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/Addons.php
+
+		-
+			rawMessage: 'Cannot call method get_results() on mixed.'
+			identifier: method.nonObject
+			count: 2
+			path: src/Addons.php
+
+		-
+			rawMessage: 'Cannot call method prepare() on mixed.'
+			identifier: method.nonObject
+			count: 3
+			path: src/Addons.php
+
+		-
+			rawMessage: 'Cannot call method query() on mixed.'
+			identifier: method.nonObject
+			count: 2
+			path: src/Addons.php
+
+		-
+			rawMessage: 'Method WP2Static\Addons::getAll() should return array<mixed> but returns mixed.'
+			identifier: return.type
+			count: 1
+			path: src/Addons.php
+
+		-
+			rawMessage: 'Method WP2Static\Addons::getDeployer() should return bool|string but returns mixed.'
+			identifier: return.type
+			count: 1
+			path: src/Addons.php
+
+		-
+			rawMessage: 'Method WP2Static\Addons::getType() should return array<mixed> but returns mixed.'
+			identifier: return.type
+			count: 1
+			path: src/Addons.php
+
+		-
+			rawMessage: 'Part $charset_collate (mixed) of encapsed string cannot be cast to string.'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/Addons.php
+
+		-
+			rawMessage: Binary operation "." between mixed and 'wc_order_stats' results in an error.
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/AdminNotices.php
+
+		-
+			rawMessage: Binary operation "." between mixed and 'wp2static_notices' results in an error.
+			identifier: binaryOp.invalid
+			count: 4
+			path: src/AdminNotices.php
+
+		-
+			rawMessage: Cannot access property $prefix on mixed.
+			identifier: property.nonObject
+			count: 5
+			path: src/AdminNotices.php
+
+		-
+			rawMessage: 'Cannot call method esc_like() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/AdminNotices.php
+
+		-
+			rawMessage: 'Cannot call method get_charset_collate() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/AdminNotices.php
+
+		-
+			rawMessage: 'Cannot call method get_var() on mixed.'
+			identifier: method.nonObject
+			count: 3
+			path: src/AdminNotices.php
+
+		-
+			rawMessage: 'Cannot call method insert() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/AdminNotices.php
+
+		-
+			rawMessage: 'Cannot call method prepare() on mixed.'
+			identifier: method.nonObject
+			count: 3
+			path: src/AdminNotices.php
+
+		-
+			rawMessage: 'Part $charset_collate (mixed) of encapsed string cannot be cast to string.'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/AdminNotices.php
+
+		-
+			rawMessage: Cannot access property $description on mixed.
+			identifier: property.nonObject
+			count: 2
+			path: src/CLI.php
+
+		-
+			rawMessage: Cannot access property $docs_url on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/CLI.php
+
+		-
+			rawMessage: Cannot access property $enabled on mixed.
+			identifier: property.nonObject
+			count: 2
+			path: src/CLI.php
+
+		-
+			rawMessage: Cannot access property $name on mixed.
+			identifier: property.nonObject
+			count: 2
+			path: src/CLI.php
+
+		-
+			rawMessage: Cannot access property $slug on mixed.
+			identifier: property.nonObject
+			count: 2
+			path: src/CLI.php
+
+		-
+			rawMessage: 'Argument of an invalid type mixed supplied for foreach, only iterables are supported.'
+			identifier: foreach.nonIterable
+			count: 2
+			path: src/Controller.php
+
+		-
+			rawMessage: Binary operation "." between mixed and '.wp2static_jobs.' results in an error.
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/Controller.php
+
+		-
+			rawMessage: Binary operation "." between mixed and 'wp2static_addons' results in an error.
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/Controller.php
+
+		-
+			rawMessage: Binary operation "." between mixed and 'wp2static_crawl…' results in an error.
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/Controller.php
+
+		-
+			rawMessage: Binary operation "." between mixed and 'wp2static_jobs' results in an error.
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/Controller.php
+
+		-
+			rawMessage: Binary operation "." between non-falsy-string and mixed results in an error.
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/Controller.php
+
+		-
+			rawMessage: 'Call to function is_string() with string will always evaluate to true.'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Controller.php
+
+		-
+			rawMessage: Cannot access property $blogs on mixed.
+			identifier: property.nonObject
+			count: 2
+			path: src/Controller.php
+
+		-
+			rawMessage: Cannot access property $enabled on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/Controller.php
+
+		-
+			rawMessage: Cannot access property $id on mixed.
+			identifier: property.nonObject
+			count: 3
+			path: src/Controller.php
+
+		-
+			rawMessage: Cannot access property $job_type on mixed.
+			identifier: property.nonObject
+			count: 2
+			path: src/Controller.php
+
+		-
+			rawMessage: Cannot access property $lck on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/Controller.php
+
+		-
+			rawMessage: Cannot access property $prefix on mixed.
+			identifier: property.nonObject
+			count: 4
+			path: src/Controller.php
+
+		-
+			rawMessage: Cannot access property $siteid on mixed.
+			identifier: property.nonObject
+			count: 2
+			path: src/Controller.php
+
+		-
+			rawMessage: Cannot access property $slug on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/Controller.php
+
+		-
+			rawMessage: Cannot access property $type on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/Controller.php
+
+		-
+			rawMessage: 'Cannot call method get_col() on mixed.'
+			identifier: method.nonObject
+			count: 2
+			path: src/Controller.php
+
+		-
+			rawMessage: 'Cannot call method get_row() on mixed.'
+			identifier: method.nonObject
+			count: 2
+			path: src/Controller.php
+
+		-
+			rawMessage: 'Cannot call method get_var() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/Controller.php
+
+		-
+			rawMessage: 'Cannot call method prepare() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/Controller.php
+
+		-
+			rawMessage: 'Cannot call method query() on mixed.'
+			identifier: method.nonObject
+			count: 5
+			path: src/Controller.php
+
+		-
+			rawMessage: 'Cannot call method update() on mixed.'
+			identifier: method.nonObject
+			count: 2
+			path: src/Controller.php
+
+		-
+			rawMessage: 'In method "WP2Static\Controller::wp2staticProcessQueueAdminPost", you should not use the $_COOKIE superglobal.'
+			identifier: thecodingmachine.superglobalUsed
+			count: 1
+			path: src/Controller.php
+
+		-
+			rawMessage: Left side of && is always true.
+			identifier: booleanAnd.leftAlwaysTrue
+			count: 1
+			path: src/Controller.php
+
+		-
+			rawMessage: 'Method WP2Static\Controller::ensureIndex() should return bool but returns mixed.'
+			identifier: return.type
+			count: 1
+			path: src/Controller.php
+
+		-
+			rawMessage: 'Parameter #1 $id of static method WP2Static\JobQueue::setStatus() expects int, mixed given.'
+			identifier: argument.type
+			count: 3
+			path: src/Controller.php
+
+		-
+			rawMessage: 'Parameter #1 $new_blog_id of function switch_to_blog expects int, mixed given.'
+			identifier: argument.type
+			count: 2
+			path: src/Controller.php
+
+		-
+			rawMessage: 'Parameter #1 $value of function intval expects array|bool|float|GMP|int|resource|SimpleXMLElement|string|null, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Controller.php
+
+		-
+			rawMessage: 'Parameter #2 $args of function wp_remote_request expects array{method?: string, timeout?: float, redirection?: int, httpversion?: string, user-agent?: string, reject_unsafe_urls?: bool, blocking?: bool, headers?: array|string, ...}, array{method: string, timeout: 30, user-agent: mixed, body: mixed, headers: mixed} given.'
+			identifier: argument.type
+			count: 1
+			path: src/Controller.php
+
+		-
+			rawMessage: 'Parameter #2 ...$values of function sprintf expects bool|float|int|string|null, mixed given.'
+			identifier: argument.type
+			count: 2
+			path: src/Controller.php
+
+		-
+			rawMessage: 'Parameter #3 ...$values of function sprintf expects bool|float|int|string|null, mixed given.'
+			identifier: argument.type
+			count: 2
+			path: src/Controller.php
+
+		-
+			rawMessage: 'Argument of an invalid type mixed supplied for foreach, only iterables are supported.'
+			identifier: foreach.nonIterable
+			count: 1
+			path: src/CoreOptions.php
+
+		-
+			rawMessage: Binary operation "." between mixed and string results in an error.
+			identifier: binaryOp.invalid
+			count: 8
+			path: src/CoreOptions.php
+
+		-
+			rawMessage: Cannot access property $name on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/CoreOptions.php
+
+		-
+			rawMessage: Cannot access property $prefix on mixed.
+			identifier: property.nonObject
+			count: 8
+			path: src/CoreOptions.php
+
+		-
+			rawMessage: Cannot access property $unfiltered_value on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/CoreOptions.php
+
+		-
+			rawMessage: Cannot access property $value on mixed.
+			identifier: property.nonObject
+			count: 5
+			path: src/CoreOptions.php
+
+		-
+			rawMessage: 'Cannot call method get_charset_collate() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/CoreOptions.php
+
+		-
+			rawMessage: 'Cannot call method get_results() on mixed.'
+			identifier: method.nonObject
+			count: 2
+			path: src/CoreOptions.php
+
+		-
+			rawMessage: 'Cannot call method get_row() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/CoreOptions.php
+
+		-
+			rawMessage: 'Cannot call method get_var() on mixed.'
+			identifier: method.nonObject
+			count: 2
+			path: src/CoreOptions.php
+
+		-
+			rawMessage: 'Cannot call method prepare() on mixed.'
+			identifier: method.nonObject
+			count: 4
+			path: src/CoreOptions.php
+
+		-
+			rawMessage: 'Cannot call method query() on mixed.'
+			identifier: method.nonObject
+			count: 3
+			path: src/CoreOptions.php
+
+		-
+			rawMessage: 'Cannot call method update() on mixed.'
+			identifier: method.nonObject
+			count: 25
+			path: src/CoreOptions.php
+
+		-
+			rawMessage: 'In method "WP2Static\CoreOptions::savePosted", you should not use the $_POST superglobal.'
+			identifier: thecodingmachine.superglobalUsed
+			count: 16
+			path: src/CoreOptions.php
+
+		-
+			rawMessage: 'Method WP2Static\CoreOptions::getValue() should return string but returns mixed.'
+			identifier: return.type
+			count: 1
+			path: src/CoreOptions.php
+
+		-
+			rawMessage: 'Only iterables can be unpacked, mixed given in argument #1.'
+			identifier: argument.unpackNonIterable
+			count: 1
+			path: src/CoreOptions.php
+
+		-
+			rawMessage: 'Parameter #1 $hook_name of function apply_filters expects non-empty-string, string given.'
+			identifier: argument.type
+			count: 4
+			path: src/CoreOptions.php
+
+		-
+			rawMessage: 'Parameter #1 $value of function intval expects array|bool|float|GMP|int|resource|SimpleXMLElement|string|null, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/CoreOptions.php
+
+		-
+			rawMessage: 'Parameter #1 ...$arrays of function array_merge expects array, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/CoreOptions.php
+
+		-
+			rawMessage: 'Parameter #2 $string of static method WP2Static\CoreOptions::encrypt_decrypt() expects string, mixed given.'
+			identifier: argument.type
+			count: 2
+			path: src/CoreOptions.php
+
+		-
+			rawMessage: 'Part $charset_collate (mixed) of encapsed string cannot be cast to string.'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/CoreOptions.php
+
+		-
+			rawMessage: Possibly invalid array key type mixed.
+			identifier: offsetAccess.invalidOffset
+			count: 1
+			path: src/CoreOptions.php
+
+		-
+			rawMessage: 'Argument of an invalid type mixed supplied for foreach, only iterables are supported.'
+			identifier: foreach.nonIterable
+			count: 2
+			path: src/CrawlCache.php
+
+		-
+			rawMessage: Binary operation "." between mixed and 'wp2static_crawl…' results in an error.
+			identifier: binaryOp.invalid
+			count: 10
+			path: src/CrawlCache.php
+
+		-
+			rawMessage: Cannot access property $id on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/CrawlCache.php
+
+		-
+			rawMessage: Cannot access property $prefix on mixed.
+			identifier: property.nonObject
+			count: 10
+			path: src/CrawlCache.php
+
+		-
+			rawMessage: Cannot access property $redirect_to on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/CrawlCache.php
+
+		-
+			rawMessage: Cannot access property $url on mixed.
+			identifier: property.nonObject
+			count: 2
+			path: src/CrawlCache.php
+
+		-
+			rawMessage: 'Cannot call method delete() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/CrawlCache.php
+
+		-
+			rawMessage: 'Cannot call method esc_like() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/CrawlCache.php
+
+		-
+			rawMessage: 'Cannot call method get_charset_collate() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/CrawlCache.php
+
+		-
+			rawMessage: 'Cannot call method get_col() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/CrawlCache.php
+
+		-
+			rawMessage: 'Cannot call method get_results() on mixed.'
+			identifier: method.nonObject
+			count: 2
+			path: src/CrawlCache.php
+
+		-
+			rawMessage: 'Cannot call method get_row() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/CrawlCache.php
+
+		-
+			rawMessage: 'Cannot call method get_var() on mixed.'
+			identifier: method.nonObject
+			count: 3
+			path: src/CrawlCache.php
+
+		-
+			rawMessage: 'Cannot call method prepare() on mixed.'
+			identifier: method.nonObject
+			count: 3
+			path: src/CrawlCache.php
+
+		-
+			rawMessage: 'Cannot call method query() on mixed.'
+			identifier: method.nonObject
+			count: 4
+			path: src/CrawlCache.php
+
+		-
+			rawMessage: Cannot cast mixed to string.
+			identifier: cast.string
+			count: 1
+			path: src/CrawlCache.php
+
+		-
+			rawMessage: 'Method WP2Static\CrawlCache::getHashes() should return array<string> but returns mixed.'
+			identifier: return.type
+			count: 1
+			path: src/CrawlCache.php
+
+		-
+			rawMessage: 'Method WP2Static\CrawlCache::getTotal() should return int but returns mixed.'
+			identifier: return.type
+			count: 1
+			path: src/CrawlCache.php
+
+		-
+			rawMessage: 'Method WP2Static\CrawlCache::getURLs() should return array<object> but returns array.'
+			identifier: return.type
+			count: 1
+			path: src/CrawlCache.php
+
+		-
+			rawMessage: 'Part $charset_collate (mixed) of encapsed string cannot be cast to string.'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/CrawlCache.php
+
+		-
+			rawMessage: Possibly invalid array key type mixed.
+			identifier: offsetAccess.invalidOffset
+			count: 2
+			path: src/CrawlCache.php
+
+		-
+			rawMessage: 'Argument of an invalid type mixed supplied for foreach, only iterables are supported.'
+			identifier: foreach.nonIterable
+			count: 1
+			path: src/CrawlQueue.php
+
+		-
+			rawMessage: Binary operation "." between mixed and 'wp2static_urls' results in an error.
+			identifier: binaryOp.invalid
+			count: 8
+			path: src/CrawlQueue.php
+
+		-
+			rawMessage: Cannot access property $id on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/CrawlQueue.php
+
+		-
+			rawMessage: Cannot access property $prefix on mixed.
+			identifier: property.nonObject
+			count: 8
+			path: src/CrawlQueue.php
+
+		-
+			rawMessage: Cannot access property $url on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/CrawlQueue.php
+
+		-
+			rawMessage: 'Cannot call method delete() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/CrawlQueue.php
+
+		-
+			rawMessage: 'Cannot call method get_charset_collate() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/CrawlQueue.php
+
+		-
+			rawMessage: 'Cannot call method get_results() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/CrawlQueue.php
+
+		-
+			rawMessage: 'Cannot call method get_var() on mixed.'
+			identifier: method.nonObject
+			count: 2
+			path: src/CrawlQueue.php
+
+		-
+			rawMessage: 'Cannot call method prepare() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/CrawlQueue.php
+
+		-
+			rawMessage: 'Cannot call method query() on mixed.'
+			identifier: method.nonObject
+			count: 3
+			path: src/CrawlQueue.php
+
+		-
+			rawMessage: 'Method WP2Static\CrawlQueue::getCrawlablePaths() should return array<string> but returns array.'
+			identifier: return.type
+			count: 1
+			path: src/CrawlQueue.php
+
+		-
+			rawMessage: 'Method WP2Static\CrawlQueue::getTotal() should return int but returns mixed.'
+			identifier: return.type
+			count: 1
+			path: src/CrawlQueue.php
+
+		-
+			rawMessage: 'Method WP2Static\CrawlQueue::getTotalCrawlableURLs() should return int but returns mixed.'
+			identifier: return.type
+			count: 1
+			path: src/CrawlQueue.php
+
+		-
+			rawMessage: 'Part $charset_collate (mixed) of encapsed string cannot be cast to string.'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/CrawlQueue.php
+
+		-
+			rawMessage: Possibly invalid array key type mixed.
+			identifier: offsetAccess.invalidOffset
+			count: 1
+			path: src/CrawlQueue.php
+
+		-
+			rawMessage: 'Argument of an invalid type mixed supplied for foreach, only iterables are supported.'
+			identifier: foreach.nonIterable
+			count: 1
+			path: src/Crawler.php
+
+		-
+			rawMessage: Cannot access offset 'url' on mixed.
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Crawler.php
+
+		-
+			rawMessage: 'Parameter #2 $uri of class WP2StaticGuzzleHttp\Psr7\Request constructor expects Psr\Http\Message\UriInterface|string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Crawler.php
+
+		-
+			rawMessage: 'Part $port_override (mixed) of encapsed string cannot be cast to string.'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/Crawler.php
+
+		-
+			rawMessage: Possibly invalid array key type mixed.
+			identifier: offsetAccess.invalidOffset
+			count: 3
+			path: src/Crawler.php
+
+		-
+			rawMessage: 'Argument of an invalid type mixed supplied for foreach, only iterables are supported.'
+			identifier: foreach.nonIterable
+			count: 1
+			path: src/DeployCache.php
+
+		-
+			rawMessage: Binary operation "." between mixed and 'wp2static_deploy…' results in an error.
+			identifier: binaryOp.invalid
+			count: 7
+			path: src/DeployCache.php
+
+		-
+			rawMessage: Cannot access property $count on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/DeployCache.php
+
+		-
+			rawMessage: Cannot access property $namespace on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/DeployCache.php
+
+		-
+			rawMessage: Cannot access property $prefix on mixed.
+			identifier: property.nonObject
+			count: 7
+			path: src/DeployCache.php
+
+		-
+			rawMessage: 'Cannot call method esc_like() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/DeployCache.php
+
+		-
+			rawMessage: 'Cannot call method get_charset_collate() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/DeployCache.php
+
+		-
+			rawMessage: 'Cannot call method get_col() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/DeployCache.php
+
+		-
+			rawMessage: 'Cannot call method get_results() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/DeployCache.php
+
+		-
+			rawMessage: 'Cannot call method get_row() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/DeployCache.php
+
+		-
+			rawMessage: 'Cannot call method get_var() on mixed.'
+			identifier: method.nonObject
+			count: 3
+			path: src/DeployCache.php
+
+		-
+			rawMessage: 'Cannot call method prepare() on mixed.'
+			identifier: method.nonObject
+			count: 6
+			path: src/DeployCache.php
+
+		-
+			rawMessage: 'Cannot call method query() on mixed.'
+			identifier: method.nonObject
+			count: 3
+			path: src/DeployCache.php
+
+		-
+			rawMessage: 'Method WP2Static\DeployCache::getPaths() should return array<string> but returns mixed.'
+			identifier: return.type
+			count: 1
+			path: src/DeployCache.php
+
+		-
+			rawMessage: 'Method WP2Static\DeployCache::getTotalByNamespace() should return int but returns mixed.'
+			identifier: return.type
+			count: 1
+			path: src/DeployCache.php
+
+		-
+			rawMessage: 'Part $charset_collate (mixed) of encapsed string cannot be cast to string.'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/DeployCache.php
+
+		-
+			rawMessage: Possibly invalid array key type mixed.
+			identifier: offsetAccess.invalidOffset
+			count: 1
+			path: src/DeployCache.php
+
+		-
+			rawMessage: 'Call to function is_string() with string will always evaluate to true.'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/DetectAuthorPaginationURLs.php
+
+		-
+			rawMessage: Cannot access property $ID on mixed.
+			identifier: property.nonObject
+			count: 2
+			path: src/DetectAuthorPaginationURLs.php
+
+		-
+			rawMessage: Cannot access property $pagination_base on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/DetectAuthorPaginationURLs.php
+
+		-
+			rawMessage: 'Parameter #1 $author_id of function get_author_posts_url expects int, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/DetectAuthorPaginationURLs.php
+
+		-
+			rawMessage: 'Parameter #1 $userid of function count_user_posts expects int, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/DetectAuthorPaginationURLs.php
+
+		-
+			rawMessage: 'Part $pagination_base (mixed) of encapsed string cannot be cast to string.'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/DetectAuthorPaginationURLs.php
+
+		-
+			rawMessage: 'Call to function is_string() with string will always evaluate to true.'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/DetectAuthorsURLs.php
+
+		-
+			rawMessage: Cannot access property $ID on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/DetectAuthorsURLs.php
+
+		-
+			rawMessage: 'Parameter #1 $author_id of function get_author_posts_url expects int, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/DetectAuthorsURLs.php
+
+		-
+			rawMessage: Binary operation "/" between int and mixed results in an error.
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/DetectCategoryPaginationURLs.php
+
+		-
+			rawMessage: Cannot access property $pagination_base on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/DetectCategoryPaginationURLs.php
+
+		-
+			rawMessage: 'Parameter #2 $deprecated of function get_terms expects '''', array{hide_empty: true} given.'
+			identifier: argument.type
+			count: 1
+			path: src/DetectCategoryPaginationURLs.php
+
+		-
+			rawMessage: 'Part $pagination_base (mixed) of encapsed string cannot be cast to string.'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/DetectCategoryPaginationURLs.php
+
+		-
+			rawMessage: 'Parameter #2 $deprecated of function get_terms expects '''', array{hide_empty: true} given.'
+			identifier: argument.type
+			count: 1
+			path: src/DetectCategoryURLs.php
+
+		-
+			rawMessage: 'Argument of an invalid type mixed supplied for foreach, only iterables are supported.'
+			identifier: foreach.nonIterable
+			count: 1
+			path: src/DetectCustomPostTypeURLs.php
+
+		-
+			rawMessage: Cannot access property $posts on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/DetectCustomPostTypeURLs.php
+
+		-
+			rawMessage: 'Cannot call method get_col() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/DetectCustomPostTypeURLs.php
+
+		-
+			rawMessage: 'Parameter #1 $post of function get_post_permalink expects int|WP_Post, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/DetectCustomPostTypeURLs.php
+
+		-
+			rawMessage: 'Part $wpdb->posts (mixed) of encapsed string cannot be cast to string.'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/DetectCustomPostTypeURLs.php
+
+		-
+			rawMessage: 'Argument of an invalid type mixed supplied for foreach, only iterables are supported.'
+			identifier: foreach.nonIterable
+			count: 1
+			path: src/DetectPageURLs.php
+
+		-
+			rawMessage: Cannot access property $posts on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/DetectPageURLs.php
+
+		-
+			rawMessage: 'Cannot call method get_col() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/DetectPageURLs.php
+
+		-
+			rawMessage: 'Parameter #1 $post of function get_page_link expects int|WP_Post, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/DetectPageURLs.php
+
+		-
+			rawMessage: 'Part $wpdb->posts (mixed) of encapsed string cannot be cast to string.'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/DetectPageURLs.php
+
+		-
+			rawMessage: 'Call to function is_string() with string will always evaluate to true.'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/DetectPluginAssets.php
+
+		-
+			rawMessage: 'Argument of an invalid type mixed supplied for foreach, only iterables are supported.'
+			identifier: foreach.nonIterable
+			count: 1
+			path: src/DetectPostURLs.php
+
+		-
+			rawMessage: Cannot access property $posts on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/DetectPostURLs.php
+
+		-
+			rawMessage: 'Cannot call method get_col() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/DetectPostURLs.php
+
+		-
+			rawMessage: 'Parameter #1 $post of function get_permalink expects int|WP_Post, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/DetectPostURLs.php
+
+		-
+			rawMessage: 'Part $wpdb->posts (mixed) of encapsed string cannot be cast to string.'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/DetectPostURLs.php
+
+		-
+			rawMessage: 'Argument of an invalid type mixed supplied for foreach, only iterables are supported.'
+			identifier: foreach.nonIterable
+			count: 1
+			path: src/DetectPostsPaginationURLs.php
+
+		-
+			rawMessage: Binary operation "/" between mixed and mixed results in an error.
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/DetectPostsPaginationURLs.php
+
+		-
+			rawMessage: Cannot access property $pagination_base on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/DetectPostsPaginationURLs.php
+
+		-
+			rawMessage: Cannot access property $post_type on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/DetectPostsPaginationURLs.php
+
+		-
+			rawMessage: Cannot access property $posts on mixed.
+			identifier: property.nonObject
+			count: 2
+			path: src/DetectPostsPaginationURLs.php
+
+		-
+			rawMessage: 'Cannot call method get_results() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/DetectPostsPaginationURLs.php
+
+		-
+			rawMessage: 'Cannot call method get_var() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/DetectPostsPaginationURLs.php
+
+		-
+			rawMessage: 'Parameter #1 $array of function array_unique expects an array of values castable to string, list given.'
+			identifier: argument.type
+			count: 1
+			path: src/DetectPostsPaginationURLs.php
+
+		-
+			rawMessage: 'Parameter #1 $post_type of function get_post_type_object expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/DetectPostsPaginationURLs.php
+
+		-
+			rawMessage: 'Parameter #1 $string of function strtolower expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/DetectPostsPaginationURLs.php
+
+		-
+			rawMessage: 'Parameter #2 ...$values of function sprintf expects bool|float|int|string|null, mixed given.'
+			identifier: argument.type
+			count: 2
+			path: src/DetectPostsPaginationURLs.php
+
+		-
+			rawMessage: 'Parameter #4 ...$values of function sprintf expects bool|float|int|string|null, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/DetectPostsPaginationURLs.php
+
+		-
+			rawMessage: 'Part $pagination_base (mixed) of encapsed string cannot be cast to string.'
+			identifier: encapsedStringPart.nonString
+			count: 2
+			path: src/DetectPostsPaginationURLs.php
+
+		-
+			rawMessage: 'Part $port_override (mixed) of encapsed string cannot be cast to string.'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/DetectSitemapsURLs.php
+
+		-
+			rawMessage: 'Call to function is_string() with string will always evaluate to true.'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/DetectThemeAssets.php
+
+		-
+			rawMessage: 'Call to function is_string() with string will always evaluate to true.'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/DetectVendorCache.php
+
+		-
+			rawMessage: 'Argument of an invalid type mixed supplied for foreach, only iterables are supported.'
+			identifier: foreach.nonIterable
+			count: 1
+			path: src/DetectVendorFiles.php
+
+		-
+			rawMessage: Binary operation "." between string and mixed results in an error.
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/DetectVendorFiles.php
+
+		-
+			rawMessage: Cannot access property $meta_value on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/DetectVendorFiles.php
+
+		-
+			rawMessage: Cannot access property $postmeta on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/DetectVendorFiles.php
+
+		-
+			rawMessage: 'Cannot call method get_results() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/DetectVendorFiles.php
+
+		-
+			rawMessage: 'Parameter #2 ...$values of function sprintf expects bool|float|int|string|null, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/DetectVendorFiles.php
+
+		-
+			rawMessage: 'Call to function is_string() with string will always evaluate to true.'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/DetectWPIncludesAssets.php
+
+		-
+			rawMessage: 'Call to function is_string() with non-falsy-string will always evaluate to true.'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/FilesHelper.php
+
+		-
+			rawMessage: 'Call to function is_string() with string will always evaluate to true.'
+			identifier: function.alreadyNarrowedType
+			count: 3
+			path: src/FilesHelper.php
+
+		-
+			rawMessage: 'Parameter #2 $filenames_to_ignore of static method WP2Static\FilesHelper::pathLooksCrawlable() expects array<string>, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/FilesHelper.php
+
+		-
+			rawMessage: 'Parameter #3 $file_extensions_to_ignore of static method WP2Static\FilesHelper::pathLooksCrawlable() expects array<string>, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/FilesHelper.php
+
+		-
+			rawMessage: 'Argument of an invalid type mixed supplied for foreach, only iterables are supported.'
+			identifier: foreach.nonIterable
+			count: 3
+			path: src/JobQueue.php
+
+		-
+			rawMessage: Binary operation "." between mixed and 'wp2static_jobs' results in an error.
+			identifier: binaryOp.invalid
+			count: 12
+			path: src/JobQueue.php
+
+		-
+			rawMessage: Cannot access offset 0 on mixed.
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/JobQueue.php
+
+		-
+			rawMessage: Cannot access offset 1 on mixed.
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/JobQueue.php
+
+		-
+			rawMessage: Cannot access property $free on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/JobQueue.php
+
+		-
+			rawMessage: Cannot access property $id on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/JobQueue.php
+
+		-
+			rawMessage: Cannot access property $prefix on mixed.
+			identifier: property.nonObject
+			count: 13
+			path: src/JobQueue.php
+
+		-
+			rawMessage: 'Cannot call method get_charset_collate() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/JobQueue.php
+
+		-
+			rawMessage: 'Cannot call method get_results() on mixed.'
+			identifier: method.nonObject
+			count: 5
+			path: src/JobQueue.php
+
+		-
+			rawMessage: 'Cannot call method get_row() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/JobQueue.php
+
+		-
+			rawMessage: 'Cannot call method get_var() on mixed.'
+			identifier: method.nonObject
+			count: 3
+			path: src/JobQueue.php
+
+		-
+			rawMessage: 'Cannot call method prepare() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/JobQueue.php
+
+		-
+			rawMessage: 'Cannot call method query() on mixed.'
+			identifier: method.nonObject
+			count: 8
+			path: src/JobQueue.php
+
+		-
+			rawMessage: 'Cannot call method update() on mixed.'
+			identifier: method.nonObject
+			count: 2
+			path: src/JobQueue.php
+
+		-
+			rawMessage: 'Method WP2Static\JobQueue::getJobCountByType() should return array<int> but returns array.'
+			identifier: return.type
+			count: 1
+			path: src/JobQueue.php
+
+		-
+			rawMessage: 'Method WP2Static\JobQueue::getJobs() should return array<string> but returns list.'
+			identifier: return.type
+			count: 1
+			path: src/JobQueue.php
+
+		-
+			rawMessage: 'Method WP2Static\JobQueue::getTotalJobs() should return int but returns mixed.'
+			identifier: return.type
+			count: 1
+			path: src/JobQueue.php
+
+		-
+			rawMessage: 'Method WP2Static\JobQueue::getWaitingJobsCount() should return int but returns mixed.'
+			identifier: return.type
+			count: 1
+			path: src/JobQueue.php
+
+		-
+			rawMessage: 'Parameter #1 $array of function array_shift expects array, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/JobQueue.php
+
+		-
+			rawMessage: 'Parameter #1 $value of function count expects array|Countable, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/JobQueue.php
+
+		-
+			rawMessage: 'Parameter #1 $value of function intval expects array|bool|float|GMP|int|resource|SimpleXMLElement|string|null, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/JobQueue.php
+
+		-
+			rawMessage: 'Part $charset_collate (mixed) of encapsed string cannot be cast to string.'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/JobQueue.php
+
+		-
+			rawMessage: 'Part $failed_jobs (mixed) of encapsed string cannot be cast to string.'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/JobQueue.php
+
+		-
+			rawMessage: 'Part $wpdb->prefix (mixed) of encapsed string cannot be cast to string.'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/JobQueue.php
+
+		-
+			rawMessage: Possibly invalid array key type mixed.
+			identifier: offsetAccess.invalidOffset
+			count: 1
+			path: src/JobQueue.php
+
+		-
+			rawMessage: Binary operation "." between '<br>' and mixed results in an error.
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/OptionRenderer.php
+
+		-
+			rawMessage: 'Binary operation "." between ''<input class=…'' and mixed results in an error.'
+			identifier: binaryOp.invalid
+			count: 3
+			path: src/OptionRenderer.php
+
+		-
+			rawMessage: 'Binary operation "." between ''<input id="'' and mixed results in an error.'
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/OptionRenderer.php
+
+		-
+			rawMessage: 'Binary operation "." between ''<label for="'' and mixed results in an error.'
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/OptionRenderer.php
+
+		-
+			rawMessage: 'Binary operation "." between ''<textarea class=…'' and mixed results in an error.'
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/OptionRenderer.php
+
+		-
+			rawMessage: Binary operation "." between non-falsy-string and mixed results in an error.
+			identifier: binaryOp.invalid
+			count: 7
+			path: src/OptionRenderer.php
+
+		-
+			rawMessage: 'Parameter #1 $value of function strval expects bool|float|GMP|int|resource|string|null, mixed given.'
+			identifier: argument.type
+			count: 3
+			path: src/OptionRenderer.php
+
+		-
+			rawMessage: Possibly invalid array key type mixed.
+			identifier: offsetAccess.invalidOffset
+			count: 1
+			path: src/OptionRenderer.php
+
+		-
+			rawMessage: 'Method WP2Static\ProcessedSite::getPath() should return string but returns mixed.'
+			identifier: return.type
+			count: 1
+			path: src/ProcessedSite.php
+
+		-
+			rawMessage: 'Parameter #1 $value of function untrailingslashit expects string, mixed given.'
+			identifier: argument.type
+			count: 2
+			path: src/SimpleRewriter.php
+
+		-
+			rawMessage: 'Static property WP2Static\SiteInfo::$info (array<mixed>) does not accept mixed.'
+			identifier: assign.propertyType
+			count: 1
+			path: src/SiteInfo.php
+
+		-
+			rawMessage: 'Argument of an invalid type mixed supplied for foreach, only iterables are supported.'
+			identifier: foreach.nonIterable
+			count: 1
+			path: src/SitemapParser.php
+
+		-
+			rawMessage: Cannot access offset 'User-Agent' on mixed.
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: src/SitemapParser.php
+
+		-
+			rawMessage: Cannot access offset 'headers' on mixed.
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: src/SitemapParser.php
+
+		-
+			rawMessage: 'Parameter #1 $array of function array_diff expects an array of values castable to string, array<mixed> given.'
+			identifier: argument.type
+			count: 1
+			path: src/SitemapParser.php
+
+		-
+			rawMessage: 'Parameter #1 $array of function array_unique expects an array of values castable to string, array<mixed> given.'
+			identifier: argument.type
+			count: 1
+			path: src/SitemapParser.php
+
+		-
+			rawMessage: 'Parameter #1 $value of function strval expects bool|float|GMP|int|resource|string|null, mixed given.'
+			identifier: argument.type
+			count: 3
+			path: src/SitemapParser.php
+
+		-
+			rawMessage: 'Parameter #2 $arrays of function array_diff expects an array of values castable to string, array<mixed> given.'
+			identifier: argument.type
+			count: 1
+			path: src/SitemapParser.php
+
+		-
+			rawMessage: Possibly invalid array key type mixed.
+			identifier: offsetAccess.invalidOffset
+			count: 2
+			path: src/SitemapParser.php
+
+		-
+			rawMessage: 'Method WP2Static\StaticSite::getPath() should return string but returns mixed.'
+			identifier: return.type
+			count: 1
+			path: src/StaticSite.php
+
+		-
+			rawMessage: 'Method WP2Static\URLDetector::detectURLs() should return array<string> but returns array.'
+			identifier: return.type
+			count: 1
+			path: src/URLDetector.php
+
+		-
+			rawMessage: 'Parameter #1 $array of function array_unique expects array, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/URLDetector.php
+
+		-
+			rawMessage: 'Parameter #2 $filenames_to_ignore of static method WP2Static\FilesHelper::getListOfLocalFilesByDir() expects array<string>, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/URLDetector.php
+
+		-
+			rawMessage: 'Parameter #3 $file_extensions_to_ignore of static method WP2Static\FilesHelper::getListOfLocalFilesByDir() expects array<string>, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/URLDetector.php
+
+		-
+			rawMessage: 'Call to function is_array() with array<string> will always evaluate to true.'
+			identifier: function.alreadyNarrowedType
+			count: 2
+			path: src/ViewRenderer.php
+
+		-
+			rawMessage: 'In method "WP2Static\ViewRenderer::renderCrawlCache", you should not use the $_GET superglobal.'
+			identifier: thecodingmachine.superglobalUsed
+			count: 2
+			path: src/ViewRenderer.php
+
+		-
+			rawMessage: 'In method "WP2Static\ViewRenderer::renderCrawlQueue", you should not use the $_GET superglobal.'
+			identifier: thecodingmachine.superglobalUsed
+			count: 2
+			path: src/ViewRenderer.php
+
+		-
+			rawMessage: 'In method "WP2Static\ViewRenderer::renderDeployCache", you should not use the $_GET superglobal.'
+			identifier: thecodingmachine.superglobalUsed
+			count: 2
+			path: src/ViewRenderer.php
+
+		-
+			rawMessage: 'In method "WP2Static\ViewRenderer::renderPostProcessedSitePaths", you should not use the $_GET superglobal.'
+			identifier: thecodingmachine.superglobalUsed
+			count: 2
+			path: src/ViewRenderer.php
+
+		-
+			rawMessage: 'In method "WP2Static\ViewRenderer::renderStaticSitePaths", you should not use the $_GET superglobal.'
+			identifier: thecodingmachine.superglobalUsed
+			count: 2
+			path: src/ViewRenderer.php
+
+		-
+			rawMessage: 'Parameter #1 $haystack of function stripos expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/ViewRenderer.php
+
+		-
+			rawMessage: 'Parameter #1 $value of function intval expects array|bool|float|GMP|int|resource|SimpleXMLElement|string|null, mixed given.'
+			identifier: argument.type
+			count: 5
+			path: src/ViewRenderer.php
+
+		-
+			rawMessage: 'Parameter #2 $src of function wp_register_script expects non-empty-string|false, string given.'
+			identifier: argument.type
+			count: 1
+			path: src/WordPressAdmin.php
+
+		-
+			rawMessage: Binary operation "." between mixed and 'wp2static_log' results in an error.
+			identifier: binaryOp.invalid
+			count: 7
+			path: src/WsLog.php
+
+		-
+			rawMessage: Cannot access property $prefix on mixed.
+			identifier: property.nonObject
+			count: 7
+			path: src/WsLog.php
+
+		-
+			rawMessage: 'Cannot call method get_charset_collate() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/WsLog.php
+
+		-
+			rawMessage: 'Cannot call method get_col() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/WsLog.php
+
+		-
+			rawMessage: 'Cannot call method get_results() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/WsLog.php
+
+		-
+			rawMessage: 'Cannot call method insert() on mixed.'
+			identifier: method.nonObject
+			count: 2
+			path: src/WsLog.php
+
+		-
+			rawMessage: 'Cannot call method prepare() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/WsLog.php
+
+		-
+			rawMessage: 'Cannot call method query() on mixed.'
+			identifier: method.nonObject
+			count: 2
+			path: src/WsLog.php
+
+		-
+			rawMessage: 'Method WP2Static\WsLog::getAll() should return array<mixed> but returns mixed.'
+			identifier: return.type
+			count: 1
+			path: src/WsLog.php
+
+		-
+			rawMessage: 'Parameter #2 $array of function implode expects array, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/WsLog.php
+
+		-
+			rawMessage: 'Part $charset_collate (mixed) of encapsed string cannot be cast to string.'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/WsLog.php
+
+		-
+			rawMessage: Binary operation "." between mixed and 'wp2static_core…'|'wp2static_crawl…'|'wp2static_deploy…'|'wp2static_jobs'|'wp2static_log'|'wp2static_urls' results in an error.
+			identifier: binaryOp.invalid
+			count: 1
+			path: uninstall.php
+
+		-
+			rawMessage: Cannot access property $prefix on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: uninstall.php
+
+		-
+			rawMessage: 'Cannot call method query() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: uninstall.php
+
+		-
+			rawMessage: Cannot access property $description on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: views/addons-page.php
+
+		-
+			rawMessage: Cannot access property $docs_url on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: views/addons-page.php
+
+		-
+			rawMessage: Cannot access property $enabled on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: views/addons-page.php
+
+		-
+			rawMessage: Cannot access property $name on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: views/addons-page.php
+
+		-
+			rawMessage: Cannot access property $slug on mixed.
+			identifier: property.nonObject
+			count: 2
+			path: views/addons-page.php
+
+		-
+			rawMessage: Cannot access property $type on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: views/addons-page.php
+
+		-
+			rawMessage: 'Parameter #1 $value of function strval expects bool|float|GMP|int|resource|string|null, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: views/addons-page.php
+
+		-
+			rawMessage: 'Parameter #1 (mixed) of echo cannot be converted to string.'
+			identifier: echo.nonString
+			count: 5
+			path: views/addons-page.php
+
+		-
+			rawMessage: 'Part $addon->slug (mixed) of encapsed string cannot be cast to string.'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: views/addons-page.php
+
+		-
+			rawMessage: 'Class WP2Static\OptionRenderer referenced with incorrect case: WP2Static\optionrenderer.'
+			identifier: class.nameCase
+			count: 1
+			path: views/advanced-options-page.php
+
+		-
+			rawMessage: 'Parameter #1 $option of static method WP2Static\OptionRenderer::optionInput() expects array<string, mixed>, array<mixed, mixed> given.'
+			identifier: argument.type
+			count: 1
+			path: views/advanced-options-page.php
+
+		-
+			rawMessage: 'Parameter #1 $option of static method WP2Static\OptionRenderer::optionLabel() expects array<string, mixed>, array<mixed, mixed> given.'
+			identifier: argument.type
+			count: 1
+			path: views/advanced-options-page.php
+
+		-
+			rawMessage: 'Parameter #1 $value of function strval expects bool|float|GMP|int|resource|string|null, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: views/advanced-options-page.php
+
+		-
+			rawMessage: Possibly invalid array key type mixed.
+			identifier: offsetAccess.invalidOffset
+			count: 1
+			path: views/advanced-options-page.php
+
+		-
+			rawMessage: 'Parameter #1 $value of function strval expects bool|float|GMP|int|resource|string|null, mixed given.'
+			identifier: argument.type
+			count: 9
+			path: views/caches-page.php
+
+		-
+			rawMessage: 'Argument of an invalid type mixed supplied for foreach, only iterables are supported.'
+			identifier: foreach.nonIterable
+			count: 1
+			path: views/crawl-cache-page.php
+
+		-
+			rawMessage: Cannot access property $page_hash on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: views/crawl-cache-page.php
+
+		-
+			rawMessage: Cannot access property $url on mixed.
+			identifier: property.nonObject
+			count: 3
+			path: views/crawl-cache-page.php
+
+		-
+			rawMessage: 'Parameter #1 (mixed) of echo cannot be converted to string.'
+			identifier: echo.nonString
+			count: 7
+			path: views/crawl-cache-page.php
+
+		-
+			rawMessage: 'Argument of an invalid type mixed supplied for foreach, only iterables are supported.'
+			identifier: foreach.nonIterable
+			count: 1
+			path: views/crawl-queue-page.php
+
+		-
+			rawMessage: 'Parameter #1 (mixed) of echo cannot be converted to string.'
+			identifier: echo.nonString
+			count: 6
+			path: views/crawl-queue-page.php
+
+		-
+			rawMessage: 'Argument of an invalid type mixed supplied for foreach, only iterables are supported.'
+			identifier: foreach.nonIterable
+			count: 1
+			path: views/deploy-cache-page.php
+
+		-
+			rawMessage: 'Parameter #1 (mixed) of echo cannot be converted to string.'
+			identifier: echo.nonString
+			count: 6
+			path: views/deploy-cache-page.php
+
+		-
+			rawMessage: 'Argument of an invalid type mixed supplied for foreach, only iterables are supported.'
+			identifier: foreach.nonIterable
+			count: 3
+			path: views/diagnostics-page.php
+
+		-
+			rawMessage: Binary operation "." between mixed and ' secs' results in an error.
+			identifier: binaryOp.invalid
+			count: 1
+			path: views/diagnostics-page.php
+
+		-
+			rawMessage: Cannot access property $label on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: views/diagnostics-page.php
+
+		-
+			rawMessage: Cannot access property $value on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: views/diagnostics-page.php
+
+		-
+			rawMessage: 'Parameter #1 $array of function array_chunk expects array, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: views/diagnostics-page.php
+
+		-
+			rawMessage: 'Parameter #1 $array of function natcasesort expects array, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: views/diagnostics-page.php
+
+		-
+			rawMessage: 'Parameter #1 $value of function count expects array|Countable, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: views/diagnostics-page.php
+
+		-
+			rawMessage: 'Parameter #1 $value of function strval expects bool|float|GMP|int|resource|string|null, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: views/diagnostics-page.php
+
+		-
+			rawMessage: 'Parameter #1 (mixed) of echo cannot be converted to string.'
+			identifier: echo.nonString
+			count: 5
+			path: views/diagnostics-page.php
+
+		-
+			rawMessage: Cannot access property $created_at on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: views/jobs-page.php
+
+		-
+			rawMessage: Cannot access property $description on mixed.
+			identifier: property.nonObject
+			count: 2
+			path: views/jobs-page.php
+
+		-
+			rawMessage: Cannot access property $job_type on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: views/jobs-page.php
+
+		-
+			rawMessage: Cannot access property $name on mixed.
+			identifier: property.nonObject
+			count: 2
+			path: views/jobs-page.php
+
+		-
+			rawMessage: Cannot access property $status on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: views/jobs-page.php
+
+		-
+			rawMessage: Cannot access property $value on mixed.
+			identifier: property.nonObject
+			count: 5
+			path: views/jobs-page.php
+
+		-
+			rawMessage: Cannot cast mixed to int.
+			identifier: cast.int
+			count: 5
+			path: views/jobs-page.php
+
+		-
+			rawMessage: 'Class WP2Static\OptionRenderer referenced with incorrect case: WP2Static\optionrenderer.'
+			identifier: class.nameCase
+			count: 1
+			path: views/jobs-page.php
+
+		-
+			rawMessage: 'Parameter #1 $option of static method WP2Static\OptionRenderer::optionInput() expects array<string, mixed>, array<mixed, mixed> given.'
+			identifier: argument.type
+			count: 2
+			path: views/jobs-page.php
+
+		-
+			rawMessage: 'Parameter #1 $option of static method WP2Static\OptionRenderer::optionLabel() expects array<string, mixed>, array<mixed, mixed> given.'
+			identifier: argument.type
+			count: 2
+			path: views/jobs-page.php
+
+		-
+			rawMessage: 'Parameter #1 $value of function strval expects bool|float|GMP|int|resource|string|null, mixed given.'
+			identifier: argument.type
+			count: 3
+			path: views/jobs-page.php
+
+		-
+			rawMessage: 'Parameter #1 (mixed) of echo cannot be converted to string.'
+			identifier: echo.nonString
+			count: 7
+			path: views/jobs-page.php
+
+		-
+			rawMessage: 'Parameter #2 $description of static method WP2Static\OptionRenderer::optionLabel() expects bool, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: views/jobs-page.php
+
+		-
+			rawMessage: Possibly invalid array key type mixed.
+			identifier: offsetAccess.invalidOffset
+			count: 3
+			path: views/jobs-page.php
+
+		-
+			rawMessage: Cannot access property $log on string.
+			identifier: property.nonObject
+			count: 1
+			path: views/logs-page.php
+
+		-
+			rawMessage: Cannot access property $time on string.
+			identifier: property.nonObject
+			count: 1
+			path: views/logs-page.php
+
+		-
+			rawMessage: 'Parameter #1 $action of function wp_nonce_field expects -1|string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: views/logs-page.php
+
+		-
+			rawMessage: 'Parameter #1 (mixed) of echo cannot be converted to string.'
+			identifier: echo.nonString
+			count: 2
+			path: views/logs-page.php
+
+		-
+			rawMessage: Cannot access property $name on mixed.
+			identifier: property.nonObject
+			count: 2
+			path: views/options-page.php
+
+		-
+			rawMessage: Cannot access property $value on mixed.
+			identifier: property.nonObject
+			count: 4
+			path: views/options-page.php
+
+		-
+			rawMessage: 'Class WP2Static\OptionRenderer referenced with incorrect case: WP2Static\optionrenderer.'
+			identifier: class.nameCase
+			count: 1
+			path: views/options-page.php
+
+		-
+			rawMessage: 'Parameter #1 $option of static method WP2Static\OptionRenderer::optionInput() expects array<string, mixed>, array<mixed, mixed> given.'
+			identifier: argument.type
+			count: 1
+			path: views/options-page.php
+
+		-
+			rawMessage: 'Parameter #1 $option of static method WP2Static\OptionRenderer::optionLabel() expects array<string, mixed>, array<mixed, mixed> given.'
+			identifier: argument.type
+			count: 2
+			path: views/options-page.php
+
+		-
+			rawMessage: 'Parameter #1 $value of function strval expects bool|float|GMP|int|resource|string|null, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: views/options-page.php
+
+		-
+			rawMessage: 'Parameter #1 (mixed) of echo cannot be converted to string.'
+			identifier: echo.nonString
+			count: 3
+			path: views/options-page.php
+
+		-
+			rawMessage: Possibly invalid array key type mixed.
+			identifier: offsetAccess.invalidOffset
+			count: 1
+			path: views/options-page.php
+
+		-
+			rawMessage: 'Argument of an invalid type mixed supplied for foreach, only iterables are supported.'
+			identifier: foreach.nonIterable
+			count: 1
+			path: views/post-processed-site-paths-page.php
+
+		-
+			rawMessage: 'Parameter #1 (mixed) of echo cannot be converted to string.'
+			identifier: echo.nonString
+			count: 6
+			path: views/post-processed-site-paths-page.php
+
+		-
+			rawMessage: 'Argument of an invalid type mixed supplied for foreach, only iterables are supported.'
+			identifier: foreach.nonIterable
+			count: 1
+			path: views/static-site-paths-page.php
+
+		-
+			rawMessage: 'Parameter #1 (mixed) of echo cannot be converted to string.'
+			identifier: echo.nonString
+			count: 6
+			path: views/static-site-paths-page.php

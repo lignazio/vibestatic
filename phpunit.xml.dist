@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Prima questo file era di 102 byte e dichiarava solo il bootstrap: il percorso
+  dei test arrivava a mano dallo script composer, e la separazione fra test
+  offline e test che fanno rete reale era un «exclude-group ExternalRequests»
+  ripetuto in ogni comando, che chi lanciava phpunit a mano si perdeva.
+  Ora sono due suite in due cartelle, e la seconda non gira se non la si chiede.
+
+  Le conversioni qui sotto sono tutte accese, deprecation comprese, e ci si può
+  permettere di tenerle accese solo grazie alla patch in patches/: il fork di
+  Guzzle emetteva sei deprecation al caricamento dell'autoloader, e per i test
+  marcati @runTestsInSeparateProcesses quelle righe finivano dentro il canale
+  con cui PHPUnit parla al processo figlio, facendo fallire tutti e 32 i test
+  isolati con un errore vuoto — senza mai nominare la causa. Se un giorno
+  tornano a fallire senza messaggio, la prima cosa da guardare è l'output al
+  caricamento dell'autoloader.
+-->
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+    bootstrap="tests/unit/bootstrap.php"
+    colors="true"
+    cacheResultFile=".phpunit.cache/result"
+    beStrictAboutTestsThatDoNotTestAnything="true"
+    convertErrorsToExceptions="true"
+    convertNoticesToExceptions="true"
+    convertWarningsToExceptions="true"
+    convertDeprecationsToExceptions="true"
+>
+    <testsuites>
+        <!--
+          I test che girano senza rete. È questa la suite che deve restare
+          verde, ed è l'unica che esegue la CI.
+        -->
+        <testsuite name="unit">
+            <directory>tests/unit</directory>
+        </testsuite>
+
+        <!--
+          Questi scaricano sitemap da host reali di terzi. Sono utili, ma non
+          sono unit test: falliscono quando la rete non c'è o quando cambia il
+          sito di qualcun altro, e in nessuno dei due casi dicono qualcosa sul
+          nostro codice. Si lanciano a parte, con `composer phpunit-external`.
+        -->
+        <testsuite name="external">
+            <directory>tests/external</directory>
+        </testsuite>
+    </testsuites>
+
+    <coverage>
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+    </coverage>
+
+</phpunit>

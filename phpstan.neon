@@ -2,58 +2,34 @@ includes:
     - vendor/phpstan/phpstan/conf/bleedingEdge.neon
     - vendor/thecodingmachine/phpstan-strict-rules/phpstan-strict-rules.neon
     - vendor/szepeviktor/phpstan-wordpress/extension.neon
+    # Il debito accettato sta qui, non sparso nel file. Prima erano una
+    # quindicina di blocchi `ignoreErrors` con un `count:` esatto, che
+    # rendevano impossibile aggiornare PHPStan: basta che il conteggio si
+    # sposti di uno e l'analisi fallisce, senza dire perché. È il motivo per
+    # cui il progetto è rimasto a PHPStan 1.9 per tre anni.
+    # Si rigenera con `composer phpstan-baseline`, ma solo dopo aver guardato
+    # cosa ci si sta mettendo dentro: la baseline è una lista di cose da
+    # sistemare, non un modo per non vederle.
+    - phpstan-baseline.neon
+
 parameters:
     level: max
-    phpVersion: 80000
+    phpVersion: 80200
     inferPrivatePropertyTypeFromConstructor: true
+
     paths:
         - %currentWorkingDirectory%/src/
         - %currentWorkingDirectory%/views/
         - %currentWorkingDirectory%/wp2static.php
+        - %currentWorkingDirectory%/uninstall.php
+
     scanFiles:
         - %currentWorkingDirectory%/tests/phpstan/bootstrap.php
-        # TODO Use https://github.com/php-stubs/wp-cli-stubs
+        # TODO: sostituire con php-stubs/wp-cli-stubs, che è mantenuto.
+        # Questi sono fermi a WP-CLI 2.2.0, del 2019.
         - %currentWorkingDirectory%/tests/phpstan/wp-cli-stubs-2.2.0.php
+
     ignoreErrors:
-        # TODO I should really develop a tiny Request Handler.
-        # https://gist.github.com/nicolas-grekas/1028251#improving-native-php-interface
-        - message: '#^In method "WP2Static\\\S+::\S+", you should not use the \$_(COOKIE|GET|POST) superglobal#'
-          path: src/Controller.php
-          count: 1
-        - message: '#^In method "WP2Static\\\S+::\S+", you should not use the \$_(GET|POST) superglobal#'
-          path: src/CoreOptions.php
-          count: 16
-        - message: '#^In method "WP2Static\\\S+::\S+", you should not use the \$_(GET|POST) superglobal#'
-          path: src/ViewRenderer.php
-          count: 10
-        - message: "#^Cannot access property \\$value on mixed\\.$#"
-          path: views/options-page.php
-          count: 4
-        - message: "#^Cannot access property \\$name on mixed\\.$#"
-          path: views/options-page.php
-          count: 2
-        - message: "#^Cannot access property \\$time on string\\.$#"
-          path: views/logs-page.php
-          count: 1
-        - message: "#^Cannot access property \\$log on string\\.$#"
-          path: views/logs-page.php
-          count: 1
-        - message: "#^Cannot access property \\$\\S+ on mixed\\.$#"
-          path: views/jobs-page.php
-          count: 12
-        - message: "#^Cannot access property \\$\\S+ on mixed\\.$#"
-          path: views/addons-page.php
-          count: 7
-        - message: "#^Cannot access offset \\S+ on mixed\\.$#"
-          path: src/SitemapParser.php
-          count: 3
-        - message: "#^Cannot access property \\S+ on mixed\\.$#"
-          path: src/Controller.php
-          count: 6
-        - message: "#^Cannot access property \\S+ on mixed\\.$#"
-          path: src/CLI.php
-          count: 9
-        - message: "#^Cannot access property \\S+ on mixed\\.$#"
-          path: src/Addons.php
-          count: 1
+        # WP_CLI::add_command accetta una classe o un array [classe, metodo] e
+        # li richiama internamente; PHPStan vede solo la firma `callable`.
         - '/^Parameter #2 \$callable of static method WP_CLI::add_command\(\) expects callable\(\): mixed, \S+ given\.$/'
