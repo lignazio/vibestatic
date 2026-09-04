@@ -8,13 +8,11 @@
 
 namespace WP2Static;
 
-use WP2StaticGuzzleHttp\Client;
-use WP2StaticGuzzleHttp\Psr7\Request;
-use WP2StaticGuzzleHttp\Psr7\Response;
-use Psr\Http\Message\ResponseInterface;
-use WP2StaticGuzzleHttp\Exception\RequestException;
-use WP2StaticGuzzleHttp\Exception\TooManyRedirectsException;
-use WP2StaticGuzzleHttp\Pool;
+use WP2Static\Vendor\GuzzleHttp\Client;
+use WP2Static\Vendor\GuzzleHttp\Psr7\Request;
+use WP2Static\Vendor\Psr\Http\Message\ResponseInterface;
+use WP2Static\Vendor\GuzzleHttp\Exception\TooManyRedirectsException;
+use WP2Static\Vendor\GuzzleHttp\Pool;
 
 define( 'WP2STATIC_REDIRECT_CODES', [ 301, 302, 303, 307, 308 ] );
 
@@ -56,6 +54,17 @@ class Crawler {
             $base_uri = "{$base_uri}:{$port_override}";
         }
 
+        /*
+         * apply_filters() restituisce quello che il filtro decide, e un addon
+         * che tornasse un array o un intero passerebbe a Guzzle un header non
+         * valido. Il valore di partenza fa da rete.
+         */
+        $user_agent = apply_filters( 'wp2static_curl_user_agent', 'WP2Static.com' );
+
+        if ( ! is_string( $user_agent ) ) {
+            $user_agent = 'WP2Static.com';
+        }
+
         $opts = [
             'base_uri' => $base_uri,
             'verify' => false,
@@ -68,10 +77,7 @@ class Crawler {
             'connect_timeout'  => 0,
             'timeout' => 600,
             'headers' => [
-                'User-Agent' => apply_filters(
-                    'wp2static_curl_user_agent',
-                    'WP2Static.com',
-                ),
+                'User-Agent' => $user_agent,
             ],
         ];
 
@@ -126,12 +132,17 @@ class Crawler {
         foreach ( $crawlable_paths as $root_relative_path ) {
             $absolute_uri = new URL( $this->site_path . $root_relative_path );
             $urls[] = [
-                'url' => $absolute_uri->get(),
+                'url' => (string) $absolute_uri->get(),
                 'path' => $root_relative_path,
             ];
         }
 
-        $requests = function ( $urls ) {
+        /*
+         * $urls arriva per closure e non come parametro: passato come
+         * parametro senza tipo era `mixed`, e ogni elemento con lui, quindi
+         * l'URL che finisce nella Request non era piu' verificabile.
+         */
+        $requests = function () use ( $urls ) : \Generator {
             foreach ( $urls as $url ) {
                 yield new Request( 'GET', $url['url'] );
             }
@@ -141,10 +152,10 @@ class Crawler {
 
         $pool = new Pool(
             $this->client,
-            $requests( $urls ),
+            $requests(),
             [
                 'concurrency' => $concurrency,
-                'fulfilled' => function ( Response $response, $index ) use (
+                'fulfilled' => function ( ResponseInterface $response, $index ) use (
                     $urls, $use_crawl_cache, $site_urls
                 ) {
                     $root_relative_path = $urls[ $index ]['path'];
@@ -232,7 +243,15 @@ class Crawler {
                         WsLog::l( $notice );
                     }
                 },
-                'rejected' => function ( RequestException $reason, $index ) use ( $urls ) {
+                /*
+                 * Il tipo era RequestException, che e' sbagliato: una
+                 * connessione rifiutata produce una ConnectException, che
+                 * discende da TransferException e NON da RequestException.
+                 * Cioe' proprio il caso in cui questa callback serve — il
+                 * server che non risponde — la faceva finire in un TypeError
+                 * dentro una promise, che nessuno vede.
+                 */
+                'rejected' => function ( $reason, $index ) use ( $urls ) {
                     $root_relative_path = $urls[ $index ]['path'];
                     WsLog::l( 'Failed ' . $root_relative_path );
                 },

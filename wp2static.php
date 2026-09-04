@@ -26,9 +26,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 define( 'WP2STATIC_VERSION', '7.2' );
 define( 'WP2STATIC_PATH', plugin_dir_path( __FILE__ ) );
 
-if ( file_exists( WP2STATIC_PATH . 'vendor/autoload.php' ) ) {
-    require_once WP2STATIC_PATH . 'vendor/autoload.php';
+/*
+ * Due autoloader, non uno. `vendor/` contiene la mappa PSR-4 del plugin —
+ * WP2Static\ verso src/ — mentre le dipendenze di terze parti vivono in
+ * `vendor-prefixed/`, sotto il namespace WP2Static\Vendor\, generate da
+ * Strauss al momento del build.
+ *
+ * Il prefisso non e' cosmesi: WordPress carica tutti i plugin nello stesso
+ * processo, e due plugin che imbarcano versioni diverse di Guzzle si
+ * distruggono a vicenda — il primo caricato vince e l'altro riceve una classe
+ * che non e' quella che si aspetta. E' lo stesso problema che il fork
+ * leonstafford/wp2staticguzzle risolveva rinominando i file a mano, con la
+ * differenza che qui la rinomina e' automatica e l'origine e' Guzzle upstream,
+ * aggiornabile e con le patch di sicurezza.
+ */
+foreach ( [ 'vendor/autoload.php', 'vendor-prefixed/autoload.php' ] as $wp2static_autoloader ) {
+    if ( ! file_exists( WP2STATIC_PATH . $wp2static_autoloader ) ) {
+        continue;
+    }
+
+    require_once WP2STATIC_PATH . $wp2static_autoloader;
 }
+
+unset( $wp2static_autoloader );
 
 if ( ! class_exists( 'WP2Static\Controller' ) ) {
     if ( file_exists( WP2STATIC_PATH . 'src/WP2StaticException.php' ) ) {

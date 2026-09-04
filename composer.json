@@ -20,21 +20,16 @@
         "issues": "https://github.com/lignazio/vibestatic/issues",
         "source": "https://github.com/lignazio/vibestatic"
     },
-    "replace": {
-        "guzzlehttp/guzzle": "*",
-        "guzzlehttp/promises": "*",
-        "guzzlehttp/psr7": "*"
-    },
     "require": {
         "php": ">=8.2",
         "wa72/url": "^0.7.1",
-        "leonstafford/wp2staticguzzle": "^7.2.0",
+        "guzzlehttp/guzzle": "^8.1",
         "ext-mbstring": "*",
         "ext-simplexml": "*",
-        "lib-libxml": "*",
-        "cweagans/composer-patches": "^1.7"
+        "lib-libxml": "*"
     },
     "require-dev": {
+        "brianhenryie/strauss": "^0.29",
         "phpstan/phpstan": "^2.1",
         "thecodingmachine/phpstan-strict-rules": "^2.0",
         "szepeviktor/phpstan-wordpress": "^2.0",
@@ -65,11 +60,13 @@
         "classmap-authoritative": true,
         "sort-packages": true,
         "allow-plugins": {
-            "dealerdirect/phpcodesniffer-composer-installer": true,
-            "cweagans/composer-patches": true
+            "dealerdirect/phpcodesniffer-composer-installer": true
         }
     },
     "scripts": {
+        "post-install-cmd": [ "@prefix" ],
+        "post-update-cmd": [ "@prefix" ],
+        "prefix": "@php tools/prefix_dependencies.php",
         "lint": "parallel-lint --exclude integration-tests --exclude vendor .",
         "phpcs": "phpcs -s",
         "phpcs-security": "phpcs -s --sniffs=WordPress.DB.PreparedSQL,WordPress.DB.PreparedSQLPlaceholders,WordPress.Security.EscapeOutput,WordPress.Security.NonceVerification,WordPress.Security.ValidatedSanitizedInput",
@@ -91,7 +88,8 @@
         "build": "/bin/sh tools/build_release.sh"
     },
     "scripts-descriptions": {
-        "lint": "Parse every PHP file with the current interpreter.",
+        "prefix": "Riscrive le dipendenze di terze parti in vendor-prefixed/ sotto WP2Static\\Vendor\\. Gira da solo dopo ogni install e ogni update: non serve lanciarlo a mano.",
+        "lint": "Parsa ogni file PHP con l'interprete corrente. Comprende vendor-prefixed/, ed è voluto: è il controllo che la riscrittura dei namespace fatta da Strauss non abbia prodotto codice che non compila.",
         "phpcs": "WordPress coding standards, per intero. Ha ancora 422 violazioni: sono documentazione e stile, ed e\u0300 la ragione per cui non sta in `test`.",
         "phpcs-security": "I soli cinque sniff di sicurezza \u2014 SQL preparato, nonce, escaping, input sanificato. Questo e\u0300 a zero, e ci deve restare.",
         "phpcompat": "PHP cross-version compatibility, 8.2 and up.",
@@ -100,10 +98,14 @@
         "test": "Tutto quello che gira in CI ed è bloccante, phpcs escluso: quello è un passo a parte perché il debito di stile non deve poter nascondere una regressione di sicurezza. Quando le 422 violazioni residue arrivano a zero, `@phpcs` torna qui e `@phpcs-security` diventa ridondante."
     },
     "extra": {
-        "patches": {
-            "leonstafford/wp2staticpromises": {
-                "PHP 8.4: nullable espliciti, senza cui i test in processo isolato falliscono tutti (vedi patches/README.md)": "patches/wp2staticpromises-nullable-params.patch"
-            }
+        "strauss": {
+            "target_directory": "vendor-prefixed",
+            "namespace_prefix": "WP2Static\\Vendor\\",
+            "classmap_prefix": "WP2Static_Vendor_",
+            "constant_prefix": "WP2STATIC_VENDOR_",
+            "delete_vendor_packages": true,
+            "include_modified_date": false,
+            "include_author": false
         }
     }
 }

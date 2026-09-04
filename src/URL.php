@@ -10,11 +10,11 @@ namespace WP2Static;
 class URL {
 
     /**
-     * @var \Wa72\Url\Url
+     * @var \WP2Static\Vendor\Wa72\Url\Url
      */
     private $parent_page_url;
     /**
-     * @var \Wa72\Url\Url
+     * @var \WP2Static\Vendor\Wa72\Url\Url
      */
     private $url;
 
@@ -26,10 +26,10 @@ class URL {
      * @throws WP2StaticException
      */
     public function __construct( string $url, ?string $parent_page_url = null ) {
-        $url = new \Wa72\Url\Url( $url );
+        $url = new \WP2Static\Vendor\Wa72\Url\Url( $url );
 
         if ( $parent_page_url ) {
-            $this->parent_page_url = new \Wa72\Url\Url( $parent_page_url );
+            $this->parent_page_url = new \WP2Static\Vendor\Wa72\Url\Url( $parent_page_url );
             $this->url = $url->makeAbsolute( $this->parent_page_url );
         } else {
             // test absolute URL
@@ -57,7 +57,7 @@ class URL {
      * @param string $destination_url URL rewrite rules
      */
     public function rewriteHostAndProtocol( string $destination_url ): void {
-        $destination_url = new \Wa72\Url\Url( $destination_url );
+        $destination_url = new \WP2Static\Vendor\Wa72\Url\Url( $destination_url );
 
         $this->url->setHost( $destination_url->getHost() );
         $this->url->setScheme( $destination_url->getScheme() );

@@ -6,14 +6,15 @@
   ripetuto in ogni comando, che chi lanciava phpunit a mano si perdeva.
   Ora sono due suite in due cartelle, e la seconda non gira se non la si chiede.
 
-  Le conversioni qui sotto sono tutte accese, deprecation comprese, e ci si può
-  permettere di tenerle accese solo grazie alla patch in patches/: il fork di
-  Guzzle emetteva sei deprecation al caricamento dell'autoloader, e per i test
-  marcati @runTestsInSeparateProcesses quelle righe finivano dentro il canale
-  con cui PHPUnit parla al processo figlio, facendo fallire tutti e 32 i test
-  isolati con un errore vuoto — senza mai nominare la causa. Se un giorno
-  tornano a fallire senza messaggio, la prima cosa da guardare è l'output al
-  caricamento dell'autoloader.
+  Le conversioni qui sotto sono tutte accese, deprecation comprese. Regge
+  perché nessuna dipendenza scrive niente al caricamento dell'autoloader: il
+  fork di Guzzle del 2020 ne emetteva sei, e per i test marcati
+  @runTestsInSeparateProcesses quelle righe finivano dentro il canale con cui
+  PHPUnit parla al processo figlio, facendo fallire tutti e 32 i test isolati
+  con un errore vuoto, senza mai nominare la causa. Serviva una patch per
+  zittirle; con Guzzle upstream il problema non esiste più alla radice.
+  Se un giorno tornano a fallire senza messaggio, la prima cosa da guardare è
+  di nuovo l'output al caricamento dell'autoloader.
 -->
 <phpunit
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

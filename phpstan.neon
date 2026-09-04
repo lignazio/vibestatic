@@ -23,6 +23,12 @@ parameters:
         - %currentWorkingDirectory%/wp2static.php
         - %currentWorkingDirectory%/uninstall.php
 
+    # Le dipendenze di terze parti stanno sotto WP2Static\Vendor\ in
+    # vendor-prefixed/, che ha un autoloader suo: senza registrarlo qui,
+    # ogni riferimento a Guzzle sarebbe una classe sconosciuta.
+    bootstrapFiles:
+        - %currentWorkingDirectory%/vendor-prefixed/autoload.php
+
     scanFiles:
         - %currentWorkingDirectory%/tests/phpstan/bootstrap.php
         # TODO: sostituire con php-stubs/wp-cli-stubs, che è mantenuto.

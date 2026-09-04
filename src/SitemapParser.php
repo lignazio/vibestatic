@@ -2,7 +2,7 @@
 
 namespace WP2Static;
 
-use WP2StaticGuzzleHttp;
+use WP2Static\Vendor\GuzzleHttp;
 use SimpleXMLElement;
 
 /**
@@ -235,16 +235,37 @@ class SitemapParser {
         }
 
         try {
-            if ( ! isset( $this->config['guzzle']['headers']['User-Agent'] ) ) {
-                $this->config['guzzle']['headers']['User-Agent'] = $this->user_agent;
-            }
-            $client = new WP2StaticGuzzleHttp\Client( [ 'verify' => false ] );
+            /*
+              * La validazione veniva DOPO la scrittura: le due righe che
+              * mettono lo User-Agent scrivevano dentro $this->config['guzzle']
+              * e solo allora si controllava che fosse un array. Se non lo era,
+              * l'errore arrivava dalla scrittura, non dal controllo, e il
+              * messaggio che spiega il problema non veniva mai stampato.
+              */
+            $guzzle_config = $this->config['guzzle'] ?? [];
 
-            if ( ! is_array( $this->config['guzzle'] ) ) {
+            if ( ! is_array( $guzzle_config ) ) {
                 WsLog::w( 'Guzzle config is not in expected array format' );
                 return null;
             }
-            $res = $client->request( 'GET', $this->current_url, $this->config['guzzle'] );
+
+            if ( ! isset( $guzzle_config['headers']['User-Agent'] ) ) {
+                $guzzle_config['headers']['User-Agent'] = $this->user_agent;
+            }
+
+            $this->config['guzzle'] = $guzzle_config;
+
+            $client = new GuzzleHttp\Client( [ 'verify' => false ] );
+
+            /*
+             * Guzzle 8 dichiara la forma esatta dell'array di opzioni, ma
+             * questo arriva dal costruttore: e' configurazione di chi usa la
+             * classe, e la sua forma non e' dimostrabile staticamente. Il
+             * controllo qui sopra e' quanto si puo' verificare.
+             *
+             * @phpstan-ignore argument.type
+             */
+            $res = $client->request( 'GET', $this->current_url, $guzzle_config );
             if ( $res->getStatusCode() === 200 ) {
                 return $res->getBody()->getContents();
             } else {
@@ -254,13 +275,13 @@ class SitemapParser {
                 );
                 return null;
             }
-        } catch ( WP2StaticGuzzleHttp\Exception\TransferException $e ) {
+        } catch ( GuzzleHttp\Exception\TransferException $e ) {
             // Messaggio letterale; $e è l'eccezione precedente, non output.
             // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
             throw new WP2StaticException( 'Unable to fetch URL contents', 0, $e );
-        } catch ( WP2StaticGuzzleHttp\Exception\GuzzleException $e ) {
+        } catch ( GuzzleHttp\Exception\GuzzleException $e ) {
             // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
-            throw new WP2StaticException( 'WP2StaticGuzzleHttp exception', 0, $e );
+            throw new WP2StaticException( 'Guzzle exception', 0, $e );
         }
     }
 

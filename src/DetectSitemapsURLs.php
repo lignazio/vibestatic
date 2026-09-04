@@ -2,9 +2,9 @@
 
 namespace WP2Static;
 
-use WP2StaticGuzzleHttp\Client;
-use WP2StaticGuzzleHttp\Psr7\Request;
-use WP2StaticGuzzleHttp\Psr7\Response;
+use WP2Static\Vendor\GuzzleHttp\Client;
+use WP2Static\Vendor\GuzzleHttp\Psr7\Request;
+use WP2Static\Vendor\GuzzleHttp\Psr7\Response;
 
 class DetectSitemapsURLs {
 
@@ -54,6 +54,13 @@ class DetectSitemapsURLs {
             $base_uri = "{$base_uri}:{$port_override}";
         }
 
+        // Vedi Crawler::__construct(): un filtro puo' restituire qualunque cosa.
+        $user_agent = apply_filters( 'wp2static_curl_user_agent', 'WP2Static.com' );
+
+        if ( ! is_string( $user_agent ) ) {
+            $user_agent = 'WP2Static.com';
+        }
+
         $client = new Client(
             [
                 'verify' => false,
@@ -66,10 +73,7 @@ class DetectSitemapsURLs {
                 'connect_timeout'  => 0,
                 'timeout' => 600,
                 'headers' => [
-                    'User-Agent' => apply_filters(
-                        'wp2static_curl_user_agent',
-                        'WP2Static.com',
-                    ),
+                    'User-Agent' => $user_agent,
                 ],
             ]
         );

@@ -277,24 +277,6 @@ parameters:
 			path: src/CrawlQueue.php
 
 		-
-			rawMessage: 'Argument of an invalid type mixed supplied for foreach, only iterables are supported.'
-			identifier: foreach.nonIterable
-			count: 1
-			path: src/Crawler.php
-
-		-
-			rawMessage: Cannot access offset 'url' on mixed.
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: src/Crawler.php
-
-		-
-			rawMessage: 'Parameter #2 $uri of class WP2StaticGuzzleHttp\Psr7\Request constructor expects Psr\Http\Message\UriInterface|string, mixed given.'
-			identifier: argument.type
-			count: 1
-			path: src/Crawler.php
-
-		-
 			rawMessage: 'Part $port_override (mixed) of encapsed string cannot be cast to string.'
 			identifier: encapsedStringPart.nonString
 			count: 1
@@ -704,12 +686,6 @@ parameters:
 
 		-
 			rawMessage: Cannot access offset 'User-Agent' on mixed.
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: src/SitemapParser.php
-
-		-
-			rawMessage: Cannot access offset 'headers' on mixed.
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 2
 			path: src/SitemapParser.php
