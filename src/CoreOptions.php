@@ -58,11 +58,7 @@ class CoreOptions {
             $wpdb->query( "ALTER TABLE $table_name DROP COLUMN label" );
         }
 
-        Controller::ensureIndex(
-            $table_name,
-            'name',
-            "CREATE UNIQUE INDEX name ON $table_name (name)"
-        );
+        Controller::ensureIndex( $table_name, 'name', [ 'name' ], true );
     }
 
     /**

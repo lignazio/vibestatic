@@ -79,11 +79,9 @@ class Controller {
         if ( $network_wide ) {
             global $wpdb;
 
-            $query = 'SELECT blog_id FROM %s WHERE site_id = %d;';
-
             $site_ids = $wpdb->get_col(
-                sprintf(
-                    $query,
+                $wpdb->prepare(
+                    'SELECT blog_id FROM %i WHERE site_id = %d',
                     $wpdb->blogs,
                     $wpdb->siteid
                 )
@@ -116,11 +114,9 @@ class Controller {
         if ( $network_wide ) {
             global $wpdb;
 
-            $query = 'SELECT blog_id FROM %s WHERE site_id = %d;';
-
             $site_ids = $wpdb->get_col(
-                sprintf(
-                    $query,
+                $wpdb->prepare(
+                    'SELECT blog_id FROM %i WHERE site_id = %d',
                     $wpdb->blogs,
                     $wpdb->siteid
                 )
@@ -151,18 +147,46 @@ class Controller {
      * @param string $create_index_sql The SQL to execute if the index needs to be created.
      * @return bool true if the index already exists or was created. false if creation failed.
      */
+    /**
+     * Crea un indice se non c'è già.
+     *
+     * Prima questo metodo accettava la CREATE INDEX già scritta dal chiamante,
+     * cioè SQL grezzo che arrivava da fuori. Ora riceve i pezzi e costruisce
+     * la query qui, con %i su ogni identificatore: non c'è più nessun punto
+     * in cui una stringa di SQL attraversa il confine fra due classi.
+     *
+     * @param string[] $columns Colonne dell'indice
+     */
     public static function ensureIndex( string $table_name, string $index_name,
-                                        string $create_index_sql ) : bool {
+                                        array $columns, bool $unique = false ) : bool {
         global $wpdb;
 
-        $query = $wpdb->prepare(
-            "SHOW INDEX FROM $table_name WHERE key_name = %s",
-            $index_name
+        $indexes = $wpdb->query(
+            $wpdb->prepare(
+                'SHOW INDEX FROM %i WHERE key_name = %s',
+                $table_name,
+                $index_name
+            )
         );
-        $indexes = $wpdb->query( $query );
 
         if ( 0 === $indexes ) {
-            $result = $wpdb->query( $create_index_sql );
+            // I due frammenti interpolati qui sotto non contengono dati: $create
+            // è uno di due letterali, e $placeholders è una ripetizione di '%i'
+            // lunga quanto $columns. Tutti gli identificatori veri passano da
+            // %i, e MySQL non accetta un numero variabile di segnaposto in una
+            // stringa che sia essa stessa un letterale, quindi la generazione
+            // dev'essere dinamica. phpcs non può saperlo, e questa è la sola
+            // soppressione SQL del progetto.
+            $placeholders = implode( ', ', array_fill( 0, count( $columns ), '%i' ) );
+            $create = $unique ? 'CREATE UNIQUE INDEX' : 'CREATE INDEX';
+            // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders
+            $result = $wpdb->query(
+                $wpdb->prepare(
+                    "$create %i ON %i ( $placeholders )",
+                    array_merge( [ $index_name, $table_name ], $columns )
+                )
+            );
+            // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders
             if ( false === $result ) {
                 WsLog::l( "Failed to create $index_name index on $table_name." );
             }
@@ -272,12 +296,11 @@ class Controller {
 
         $table_name = $wpdb->prefix . 'wp2static_crawl_cache';
 
-        $wpdb->query( "TRUNCATE TABLE $table_name" );
+        $wpdb->query( $wpdb->prepare( 'TRUNCATE TABLE %i', $table_name ) );
 
-        $sql =
-            "SELECT count(*) FROM $table_name";
-
-        $count = $wpdb->get_var( $sql );
+        $count = $wpdb->get_var(
+            $wpdb->prepare( 'SELECT count(*) FROM %i', $table_name )
+        );
 
         if ( $count === '0' ) {
             http_response_code( 200 );
@@ -535,8 +558,17 @@ class Controller {
         $table_name = $wpdb->prefix . 'wp2static_addons';
 
         // get target addon's current state
-        $addon =
-            $wpdb->get_row( "SELECT enabled, type FROM $table_name WHERE slug = '$addon_slug'" );
+        $addon = $wpdb->get_row(
+            $wpdb->prepare(
+                'SELECT enabled, type FROM %i WHERE slug = %s',
+                $table_name,
+                $addon_slug
+            )
+        );
+
+        if ( ! $addon ) {
+            throw new WP2StaticException( "Unknown addon: $addon_slug" );
+        }
 
         // if deploy type, disable other deployers when enabling this one
         if ( $addon->type === 'deploy' ) {
@@ -602,8 +634,11 @@ class Controller {
 
         foreach ( $jobs as $job ) {
             $lock = $wpdb->prefix . '.wp2static_jobs.' . $job->job_type;
-            $query = "SELECT GET_LOCK('$lock', 30) AS lck";
-            $locked = intval( $wpdb->get_row( $query )->lck );
+            $locked = intval(
+                $wpdb->get_row(
+                    $wpdb->prepare( 'SELECT GET_LOCK(%s, 30) AS lck', $lock )
+                )->lck
+            );
             if ( ! $locked ) {
                 WsLog::l( "Failed to acquire \"$lock\" lock." );
                 return;
@@ -657,13 +692,16 @@ class Controller {
                 // Skip all waiting jobs when one fails.
                 $table_name = $wpdb->prefix . 'wp2static_jobs';
                 $wpdb->query(
-                    "UPDATE $table_name
-                     SET status = 'skipped'
-                     WHERE status = 'waiting'"
+                    $wpdb->prepare(
+                        'UPDATE %i SET status = %s WHERE status = %s',
+                        $table_name,
+                        'skipped',
+                        'waiting'
+                    )
                 );
                 throw $e;
             } finally {
-                $wpdb->query( "DO RELEASE_LOCK('$lock')" );
+                $wpdb->query( $wpdb->prepare( 'DO RELEASE_LOCK(%s)', $lock ) );
             }
         }
     }

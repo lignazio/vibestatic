@@ -28,11 +28,7 @@ class JobQueue {
             $wpdb->query( "DROP INDEX status ON $table_name" );
         }
 
-        Controller::ensureIndex(
-            $table_name,
-            'status2',
-            "CREATE INDEX status2 ON $table_name (status)"
-        );
+        Controller::ensureIndex( $table_name, 'status2', [ 'status' ] );
     }
 
     /**
