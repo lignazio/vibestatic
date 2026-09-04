@@ -73,6 +73,31 @@ class DetectPostsPaginationURLs {
 
             $total_pages = ceil( $post_type_total / $default_posts_per_page );
 
+            /*
+             * Fuori dal ciclo delle pagine. La pagina degli articoli si legge
+             * dalle impostazioni e non puo' cambiare mentre si generano gli
+             * URL: qui dentro erano due letture per ogni pagina di
+             * paginazione, cioe' centinaia su un sito vero, tutte con la
+             * stessa risposta. E' anche la ragione per cui il test che
+             * dichiarava «una volta sola» non e' mai stato verificato: nessuno
+             * verificava le aspettative di quel file.
+             */
+            $post_archive_slug = '';
+
+            // check if a Posts page has been set in Settings > Reading
+            if ( 'post' === $post_type && get_option( 'page_for_posts' ) !== '0' ) {
+                // get FQURL to Posts Page
+                $post_archive_link = get_post_type_archive_link( 'post' );
+
+                if ( $post_archive_link ) {
+                    $post_archive_slug = str_replace(
+                        $wp_site_url,
+                        '',
+                        trailingslashit( $post_archive_link )
+                    );
+                }
+            }
+
             for ( $page = 1; $page <= $total_pages; $page++ ) {
                 // TODO: skipping page pagination here, but is it covered elsewhere?
                 if ( $post_type === 'page' ) {
@@ -80,23 +105,6 @@ class DetectPostsPaginationURLs {
                 }
 
                 if ( $post_type === 'post' ) {
-                    $post_archive_slug = '';
-
-                    // check if a Posts page has been set in Settings > Reading
-                    if ( get_option( 'page_for_posts' ) !== '0' ) {
-
-                        // get FQURL to Posts Page
-                        $post_archive_link = get_post_type_archive_link( 'post' );
-
-                        if ( $post_archive_link ) {
-                            $post_archive_slug = str_replace(
-                                $wp_site_url,
-                                '',
-                                trailingslashit( $post_archive_link )
-                            );
-                        }
-                    }
-
                     $urls_to_include[] = "/{$post_archive_slug}{$pagination_base}/{$page}/";
                 } else {
                     $urls_to_include[] =

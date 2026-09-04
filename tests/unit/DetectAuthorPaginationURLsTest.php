@@ -8,6 +8,20 @@ use WP_Mock;
 
 final class DetectAuthorPaginationURLsTest extends TestCase {
 
+    public function setUp() : void {
+        \WP_Mock::setUp();
+    }
+
+    public function tearDown() : void {
+        // Senza queste due, le aspettative registrate con WP_Mock::userFunction
+        // non venivano mai verificate: restavano nel contenitore globale di
+        // Mockery e le controllava, per caso, il primo test successivo che
+        // chiamasse Mockery::close(). Cioe' i `'times' => 1` scritti qui dentro
+        // non asserivano niente.
+        \WP_Mock::tearDown();
+        \Mockery::close();
+    }
+
 
     public function testDetect() {
         $site_url = 'https://foo.com/';
@@ -63,14 +77,12 @@ final class DetectAuthorPaginationURLsTest extends TestCase {
                 'return' => null,
             ]
         );
-        \WP_Mock::userFunction(
-            'count_user_posts',
-            [
-                'times' => 1,
-                'args' => [ 4, 'post', true ],
-                'return' => '10',
-            ]
-        );
+        /*
+         * Nessun count_user_posts per l'utente 4: senza URL d'autore il codice
+         * passa oltre prima di contargli i post, ed e' proprio la cosa che
+         * questo caso verifica. L'aspettativa c'era, diceva «una volta», e non
+         * e' mai stata soddisfatta — semplicemente nessuno la controllava.
+         */
 
         \WP_Mock::userFunction(
             'get_users',

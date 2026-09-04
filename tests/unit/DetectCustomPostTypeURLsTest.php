@@ -8,6 +8,20 @@ use WP_Mock;
 
 final class DetectCustomPostTypeURLsTest extends TestCase {
 
+    public function setUp() : void {
+        \WP_Mock::setUp();
+    }
+
+    public function tearDown() : void {
+        // Senza queste due, le aspettative registrate con WP_Mock::userFunction
+        // non venivano mai verificate: restavano nel contenitore globale di
+        // Mockery e le controllava, per caso, il primo test successivo che
+        // chiamasse Mockery::close(). Cioe' i `'times' => 1` scritti qui dentro
+        // non asserivano niente.
+        \WP_Mock::tearDown();
+        \Mockery::close();
+    }
+
 
     public function testDetect() {
         global $wpdb;

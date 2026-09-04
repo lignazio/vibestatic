@@ -8,6 +8,20 @@ use WP_Mock;
 
 final class DetectPostsPaginationURLsTest extends TestCase {
 
+    public function setUp() : void {
+        \WP_Mock::setUp();
+    }
+
+    public function tearDown() : void {
+        // Senza queste due, le aspettative registrate con WP_Mock::userFunction
+        // non venivano mai verificate: restavano nel contenitore globale di
+        // Mockery e le controllava, per caso, il primo test successivo che
+        // chiamasse Mockery::close(). Cioe' i `'times' => 1` scritti qui dentro
+        // non asserivano niente.
+        \WP_Mock::tearDown();
+        \Mockery::close();
+    }
+
 
     public function testDetectWithoutPostsPage() {
         global $wpdb;
@@ -292,7 +306,9 @@ final class DetectPostsPaginationURLsTest extends TestCase {
         \WP_Mock::userFunction(
             'get_option',
             [
-                'times' => 5,
+                // Una volta, non cinque: il 5 era il numero di pagine di
+                // paginazione, perche' l'opzione veniva riletta a ogni giro.
+                'times' => 1,
                 'args' => 'page_for_posts',
                 'return' => '10',
             ]
@@ -301,7 +317,8 @@ final class DetectPostsPaginationURLsTest extends TestCase {
         \WP_Mock::userFunction(
             'get_post_type_archive_link',
             [
-                'times' => 5,
+                // Una volta, non cinque: vedi page_for_posts qui sopra.
+                'times' => 1,
                 'args' => 'post',
                 'return' => $site_url . 'blog',
             ]
