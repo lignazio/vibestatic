@@ -100,14 +100,9 @@ class Controller {
     }
 
     public static function activateForSingleSite() : void {
-        // prepare DB tables
-        WsLog::createTable();
-        CoreOptions::init();
-        CrawlCache::createTable();
-        CrawlQueue::createTable();
-        DeployCache::createTable();
-        JobQueue::createTable();
-        Addons::createTable();
+        // L'elenco delle tabelle sta in Schema, in un posto solo: prima era
+        // qui, e all'aggiornamento del plugin non lo leggeva nessuno.
+        Schema::install();
     }
 
     public static function activate( ?bool $network_wide = null ) : void {

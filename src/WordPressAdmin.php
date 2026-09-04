@@ -34,6 +34,10 @@ class WordPressAdmin {
             [ Controller::class, 'deactivate' ]
         );
 
+        // L'attivazione non scatta a ogni aggiornamento del plugin, quindi da
+        // sola non basta a portare a destinazione una modifica dello schema.
+        add_action( 'plugins_loaded', [ Schema::class, 'updateIfNeeded' ] );
+
         add_filter(
             // phpcs:ignore WordPress.WP.CronInterval -- namespaces not yet fully supported
             'cron_schedules',
