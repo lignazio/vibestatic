@@ -37,7 +37,7 @@
                     <?php echo esc_html( $view['memoryLimit'] ); ?>
 
                 </td>
-                <td>WP2Static will use as much memory as is available to it during processing. Allocating more of your system RAM to PHP should improve performance.</td>
+                <td>VibeStatic will use as much memory as is available to it during processing. Allocating more of your system RAM to PHP should improve performance.</td>
             </tr>
             <tr>
                 <td>Uploads directory writable</td>
@@ -49,7 +49,7 @@
                         style="color: <?php echo esc_attr( $view['uploadsWritable'] ? 'green' : 'red' ); ?>;"
                     ></span>
                 </td>
-                <td>By default WP2Static writes the generated static site under wp-content/uploads directory. Make sure WP2Static has the permission to do so.</td>
+                <td>By default VibeStatic writes the generated static site under wp-content/uploads directory. Make sure VibeStatic has the permission to do so.</td>
             </tr>
             <tr>
                 <td>PHP version</td>
@@ -64,7 +64,7 @@
                 <td>
                 <p>The current officially supported PHP versions can be found on <a href="http://php.net/supported-versions.php" target="_blank">PHP.net</a></p>
 
-                <p>WP2Static now requires a minimum of PHP 7.4 and recommends PHP 8.0 for better performance. If your hosting provider doesn't provide PHP 8.0 or at least PHP 7.4, find a better one!</p>
+                <p>VibeStatic requires PHP 8.2 or newer. It is tested on 8.2, 8.3 and 8.4.</p>
                 </td>
             </tr>
             <tr>
@@ -131,7 +131,7 @@
         </tbody>
     </table>
 
-    <h4>WP2Static Core Options</h4>
+    <h4>VibeStatic Core Options</h4>
 
     <table class="widefat striped">
         <thead>

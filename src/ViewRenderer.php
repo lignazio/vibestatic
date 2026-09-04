@@ -78,7 +78,7 @@ class ViewRenderer {
             'nonce_action' => 'wp2static-ui-options',
         ];
 
-        require_once WP2STATIC_PATH . 'views/options-page.php';
+        require_once VIBESTATIC_PATH . 'views/options-page.php';
     }
 
     public static function renderAdvancedOptionsPage() : void {
@@ -89,7 +89,7 @@ class ViewRenderer {
             'nonce_action' => 'wp2static-ui-advanced-options',
         ];
 
-        require_once WP2STATIC_PATH . 'views/advanced-options-page.php';
+        require_once VIBESTATIC_PATH . 'views/advanced-options-page.php';
     }
 
     public static function renderDiagnosticsPage() : void {
@@ -105,7 +105,7 @@ class ViewRenderer {
         $view['domDocumentAvailable'] = class_exists( 'DOMDocument' );
         $view['extensions'] = get_loaded_extensions();
 
-        require_once WP2STATIC_PATH . 'views/diagnostics-page.php';
+        require_once VIBESTATIC_PATH . 'views/diagnostics-page.php';
     }
 
     public static function renderLogsPage() : void {
@@ -113,7 +113,7 @@ class ViewRenderer {
         $view['nonce_action'] = 'wp2static-log-page';
         $view['logs'] = WsLog::getAll();
 
-        require_once WP2STATIC_PATH . 'views/logs-page.php';
+        require_once VIBESTATIC_PATH . 'views/logs-page.php';
     }
 
     public static function renderAddonsPage() : void {
@@ -121,7 +121,7 @@ class ViewRenderer {
         $view['nonce_action'] = 'wp2static-addons-page';
         $view['addons'] = Addons::getAll();
 
-        require_once WP2STATIC_PATH . 'views/addons-page.php';
+        require_once VIBESTATIC_PATH . 'views/addons-page.php';
     }
 
     public static function renderCrawlQueue() : void {
@@ -163,7 +163,7 @@ class ViewRenderer {
             'paginatorTotalRecords' => $paginator->totalRecords(),
         ];
 
-        require_once WP2STATIC_PATH . 'views/crawl-queue-page.php';
+        require_once VIBESTATIC_PATH . 'views/crawl-queue-page.php';
     }
 
     public static function renderCrawlCache() : void {
@@ -205,7 +205,7 @@ class ViewRenderer {
             'paginatorTotalRecords' => $paginator->totalRecords(),
         ];
 
-        require_once WP2STATIC_PATH . 'views/crawl-cache-page.php';
+        require_once VIBESTATIC_PATH . 'views/crawl-cache-page.php';
     }
 
     public static function renderPostProcessedSitePaths() : void {
@@ -238,7 +238,7 @@ class ViewRenderer {
             'paginatorTotalRecords' => $paginator->totalRecords(),
         ];
 
-        require_once WP2STATIC_PATH . 'views/post-processed-site-paths-page.php';
+        require_once VIBESTATIC_PATH . 'views/post-processed-site-paths-page.php';
     }
 
     public static function renderStaticSitePaths() : void {
@@ -271,7 +271,7 @@ class ViewRenderer {
             'paginatorTotalRecords' => $paginator->totalRecords(),
         ];
 
-        require_once WP2STATIC_PATH . 'views/static-site-paths-page.php';
+        require_once VIBESTATIC_PATH . 'views/static-site-paths-page.php';
     }
 
     public static function renderDeployCache() : void {
@@ -307,7 +307,7 @@ class ViewRenderer {
             'paginatorTotalRecords' => $paginator->totalRecords(),
         ];
 
-        require_once WP2STATIC_PATH . 'views/deploy-cache-page.php';
+        require_once VIBESTATIC_PATH . 'views/deploy-cache-page.php';
     }
 
     public static function renderJobsPage() : void {
@@ -332,13 +332,13 @@ class ViewRenderer {
 
         $view = apply_filters( 'wp2static_render_jobs_page_vars', $view );
 
-        require_once WP2STATIC_PATH . 'views/jobs-page.php';
+        require_once VIBESTATIC_PATH . 'views/jobs-page.php';
     }
 
     public static function renderRunPage() : void {
         $view = [];
 
-        require_once WP2STATIC_PATH . 'views/run-page.php';
+        require_once VIBESTATIC_PATH . 'views/run-page.php';
     }
 
 
@@ -421,7 +421,7 @@ class ViewRenderer {
         $view['uploads_path'] = SiteInfo::getPath( 'uploads' );
         $view['nonce_action'] = 'wp2static-caches-page';
 
-        require_once WP2STATIC_PATH . 'views/caches-page.php';
+        require_once VIBESTATIC_PATH . 'views/caches-page.php';
     }
 
 

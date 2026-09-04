@@ -59,10 +59,10 @@ class Crawler {
          * che tornasse un array o un intero passerebbe a Guzzle un header non
          * valido. Il valore di partenza fa da rete.
          */
-        $user_agent = apply_filters( 'wp2static_curl_user_agent', 'WP2Static.com' );
+        $user_agent = apply_filters( 'wp2static_curl_user_agent', 'VibeStatic' );
 
         if ( ! is_string( $user_agent ) ) {
-            $user_agent = 'WP2Static.com';
+            $user_agent = 'VibeStatic';
         }
 
         $opts = [
@@ -303,7 +303,7 @@ class Crawler {
      * @return ResponseInterface|null response object
      */
     public function crawlURL( string $url ) : ?ResponseInterface {
-        WsLog::w( 'WP2Static Crawler::crawlURL is deprecated.' );
+        WsLog::w( 'VibeStatic Crawler::crawlURL is deprecated.' );
 
         $headers = [];
         $response = null;

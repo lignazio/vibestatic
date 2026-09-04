@@ -10,7 +10,7 @@
   <file>src</file>
   <file>views</file>
   <file>tests/unit</file>
-  <file>wp2static.php</file>
+  <file>vibestatic.php</file>
   <file>uninstall.php</file>
 
   <exclude-pattern>*/vendor/*</exclude-pattern>

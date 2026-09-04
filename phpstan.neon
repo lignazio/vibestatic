@@ -20,7 +20,7 @@ parameters:
     paths:
         - %currentWorkingDirectory%/src/
         - %currentWorkingDirectory%/views/
-        - %currentWorkingDirectory%/wp2static.php
+        - %currentWorkingDirectory%/vibestatic.php
         - %currentWorkingDirectory%/uninstall.php
 
     # Le dipendenze di terze parti stanno sotto WP2Static\Vendor\ in

@@ -18,13 +18,13 @@ class CLI {
      */
     public function diagnostics() : void {
         WP_CLI::line(
-            PHP_EOL . 'WP2Static' . PHP_EOL
+            PHP_EOL . 'VibeStatic' . PHP_EOL
         );
 
         $environmental_info = [
             [
                 'key' => 'PLUGIN VERSION',
-                'value' => WP2STATIC_VERSION,
+                'value' => VIBESTATIC_VERSION,
             ],
             [
                 'key' => 'PHP_VERSION',

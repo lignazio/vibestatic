@@ -14,7 +14,7 @@ class Controller {
     public $bootstrap_file;
 
     /**
-     * Main controller of WP2Static
+     * Main controller of VibeStatic
      *
      * @var \WP2Static\Controller Instance.
      */
@@ -23,7 +23,7 @@ class Controller {
     protected function __construct() {}
 
     /**
-     * Returns instance of WP2Static Controller
+     * Returns instance of VibeStatic Controller
      *
      * @return \WP2Static\Controller Instance of self.
      */
@@ -200,8 +200,8 @@ class Controller {
 
     public static function registerOptionsPage() : void {
         add_menu_page(
-            'WP2Static',
-            'WP2Static',
+            'VibeStatic',
+            'VibeStatic',
             'manage_options',
             'wp2static',
             [ ViewRenderer::class, 'renderRunPage' ],
@@ -228,7 +228,7 @@ class Controller {
 
             add_submenu_page(
                 'wp2static',
-                'WP2Static ' . ucfirst( $slug ),
+                'VibeStatic ' . ucfirst( $slug ),
                 $title,
                 'manage_options',
                 $menu_slug,
@@ -239,7 +239,7 @@ class Controller {
 
         add_submenu_page(
             '',
-            'WP2Static Crawl Queue',
+            'VibeStatic Crawl Queue',
             'Crawl Queue',
             'manage_options',
             'wp2static-crawl-queue',
@@ -248,7 +248,7 @@ class Controller {
 
         add_submenu_page(
             '',
-            'WP2Static Crawl Cache',
+            'VibeStatic Crawl Cache',
             'Crawl Cache',
             'manage_options',
             'wp2static-crawl-cache',
@@ -257,7 +257,7 @@ class Controller {
 
         add_submenu_page(
             '',
-            'WP2Static Deploy Cache',
+            'VibeStatic Deploy Cache',
             'Deploy Cache',
             'manage_options',
             'wp2static-deploy-cache',
@@ -266,7 +266,7 @@ class Controller {
 
         add_submenu_page(
             '',
-            'WP2Static Static Site',
+            'VibeStatic Static Site',
             'Static Site',
             'manage_options',
             'wp2static-static-site',
@@ -275,7 +275,7 @@ class Controller {
 
         add_submenu_page(
             '',
-            'WP2Static Post Processed Site',
+            'VibeStatic Post Processed Site',
             'Post Processed Site',
             'manage_options',
             'wp2static-post-processed-site',
@@ -319,8 +319,8 @@ class Controller {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die(
                 esc_html__(
-                    'You do not have permission to manage WP2Static.',
-                    'wp2static'
+                    'You do not have permission to manage VibeStatic.',
+                    'vibestatic'
                 ),
                 '',
                 [ 'response' => 403 ]
@@ -756,7 +756,7 @@ class Controller {
     }
 
     public static function wp2staticHeadless() : void {
-        WsLog::l( 'Running WP2Static in Headless mode' );
+        WsLog::l( 'Running VibeStatic in Headless mode' );
         WsLog::l( 'Starting URL detection' );
         $detected_count = URLDetector::enqueueURLs();
         WsLog::l( "URL detection completed ($detected_count URLs detected)" );
@@ -822,9 +822,9 @@ class Controller {
         WsLog::l( 'Sending deployment notification email...' );
 
         $to = CoreOptions::getValue( 'completionEmail' );
-        $subject = 'WP2Static deployment complete on site: ' .
+        $subject = 'VibeStatic deployment complete on site: ' .
             $site_title = get_bloginfo( 'name' );
-        $body = 'WP2Static deployment complete!';
+        $body = 'VibeStatic deployment complete!';
         $headers = [];
 
         if ( wp_mail( $to, $subject, $body, $headers ) ) {
@@ -845,8 +845,8 @@ class Controller {
 
         $http_method = CoreOptions::getValue( 'completionWebhookMethod' );
 
-        $body = $http_method === 'POST' ? 'WP2Static deployment complete!' :
-            [ 'message' => 'WP2Static deployment complete!' ];
+        $body = $http_method === 'POST' ? 'VibeStatic deployment complete!' :
+            [ 'message' => 'VibeStatic deployment complete!' ];
 
         $webhook_response = wp_remote_request(
             $webhook_url,
@@ -854,7 +854,7 @@ class Controller {
                 'method' => CoreOptions::getValue( 'completionWebhookMethod' ),
                 'timeout' => 30,
                 'user-agent' =>
-                    apply_filters( 'wp2static_deploy_webhook_user_agent', 'WP2Static.com' ),
+                    apply_filters( 'wp2static_deploy_webhook_user_agent', 'VibeStatic' ),
                 'body' => apply_filters( 'wp2static_deploy_webhook_body', $body ),
                 'headers' => apply_filters( 'wp2static_deploy_webhook_headers', [] ),
             ]

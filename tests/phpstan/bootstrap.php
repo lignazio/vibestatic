@@ -5,6 +5,16 @@ define( 'WPINC', '' );
 define( 'WP_CONTENT_DIR', '' );
 define( 'WP_PLUGIN_DIR', '' );
 
-// WP2Static constants
+/*
+ * Le costanti del plugin. PHPStan non le prende da vibestatic.php: quel file
+ * definisce anche i due alias storici come `define( 'WP2STATIC_PATH',
+ * VIBESTATIC_PATH )`, cioe' una costante il cui valore e' un'altra costante, e
+ * l'analisi statica non lo risolve. Dichiararle qui e' anche il modo di dire
+ * quali sono i nomi buoni.
+ */
+define( 'VIBESTATIC_VERSION', '' );
+define( 'VIBESTATIC_PATH', '' );
+
+// I due nomi vecchi, mantenuti come alias per gli addon.
 define( 'WP2STATIC_VERSION', '' );
 define( 'WP2STATIC_PATH', '' );

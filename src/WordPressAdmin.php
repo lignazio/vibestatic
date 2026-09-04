@@ -2,7 +2,7 @@
 /*
     WordPressAdmin
 
-    WP2Static's interface to WordPress Admin functions
+    VibeStatic's interface to WordPress Admin functions
 
     Used for registering hooks, Admin UI components, ...
 */
@@ -19,7 +19,7 @@ class WordPressAdmin {
     }
 
     /**
-     * Register hooks for WordPress and WP2Static actions
+     * Register hooks for WordPress and VibeStatic actions
      *
      * @param string $bootstrap_file main plugin filepath
      */
@@ -326,7 +326,7 @@ class WordPressAdmin {
     }
 
     /**
-     * Add WP2Static elements to WordPress Admin UI
+     * Add VibeStatic elements to WordPress Admin UI
      */
     public static function addAdminUIElements() : void {
         if ( is_admin() ) {

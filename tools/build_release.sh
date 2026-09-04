@@ -44,13 +44,13 @@ COMPOSER="${COMPOSER_BINARY:-$(command -v composer || true)}"
 [ -n "$COMPOSER" ] || { echo "Serve 'composer'." >&2; exit 1; }
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PLUGIN_FILE="$ROOT/wp2static.php"
+PLUGIN_FILE="$ROOT/vibestatic.php"
 DIST="$ROOT/dist"
 
 VERSION="$(grep -m1 -E '^\s*\*\s*Version:' "$PLUGIN_FILE" | sed -E 's/.*Version:[[:space:]]*//' | tr -d '[:space:]')"
 [ -n "$VERSION" ] || { echo "Versione non trovata in $PLUGIN_FILE" >&2; exit 1; }
 
-SLUG="wp2static"
+SLUG="vibestatic"
 NAME="${1:-$SLUG-$VERSION}"
 BUILD="$(mktemp -d)"
 

@@ -34,7 +34,7 @@ class DetectSitemapsURLs {
         }
 
         $parser = new SitemapParser(
-            'WP2Static.com',
+            'VibeStatic',
             [
                 'guzzle' => $opts,
                 'strict' => false,
@@ -55,10 +55,10 @@ class DetectSitemapsURLs {
         }
 
         // Vedi Crawler::__construct(): un filtro puo' restituire qualunque cosa.
-        $user_agent = apply_filters( 'wp2static_curl_user_agent', 'WP2Static.com' );
+        $user_agent = apply_filters( 'wp2static_curl_user_agent', 'VibeStatic' );
 
         if ( ! is_string( $user_agent ) ) {
-            $user_agent = 'WP2Static.com';
+            $user_agent = 'VibeStatic';
         }
 
         $client = new Client(
