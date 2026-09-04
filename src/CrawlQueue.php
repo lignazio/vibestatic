@@ -1,28 +1,48 @@
 <?php
+/**
+ * Facciata statica della coda di crawl.
+ *
+ * Le query stanno in CrawlQueueRepository. Qui restano i nomi pubblici e i
+ * messaggi di log.
+ *
+ * @package WP2Static
+ */
 
 namespace WP2Static;
 
 class CrawlQueue {
 
+    /**
+     * @var CrawlQueueRepository|null
+     */
+    private static $repository = null;
+
+    /**
+     * @param CrawlQueueRepository|null $repository Null per tornare al default.
+     */
+    public static function setRepository( ?CrawlQueueRepository $repository ) : void {
+        self::$repository = $repository;
+    }
+
+    /**
+     * @return CrawlQueueRepository Costruito su `global $wpdb` se non iniettato.
+     */
+    public static function repository() : CrawlQueueRepository {
+        if ( ! self::$repository ) {
+            /** @var \wpdb $wpdb */
+            global $wpdb;
+
+            self::$repository = new CrawlQueueRepository( $wpdb );
+        }
+
+        return self::$repository;
+    }
+
+    /**
+     * Crea la tabella della coda.
+     */
     public static function createTable() : void {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-
-        $table_name = $wpdb->prefix . 'wp2static_urls';
-
-        $charset_collate = $wpdb->get_charset_collate();
-
-        $sql = "CREATE TABLE $table_name (
-            id mediumint(9) NOT NULL AUTO_INCREMENT,
-            url VARCHAR(2083) NOT NULL,
-            hashed_url CHAR(32) NOT NULL,
-            PRIMARY KEY  (id)
-        ) $charset_collate;";
-
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-        dbDelta( $sql );
-
-        Controller::ensureIndex( $table_name, 'hashed_url', [ 'hashed_url' ], true );
+        self::repository()->createTable();
     }
 
     /**
@@ -31,36 +51,7 @@ class CrawlQueue {
      * @param string[] $urls List of URLs to crawl
      */
     public static function addUrls( array $urls ) : void {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-
-        $table_name = $wpdb->prefix . 'wp2static_urls';
-        $url_count = count( $urls );
-
-        while ( $url_count ) {
-            $chunk = array_slice( $urls, 0, 100 );
-            $urls = array_slice( $urls, 100 );
-            $url_count = count( $urls );
-            $placeholders = array_fill( 0, count( $chunk ), '(%s, %s)' );
-            $values = [];
-
-            foreach ( $chunk as $url ) {
-                array_push( $values, md5( $url ), rawurldecode( $url ) );
-            }
-
-            // I segnaposto sono tanti quanti gli URL del chunk, quindi la
-            // stringa si compone; ma è composta di soli '(%s, %s)', e ogni
-            // valore passa da prepare().
-            $query_string =
-                'INSERT IGNORE INTO %i (hashed_url, url) VALUES ' .
-                implode( ', ', $placeholders );
-
-            // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders
-            $wpdb->query(
-                $wpdb->prepare( $query_string, array_merge( [ $table_name ], $values ) )
-            );
-            // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders
-        }
+        self::repository()->addUrls( $urls );
     }
 
     /**
@@ -69,83 +60,36 @@ class CrawlQueue {
      *  @return string[] All crawlable URLs
      */
     public static function getCrawlablePaths() : array {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-        $urls = [];
-
-        $table_name = $wpdb->prefix . 'wp2static_urls';
-
-        $rows = $wpdb->get_results(
-            $wpdb->prepare( 'SELECT id, url FROM %i ORDER BY url ASC', $table_name )
-        );
-
-        foreach ( $rows as $row ) {
-            $urls[ $row->id ] = $row->url;
-        }
-
-        return $urls;
+        return self::repository()->getCrawlablePaths();
     }
 
     /**
      * Remove multiple URLs at once
      *
-     * @param array<string> $ids
+     * @param array<string> $ids Row ids.
      * @return void
      */
     public static function rmUrlsById( array $ids ) : void {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-
-        $ids = array_map( 'absint', $ids );
-
-        if ( ! $ids ) {
-            return;
-        }
-
-        $table_name = $wpdb->prefix . 'wp2static_urls';
-
-        $placeholders = implode( ', ', array_fill( 0, count( $ids ), '%d' ) );
-
-        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders
-        $wpdb->query(
-            $wpdb->prepare(
-                "DELETE FROM %i WHERE id IN ( $placeholders )",
-                array_merge( [ $table_name ], $ids )
-            )
-        );
-        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders
+        self::repository()->rmUrlsById( $ids );
     }
 
+    /**
+     * @param string $url URL da togliere dalla coda.
+     */
     public static function rmUrl( string $url ) : void {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-
-        $table_name = $wpdb->prefix . 'wp2static_urls';
-
-        $wpdb->delete(
-            $table_name,
-            [
-                'hashed_url' => md5( $url ),
-            ]
-        );
+        self::repository()->rmUrl( $url );
     }
 
     /**
      *  Get total crawlable URLs
      *
+     *  Stessa query di getTotal(): sono due nomi per la stessa domanda, ed
+     *  esistono entrambi da prima. Restano tutti e due perche' sono API.
+     *
      *  @return int Total crawlable URLs
      */
     public static function getTotalCrawlableURLs() : int {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-
-        $table_name = $wpdb->prefix . 'wp2static_urls';
-
-        $total_urls = $wpdb->get_var(
-            $wpdb->prepare( 'SELECT COUNT(*) FROM %i', $table_name )
-        );
-
-        return $total_urls;
+        return self::repository()->getTotal();
     }
 
     /**
@@ -154,16 +98,9 @@ class CrawlQueue {
     public static function truncate() : void {
         WsLog::l( 'Deleting CrawlQueue (Detected URLs)' );
 
-        /** @var \wpdb $wpdb */
-        global $wpdb;
+        self::repository()->truncate();
 
-        $table_name = $wpdb->prefix . 'wp2static_urls';
-
-        $wpdb->query( $wpdb->prepare( 'TRUNCATE TABLE %i', $table_name ) );
-
-        $total_urls = self::getTotalCrawlableURLs();
-
-        if ( $total_urls > 0 ) {
+        if ( self::getTotal() > 0 ) {
             WsLog::l( 'failed to truncate CrawlQueue: try deleting instead' );
         }
     }
@@ -172,15 +109,6 @@ class CrawlQueue {
      *  Count URLs in Crawl Queue
      */
     public static function getTotal() : int {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-
-        $table_name = $wpdb->prefix . 'wp2static_urls';
-
-        $total = $wpdb->get_var(
-            $wpdb->prepare( 'SELECT count(*) FROM %i', $table_name )
-        );
-
-        return $total;
+        return self::repository()->getTotal();
     }
 }

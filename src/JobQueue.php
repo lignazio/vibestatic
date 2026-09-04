@@ -1,38 +1,48 @@
 <?php
+/**
+ * Facciata statica della coda dei lavori.
+ *
+ * Le query stanno in JobQueueRepository. Qui restano i nomi pubblici e i
+ * messaggi di log, che sono quello che l'utente legge nella pagina Logs.
+ *
+ * @package WP2Static
+ */
 
 namespace WP2Static;
 
 class JobQueue {
 
-    public static function createTable() : void {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
+    /**
+     * @var JobQueueRepository|null
+     */
+    private static $repository = null;
 
-        $table_name = $wpdb->prefix . 'wp2static_jobs';
+    /**
+     * @param JobQueueRepository|null $repository Null per tornare al default.
+     */
+    public static function setRepository( ?JobQueueRepository $repository ) : void {
+        self::$repository = $repository;
+    }
 
-        $charset_collate = $wpdb->get_charset_collate();
+    /**
+     * @return JobQueueRepository Costruito su `global $wpdb` se non iniettato.
+     */
+    public static function repository() : JobQueueRepository {
+        if ( ! self::$repository ) {
+            /** @var \wpdb $wpdb */
+            global $wpdb;
 
-        $sql = "CREATE TABLE $table_name (
-            id mediumint(9) NOT NULL AUTO_INCREMENT,
-            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            job_type VARCHAR(30) NOT NULL,
-            status VARCHAR(30) NOT NULL,
-            duration SMALLINT(6) UNSIGNED NULL,
-            PRIMARY KEY  (id)
-        ) $charset_collate;";
-
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-        dbDelta( $sql );
-
-        // There was an improper unique index which we must be sure to remove
-        $has_old_index = $wpdb->query(
-            $wpdb->prepare( 'SHOW INDEX FROM %i WHERE KEY_NAME = %s', $table_name, 'status' )
-        );
-        if ( 1 === $has_old_index ) {
-            $wpdb->query( $wpdb->prepare( 'DROP INDEX %i ON %i', 'status', $table_name ) );
+            self::$repository = new JobQueueRepository( $wpdb );
         }
 
-        Controller::ensureIndex( $table_name, 'status2', [ 'status' ] );
+        return self::$repository;
+    }
+
+    /**
+     * Crea la tabella dei lavori.
+     */
+    public static function createTable() : void {
+        self::repository()->createTable();
     }
 
     /**
@@ -44,45 +54,16 @@ class JobQueue {
     public static function addJob( string $job_type ) : void {
         WsLog::l( 'Adding job: ' . $job_type );
 
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-
-        $table_name = $wpdb->prefix . 'wp2static_jobs';
-
-        // TODO: squash any of same job_types with 'waiting' status
-        // setting this one to be the one that runs next
-
-        $wpdb->query(
-            $wpdb->prepare(
-                'INSERT INTO %i (job_type, status) VALUES (%s, %s)',
-                $table_name,
-                $job_type,
-                'waiting'
-            )
-        );
+        self::repository()->addJob( $job_type );
     }
 
     /**
      *  Get all jobs
      *
-     *  @return string[] All jobs
+     *  @return object[] All jobs
      */
     public static function getJobs() : array {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-        $urls = [];
-
-        $table_name = $wpdb->prefix . 'wp2static_jobs';
-
-        $rows = $wpdb->get_results(
-            $wpdb->prepare( 'SELECT * FROM %i ORDER BY id DESC', $table_name )
-        );
-
-        foreach ( $rows as $row ) {
-            $urls[] = $row;
-        }
-
-        return $urls;
+        return self::repository()->getJobs();
     }
 
     /**
@@ -91,21 +72,7 @@ class JobQueue {
      *  @return bool All waiting jobs
      */
     public static function jobsInProgress() : bool {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-        $jobs = [];
-
-        $table_name = $wpdb->prefix . 'wp2static_jobs';
-
-        $jobs_in_progress = $wpdb->get_var(
-            $wpdb->prepare(
-                'SELECT COUNT(*) FROM %i WHERE status = %s',
-                $table_name,
-                'processing'
-            )
-        );
-
-        return $jobs_in_progress > 0;
+        return self::repository()->jobsInProgress();
     }
 
     /**
@@ -114,25 +81,7 @@ class JobQueue {
      *  @return mixed[] All waiting jobs
      */
     public static function getProcessableJobs() : array {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-        $jobs = [];
-
-        $table_name = $wpdb->prefix . 'wp2static_jobs';
-
-        $rows = $wpdb->get_results(
-            $wpdb->prepare(
-                'SELECT * FROM %i WHERE status = %s ORDER BY id ASC',
-                $table_name,
-                'waiting'
-            )
-        );
-
-        foreach ( $rows as $row ) {
-            $jobs[] = $row;
-        }
-
-        return $jobs;
+        return self::repository()->getProcessableJobs();
     }
 
     /**
@@ -141,94 +90,28 @@ class JobQueue {
      * @return int[] keys are job type and values are count
      */
     public static function getJobCountByType() : array {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-        $jobs = [];
-
-        $table_name = $wpdb->prefix . 'wp2static_jobs';
-        $rows = $wpdb->get_results(
-            $wpdb->prepare( 'SELECT job_type, count(*) FROM %i GROUP BY job_type', $table_name ),
-            'ARRAY_N'
-        );
-        foreach ( $rows as $row ) {
-            $jobs[ $row[0] ] = $row[1];
-        }
-
-        return $jobs;
+        return self::repository()->getJobCountByType();
     }
 
-    /*
-        Skip processing jobs where a more recent job of same type exists
-
-    */
+    /**
+     * Skip processing jobs where a more recent job of same type exists.
+     */
     public static function squashQueue() : void {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
+        $squashed = self::repository()->squashQueue();
 
-        $table_name = $wpdb->prefix . 'wp2static_jobs';
+        if ( $squashed ) {
+            $s = 1 === $squashed ? '' : 's';
 
-        // TODO: loop for each job_type
-        $job_types = [
-            'detect',
-            'crawl',
-            'post_process',
-            'deploy',
-        ];
-
-        foreach ( $job_types as $job_type ) {
-            // get all jobs for a type where status is 'waiting'
-            $waiting_jobs = $wpdb->get_results(
-                $wpdb->prepare(
-                    'SELECT * FROM %i WHERE job_type = %s AND status = %s ORDER BY created_at DESC',
-                    $table_name,
-                    $job_type,
-                    'waiting'
-                )
-            );
-
-            // abort if less than 2 jobs of same type in waiting status
-            if ( $waiting_jobs < 2 ) {
-                WsLog::l( 'less than 2 jobs for this type, continuing' );
-                WsLog::l( (string) count( $waiting_jobs ) );
-                continue;
-            }
-
-            // select all
-            $waiting_jobs = $wpdb->get_results(
-                $wpdb->prepare(
-                    'SELECT * FROM %i WHERE job_type = %s AND status = %s ORDER BY created_at DESC',
-                    $table_name,
-                    $job_type,
-                    'waiting'
-                )
-            );
-
-            // remove latest one
-            array_shift( $waiting_jobs );
-
-            // set all but most recent one to 'skipped'
-            foreach ( $waiting_jobs as $waiting_job ) {
-                $wpdb->update(
-                    $table_name,
-                    [ 'status' => 'skipped' ],
-                    [ 'id' => $waiting_job->id ]
-                );
-
-            }
+            WsLog::l( "$squashed superseded job$s skipped." );
         }
     }
 
+    /**
+     * @param int    $id     Id del lavoro.
+     * @param string $status Nuovo stato.
+     */
     public static function setStatus( int $id, string $status ) : void {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-
-        $table_name = $wpdb->prefix . 'wp2static_jobs';
-
-        $wpdb->update(
-            $table_name,
-            [ 'status' => $status ],
-            [ 'id' => $id ]
-        );
+        self::repository()->setStatus( $id, $status );
     }
 
     /**
@@ -237,18 +120,16 @@ class JobQueue {
      *  @return int Total jobs
      */
     public static function getTotalJobs() : int {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-
-        $table_name = $wpdb->prefix . 'wp2static_jobs';
-
-        $total_jobs = $wpdb->get_var(
-            $wpdb->prepare( 'SELECT COUNT(*) FROM %i', $table_name )
-        );
-
-        return $total_jobs;
+        return self::repository()->getTotalJobs();
     }
 
+    /**
+     *  Get count of waiting jobs
+     *
+     *  Alias storico di getWaitingJobsCount(): resta perche' e' API.
+     *
+     *  @return int Waiting jobs
+     */
     public static function getWaitingJobs() : int {
         return static::getWaitingJobsCount();
     }
@@ -259,20 +140,7 @@ class JobQueue {
      *  @return int Waiting jobs
      */
     public static function getWaitingJobsCount() : int {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-
-        $table_name = $wpdb->prefix . 'wp2static_jobs';
-
-        $total_jobs = $wpdb->get_var(
-            $wpdb->prepare(
-                'SELECT COUNT(*) FROM %i WHERE status = %s',
-                $table_name,
-                'waiting'
-            )
-        );
-
-        return $total_jobs;
+        return self::repository()->getWaitingJobsCount();
     }
 
     /**
@@ -281,16 +149,9 @@ class JobQueue {
     public static function truncate() : void {
         WsLog::l( 'Deleting all jobs from JobQueue' );
 
-        /** @var \wpdb $wpdb */
-        global $wpdb;
+        self::repository()->truncate();
 
-        $table_name = $wpdb->prefix . 'wp2static_jobs';
-
-        $wpdb->query( $wpdb->prepare( 'TRUNCATE TABLE %i', $table_name ) );
-
-        $total_jobs = self::getTotalJobs();
-
-        if ( $total_jobs > 0 ) {
+        if ( self::getTotalJobs() > 0 ) {
             WsLog::l( 'failed to truncate JobQueue: try deleting instead' );
         }
     }
@@ -298,47 +159,13 @@ class JobQueue {
     /**
      *  Detect any 'processing' jobs that are not running and change status to 'failed'.
      *
-     *  @throws \Throwable
+     *  @throws \Throwable Se una delle UPDATE fallisce.
      */
     public static function markFailedJobs() : void {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
+        foreach ( self::repository()->markFailedJobs() as $type => $count ) {
+            $s = 1 === $count ? '' : 's';
 
-        $job_types = [ 'detect', 'crawl', 'post_process', 'deploy' ];
-        $table_name = $wpdb->prefix . 'wp2static_jobs';
-
-        $wpdb->query( 'START TRANSACTION' );
-
-        foreach ( $job_types as $type ) {
-            try {
-                $lock = "{$wpdb->prefix}.wp2static_jobs.$type";
-                $free = intval(
-                    $wpdb->get_row(
-                        $wpdb->prepare( 'SELECT IS_FREE_LOCK(%s) AS free', $lock )
-                    )->free
-                );
-
-                if ( $free ) {
-                    $failed_jobs = $wpdb->query(
-                        $wpdb->prepare(
-                            'UPDATE %i SET status = %s WHERE job_type = %s AND status = %s',
-                            $table_name,
-                            'failed',
-                            $type,
-                            'processing'
-                        )
-                    );
-                    if ( $failed_jobs ) {
-                        $s = $failed_jobs === 1 ? '' : 's';
-                        WsLog::l( "$failed_jobs processing $type job$s marked as failed." );
-                    }
-                }
-
-                $wpdb->query( 'COMMIT' );
-            } catch ( \Throwable $e ) {
-                $wpdb->query( 'ROLLBACK' );
-                throw $e;
-            }
+            WsLog::l( "$count processing $type job$s marked as failed." );
         }
     }
 }
