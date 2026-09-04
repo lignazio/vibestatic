@@ -1,0 +1,98 @@
+name: quality
+
+# Sostituisce codequality.yml, che non partiva più: usava actions/checkout@v2 e
+# actions/cache@v1, entrambe disattivate da GitHub, quindi ogni job falliva al
+# primo passo. Usava anche due action puntate a un branch mutabile
+# (ludeeus/action-shellcheck@master, john-shaffer/cache@sudo-tar), cioè codice
+# di terzi che poteva cambiare sotto i piedi fra un run e l'altro.
+
+on:
+  push:
+    branches: [main, develop, vibestatic]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static:
+    name: Analisi statica
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          # L'analisi statica gira su una versione sola: PHPStan legge il codice,
+          # non lo esegue, e `phpVersion` nel suo config dice già quale target
+          # considerare. Ripeterla sulla matrice sarebbe tre volte lo stesso lavoro.
+          php-version: '8.2'
+          extensions: dom, libxml, mbstring, simplexml
+          coverage: none
+          tools: composer:v2
+
+      - name: Install dependencies
+        uses: ramsey/composer-install@v3
+
+      - name: Validate composer.json
+        run: composer validate --strict
+
+      # Non bloccante, e c'è una data di scadenza: diventa bloccante alla fine
+      # della fase 3. Al momento riporta 292 violazioni di sicurezza — SQL non
+      # preparato, nonce, escaping, input non sanificato — che sono la lista di
+      # lavoro di quella fase. Erano invisibili perché la configurazione
+      # precedente escludeva esattamente quei quattro sniff.
+      - name: Coding standards (non bloccante fino a fine fase 3)
+        continue-on-error: true
+        run: composer run-script phpcs
+
+      - name: Compatibilità PHP 8.2+
+        run: composer run-script phpcompat
+
+      - name: PHPStan
+        run: composer run-script phpstan
+
+  tests:
+    name: Test PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.2', '8.3', '8.4']
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, libxml, mbstring, simplexml
+          coverage: none
+          tools: composer:v2
+
+      - name: Install dependencies
+        uses: ramsey/composer-install@v3
+
+      - name: Lint
+        run: composer run-script lint
+
+      # Solo la suite `unit`. Quella `external` scarica sitemap da siti di
+      # terzi: in CI fallirebbe per ragioni che non riguardano questo codice.
+      - name: Test
+        run: composer run-script phpunit
+
+  shell:
+    name: Shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Shellcheck
+        # Preinstallato sui runner Ubuntu: una dipendenza esterna in meno, e
+        # nessuna action di terzi puntata a un branch mutabile.
+        run: shellcheck tools/*.sh
