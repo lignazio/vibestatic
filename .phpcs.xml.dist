@@ -151,6 +151,19 @@
     </properties>
   </rule>
 
+  <!--
+    Nei test il nome del metodo è la documentazione: `testRmUrlsByIdWithNoIdsRunsNoQuery`
+    dice già cosa verifica, e un docblock che lo ripete in prosa è rumore che
+    invecchia. Vale solo per tests/: nel codice sorgente la regola resta accesa
+    ed è parte del debito da smaltire.
+  -->
+  <rule ref="Squiz.Commenting.FunctionComment.Missing">
+    <exclude-pattern>tests/unit/*</exclude-pattern>
+  </rule>
+  <rule ref="Squiz.Commenting.FunctionComment.MissingParamTag">
+    <exclude-pattern>tests/unit/*</exclude-pattern>
+  </rule>
+
   <!-- I test mockano funzioni WordPress: le regole di i18n e di escaping non li riguardano. -->
   <rule ref="WordPress.Security">
     <exclude-pattern>tests/unit/*</exclude-pattern>
