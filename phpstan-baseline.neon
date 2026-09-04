@@ -139,24 +139,6 @@ parameters:
 			path: src/Controller.php
 
 		-
-			rawMessage: 'Argument of an invalid type list<stdClass>|null supplied for foreach, only iterables are supported.'
-			identifier: foreach.nonIterable
-			count: 1
-			path: src/CoreOptions.php
-
-		-
-			rawMessage: 'Call to function is_string() with non-falsy-string will always evaluate to true.'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/CoreOptions.php
-
-		-
-			rawMessage: Cannot access property $value on stdClass|null.
-			identifier: property.nonObject
-			count: 2
-			path: src/CoreOptions.php
-
-		-
 			rawMessage: 'In method "WP2Static\CoreOptions::savePosted", you should not use the $_POST superglobal.'
 			identifier: thecodingmachine.superglobalUsed
 			count: 17
@@ -165,12 +147,6 @@ parameters:
 		-
 			rawMessage: 'Method WP2Static\CoreOptions::getValue() should return string but returns mixed.'
 			identifier: return.type
-			count: 1
-			path: src/CoreOptions.php
-
-		-
-			rawMessage: 'Only iterables can be unpacked, list<array<mixed>>|null given in argument #1.'
-			identifier: argument.unpackNonIterable
 			count: 1
 			path: src/CoreOptions.php
 
@@ -187,26 +163,8 @@ parameters:
 			path: src/CoreOptions.php
 
 		-
-			rawMessage: 'Parameter #1 $query of method wpdb::query() expects string, string|null given.'
-			identifier: argument.type
-			count: 2
-			path: src/CoreOptions.php
-
-		-
-			rawMessage: 'Parameter #1 ...$arrays of function array_merge expects array, mixed given.'
-			identifier: argument.type
-			count: 1
-			path: src/CoreOptions.php
-
-		-
 			rawMessage: 'Parameter #2 $string of static method WP2Static\CoreOptions::encrypt_decrypt() expects string, mixed given.'
 			identifier: argument.type
-			count: 2
-			path: src/CoreOptions.php
-
-		-
-			rawMessage: Possibly invalid array key type mixed.
-			identifier: offsetAccess.invalidOffset
 			count: 1
 			path: src/CoreOptions.php
 

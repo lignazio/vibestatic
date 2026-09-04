@@ -15,9 +15,30 @@ class CoreOptions {
     private static $cached_option_specs = null;
 
     /**
-     * @var string
+     * @var CoreOptionsRepository|null
      */
-    private static $table_name = 'wp2static_core_options';
+    private static $repository = null;
+
+    /**
+     * @param CoreOptionsRepository|null $repository Null per tornare al default.
+     */
+    public static function setRepository( ?CoreOptionsRepository $repository ) : void {
+        self::$repository = $repository;
+    }
+
+    /**
+     * @return CoreOptionsRepository Costruito su `global $wpdb` se non iniettato.
+     */
+    public static function repository() : CoreOptionsRepository {
+        if ( ! self::$repository ) {
+            /** @var \wpdb $wpdb */
+            global $wpdb;
+
+            self::$repository = new CoreOptionsRepository( $wpdb );
+        }
+
+        return self::$repository;
+    }
 
     public static function init() : void {
         self::createTable();
@@ -25,46 +46,7 @@ class CoreOptions {
     }
 
     public static function createTable() : void {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-
-        $table_name = $wpdb->prefix . self::$table_name;
-
-        $charset_collate = $wpdb->get_charset_collate();
-
-        $sql = "CREATE TABLE $table_name (
-            id mediumint(9) NOT NULL AUTO_INCREMENT,
-            name VARCHAR(191) NOT NULL,
-            value VARCHAR(249) NOT NULL,
-            blob_value BLOB,
-            PRIMARY KEY  (id)
-        ) $charset_collate;";
-
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-        dbDelta( $sql );
-
-        $columns = array_keys(
-            array_merge(
-                ...$wpdb->get_results(
-                    $wpdb->prepare( 'SELECT * FROM %i LIMIT 1', $table_name ),
-                    ARRAY_A
-                )
-            )
-        );
-
-        foreach ( [ 'description', 'label' ] as $obsolete_column ) {
-            if ( in_array( $obsolete_column, $columns, true ) ) {
-                $wpdb->query(
-                    $wpdb->prepare(
-                        'ALTER TABLE %i DROP COLUMN %i',
-                        $table_name,
-                        $obsolete_column
-                    )
-                );
-            }
-        }
-
-        Controller::ensureIndex( $table_name, 'name', [ 'name' ], true );
+        self::repository()->createTable();
     }
 
     /**
@@ -362,22 +344,7 @@ class CoreOptions {
      * Seed options
      */
     public static function seedOptions() : void {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-
-        $table_name = $wpdb->prefix . self::$table_name;
-
-        foreach ( self::optionSpecs() as $os ) {
-            $wpdb->query(
-                $wpdb->prepare(
-                    'INSERT IGNORE INTO %i (name, value, blob_value) VALUES (%s, %s, %s)',
-                    $table_name,
-                    $os['name'],
-                    $os['default_value'],
-                    $os['default_blob_value']
-                )
-            );
-        }
+        self::repository()->seedOptions( self::optionSpecs() );
     }
 
     /**
@@ -387,27 +354,24 @@ class CoreOptions {
      * @return string option value
      */
     public static function getValue( string $name ) : string {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-
-        $opt_spec = self::optionSpecs()[ $name ];
+        /*
+         * `?? null`, non l'accesso diretto. La riga era
+         * `$opt_spec = self::optionSpecs()[ $name ];` seguita da
+         * `if ( ! $opt_spec )`: su un nome sconosciuto PHP emette
+         * «Undefined array key» PRIMA di arrivare alla guardia, quindi il
+         * messaggio che avvisa dell'opzione sconosciuta non e' mai stato
+         * stampato — al suo posto c'era un warning che non nomina l'opzione.
+         */
+        $opt_spec = self::optionSpecs()[ $name ] ?? null;
 
         if ( ! $opt_spec ) {
-            WsLog::w( 'Attempt to getValue of unknown option $name' );
+            WsLog::w( "Attempt to getValue of unknown option $name" );
             return '';
         }
 
-        $table_name = $wpdb->prefix . self::$table_name;
+        $option_value = self::repository()->getValue( $name );
 
-        $option_value = $wpdb->get_var(
-            $wpdb->prepare(
-                'SELECT value FROM %i WHERE name = %s LIMIT 1',
-                $table_name,
-                $name
-            )
-        );
-
-        if ( ! $option_value || ! is_string( $option_value ) ) {
+        if ( ! $option_value ) {
             $option_value = (string) $opt_spec['default_value'];
         }
 
@@ -434,24 +398,15 @@ class CoreOptions {
      * @return string option BLOB value
      */
     public static function getBlobValue( string $name ) : string {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-
-        $table_name = $wpdb->prefix . self::$table_name;
-
-        $option_value = $wpdb->get_var(
-            $wpdb->prepare(
-                'SELECT blob_value FROM %i WHERE name = %s LIMIT 1',
-                $table_name,
-                $name
-            )
-        );
+        $option_value = self::repository()->getBlobValue( $name );
 
         if ( ! is_string( $option_value ) ) {
-            $os = self::optionSpecs()[ $name ];
+            $os = self::optionSpecs()[ $name ] ?? null;
+
             if ( ! $os ) {
                 return '';
             }
+
             $option_value = (string) $os['default_blob_value'];
         }
 
@@ -481,7 +436,8 @@ class CoreOptions {
      * @return string option default BLOB value
      */
     public static function getDefaultBlobValue( string $name ) : string {
-        $val = self::optionSpecs()[ $name ]['default_blob_value'];
+        $val = self::optionSpecs()[ $name ]['default_blob_value'] ?? null;
+
         return $val ? $val : '';
     }
 
@@ -507,33 +463,28 @@ class CoreOptions {
      * @return mixed option
      */
     public static function get( string $name ) {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
+        $opt_spec = self::optionSpecs()[ $name ] ?? null;
 
-        $table_name = $wpdb->prefix . self::$table_name;
+        if ( ! $opt_spec ) {
+            WsLog::w( "Attempt to get unknown option $name" );
 
-        $option = $wpdb->get_row(
-            $wpdb->prepare(
-                'SELECT name, value, blob_value FROM %i WHERE name = %s LIMIT 1',
-                $table_name,
-                $name
-            )
-        );
-        $opt_spec = self::optionSpecs() [ $name ];
-
-        // decrypt password fields
-        if ( $opt_spec['type'] === 'password' ) {
-            $option->value =
-                self::encrypt_decrypt( 'decrypt', $option->value );
+            return null;
         }
 
-        if ( $option ) {
-            $option->unfiltered_value = $option->value;
-            $option->value = apply_filters( (string) $opt_spec['filter_name'], $option->value );
-        } elseif ( $opt_spec ) {
-            $opt = array_merge( $opt_spec ); // Make a copy so we don't modify $cached_option_specs
+        $option = self::repository()->getRow( $name );
+
+        /*
+         * La decifratura stava PRIMA del controllo su $option, e leggeva
+         * `$option->value` su un risultato che puo' essere null: un'opzione di
+         * tipo password non ancora salvata dava un fatal error, non un valore
+         * di partenza. L'ordine giusto e' guardare se la riga c'e'.
+         */
+        if ( ! $option ) {
+            // Make a copy so we don't modify $cached_option_specs
+            $opt = array_merge( $opt_spec );
             $opt['unfiltered_value'] = $opt_spec['default_value'];
             $opt['blob_value'] = $opt_spec['default_blob_value'];
+
             if ( $opt_spec['filter_name'] ) {
                 $opt['value'] = apply_filters(
                     $opt_spec['filter_name'],
@@ -542,8 +493,17 @@ class CoreOptions {
             } else {
                 $opt['value'] = $opt_spec['default_value'];
             }
+
             return $opt;
         }
+
+        // decrypt password fields
+        if ( $opt_spec['type'] === 'password' && is_string( $option->value ) ) {
+            $option->value = self::encrypt_decrypt( 'decrypt', $option->value );
+        }
+
+        $option->unfiltered_value = $option->value;
+        $option->value = apply_filters( (string) $opt_spec['filter_name'], $option->value );
 
         return (object) array_merge( $opt_spec, (array) $option );
     }
@@ -554,24 +514,16 @@ class CoreOptions {
      * @return array<string, mixed> array of option name to option object
      */
     public static function getAll() {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-
-        $table_name = $wpdb->prefix . self::$table_name;
-
-        $options = $wpdb->get_results(
-            $wpdb->prepare( 'SELECT name, value, blob_value FROM %i', $table_name )
-        );
-
-        $options_map = [];
-        foreach ( $options as $opt ) {
-            $options_map[ $opt->name ] = (array) $opt;
-        }
+        $options_map = self::repository()->getAllRows();
 
         $ret = [];
         foreach ( self::optionSpecs() as $opt_spec ) {
-            $name = $opt_spec['name'];
-            $opt = $options_map[ $name ];
+            $name = (string) $opt_spec['name'];
+            // `?? null`: un'opzione definita nel codice ma non ancora nella
+            // tabella — cioe' ogni opzione nuova, fra l'aggiornamento del
+            // plugin e la prima seedOptions() — passava di qui con un
+            // «Undefined array key» prima della guardia che la gestisce.
+            $opt = $options_map[ $name ] ?? null;
             if ( ! $opt ) {
                  // Make a copy so we don't modify $cached_option_specs
                 $opt = array_merge( $opt_spec );
@@ -606,20 +558,29 @@ class CoreOptions {
     public static function encrypt_decrypt( string $action, string $string ) : string {
         $encrypt_method = 'AES-256-CBC';
 
-        /**
-         * @var string $secret_key
+        /*
+         * Quando AUTH_KEY o AUTH_SALT mancano, qui c'erano due chiavi scritte
+         * nel codice. Il codice e' pubblico: cifrare la password della basic
+         * auth con una chiave che chiunque puo' leggere su GitHub non e'
+         * cifrarla, e` codificarla — con l'aggravante che sembra cifrata.
+         *
+         * WordPress quelle due costanti le genera in fase di installazione, e
+         * un sito che non le ha e' un sito rotto. Meglio dirlo che ripiegare.
          */
-        $secret_key =
-            defined( 'AUTH_KEY' ) ?
-            constant( 'AUTH_KEY' ) :
-            'LC>_cVZv34+W.P&_8d|ejfr]d31h)J?z5n(LB6iY=;P@?5/qzJSyB3qctr,.D$[L';
-        /**
-         * @var string $secret_iv
-         */
-        $secret_iv =
-            defined( 'AUTH_SALT' ) ?
-            constant( 'AUTH_SALT' ) :
-            'ec64SSHB{8|AA_ThIIlm:PD(Z!qga!/Dwll 4|i.?UkC§NNO}z?{Qr/q.KpH55K9';
+        $auth_key = defined( 'AUTH_KEY' ) ? constant( 'AUTH_KEY' ) : '';
+        $auth_salt = defined( 'AUTH_SALT' ) ? constant( 'AUTH_SALT' ) : '';
+
+        $secret_key = is_string( $auth_key ) ? $auth_key : '';
+        $secret_iv = is_string( $auth_salt ) ? $auth_salt : '';
+
+        if ( '' === $secret_key || '' === $secret_iv ) {
+            throw new WP2StaticException(
+                'VibeStatic non puo\' proteggere le credenziali salvate:' .
+                ' AUTH_KEY e AUTH_SALT non sono definite in wp-config.php.' .
+                ' Generale su https://api.wordpress.org/secret-key/1.1/salt/' .
+                ' e riprova.'
+            );
+        }
 
         $key = hash( 'sha256', $secret_key );
         $variate = substr( hash( 'sha256', $secret_iv ), 0, 32 );
@@ -656,59 +617,48 @@ class CoreOptions {
      */
     // phpcs:disable WordPress.Security.NonceVerification
     public static function savePosted( string $screen = 'core' ) : void {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-
-        $table_name = $wpdb->prefix . self::$table_name;
-
         switch ( $screen ) {
             case 'core':
-                $wpdb->update(
-                    $table_name,
-                    [ 'value' => isset( $_POST['detectCustomPostTypes'] ) ? 1 : 0 ],
-                    [ 'name' => 'detectCustomPostTypes' ]
+                self::repository()->update(
+                    'detectCustomPostTypes',
+                    [ 'value' => isset( $_POST['detectCustomPostTypes'] ) ? 1 : 0 ]
                 );
 
-                $wpdb->update(
-                    $table_name,
-                    [ 'value' => isset( $_POST['detectPosts'] ) ? 1 : 0 ],
-                    [ 'name' => 'detectPosts' ]
+                self::repository()->update(
+                    'detectPosts',
+                    [ 'value' => isset( $_POST['detectPosts'] ) ? 1 : 0 ]
                 );
 
-                $wpdb->update(
-                    $table_name,
-                    [ 'value' => isset( $_POST['detectPages'] ) ? 1 : 0 ],
-                    [ 'name' => 'detectPages' ]
+                self::repository()->update(
+                    'detectPages',
+                    [ 'value' => isset( $_POST['detectPages'] ) ? 1 : 0 ]
                 );
 
-                $wpdb->update(
-                    $table_name,
-                    [ 'value' => isset( $_POST['detectUploads'] ) ? 1 : 0 ],
-                    [ 'name' => 'detectUploads' ]
+                self::repository()->update(
+                    'detectUploads',
+                    [ 'value' => isset( $_POST['detectUploads'] ) ? 1 : 0 ]
                 );
 
-                $wpdb->update(
-                    $table_name,
+                self::repository()->update(
+                    'deploymentURL',
                     [
                         'value' =>
                         esc_url_raw( strval( filter_input( INPUT_POST, 'deploymentURL' ) ) ),
-                    ],
-                    [ 'name' => 'deploymentURL' ]
+                    ]
                 );
 
-                $wpdb->update(
-                    $table_name,
+                self::repository()->update(
+                    'basicAuthUser',
                     [
                         'value' =>
                         sanitize_text_field(
                             strval( filter_input( INPUT_POST, 'basicAuthUser' ) )
                         ),
-                    ],
-                    [ 'name' => 'basicAuthUser' ]
+                    ]
                 );
 
-                $wpdb->update(
-                    $table_name,
+                self::repository()->update(
+                    'basicAuthPassword',
                     [
                         'value' =>
                         self::encrypt_decrypt(
@@ -717,45 +667,40 @@ class CoreOptions {
                                 strval( filter_input( INPUT_POST, 'basicAuthPassword' ) )
                             )
                         ),
-                    ],
-                    [ 'name' => 'basicAuthPassword' ]
+                    ]
                 );
 
-                $wpdb->update(
-                    $table_name,
-                    [ 'value' => isset( $_POST['useCrawlCaching'] ) ? 1 : 0 ],
-                    [ 'name' => 'useCrawlCaching' ]
+                self::repository()->update(
+                    'useCrawlCaching',
+                    [ 'value' => isset( $_POST['useCrawlCaching'] ) ? 1 : 0 ]
                 );
 
-                $wpdb->update(
-                    $table_name,
+                self::repository()->update(
+                    'completionEmail',
                     [
                         'value' =>
                         sanitize_text_field(
                             strval( filter_input( INPUT_POST, 'completionEmail' ) )
                         ),
-                    ],
-                    [ 'name' => 'completionEmail' ]
+                    ]
                 );
 
-                $wpdb->update(
-                    $table_name,
+                self::repository()->update(
+                    'completionWebhook',
                     [
                         'value' =>
                         esc_url_raw( strval( filter_input( INPUT_POST, 'completionWebhook' ) ) ),
-                    ],
-                    [ 'name' => 'completionWebhook' ]
+                    ]
                 );
 
-                $wpdb->update(
-                    $table_name,
+                self::repository()->update(
+                    'completionWebhookMethod',
                     [
                         'value' =>
                         sanitize_text_field(
                             strval( filter_input( INPUT_POST, 'completionWebhookMethod' ) )
                         ),
-                    ],
-                    [ 'name' => 'completionWebhookMethod' ]
+                    ]
                 );
 
                 break;
@@ -764,22 +709,19 @@ class CoreOptions {
                 $queue_on_post_delete = isset( $_POST['queueJobOnPostDelete'] ) ? 1 : 0;
                 $process_queue_immediately = isset( $_POST['processQueueImmediately'] ) ? 1 : 0;
 
-                $wpdb->update(
-                    $table_name,
-                    [ 'value' => $queue_on_post_save ],
-                    [ 'name' => 'queueJobOnPostSave' ]
+                self::repository()->update(
+                    'queueJobOnPostSave',
+                    [ 'value' => $queue_on_post_save ]
                 );
 
-                $wpdb->update(
-                    $table_name,
-                    [ 'value' => $queue_on_post_delete ],
-                    [ 'name' => 'queueJobOnPostDelete' ]
+                self::repository()->update(
+                    'queueJobOnPostDelete',
+                    [ 'value' => $queue_on_post_delete ]
                 );
 
-                $wpdb->update(
-                    $table_name,
-                    [ 'value' => $process_queue_immediately ],
-                    [ 'name' => 'processQueueImmediately' ]
+                self::repository()->update(
+                    'processQueueImmediately',
+                    [ 'value' => $process_queue_immediately ]
                 );
 
                 /**
@@ -789,36 +731,31 @@ class CoreOptions {
                     ? absint( wp_unslash( $_POST['processQueueInterval'] ) )
                     : 0;
 
-                $wpdb->update(
-                    $table_name,
-                    [ 'value' => $process_queue_interval ],
-                    [ 'name' => 'processQueueInterval' ]
+                self::repository()->update(
+                    'processQueueInterval',
+                    [ 'value' => $process_queue_interval ]
                 );
 
                 WPCron::setRecurringEvent( $process_queue_interval );
 
-                $wpdb->update(
-                    $table_name,
-                    [ 'value' => isset( $_POST['autoJobQueueDetection'] ) ? 1 : 0 ],
-                    [ 'name' => 'autoJobQueueDetection' ]
+                self::repository()->update(
+                    'autoJobQueueDetection',
+                    [ 'value' => isset( $_POST['autoJobQueueDetection'] ) ? 1 : 0 ]
                 );
 
-                $wpdb->update(
-                    $table_name,
-                    [ 'value' => isset( $_POST['autoJobQueueCrawling'] ) ? 1 : 0 ],
-                    [ 'name' => 'autoJobQueueCrawling' ]
+                self::repository()->update(
+                    'autoJobQueueCrawling',
+                    [ 'value' => isset( $_POST['autoJobQueueCrawling'] ) ? 1 : 0 ]
                 );
 
-                $wpdb->update(
-                    $table_name,
-                    [ 'value' => isset( $_POST['autoJobQueuePostProcessing'] ) ? 1 : 0 ],
-                    [ 'name' => 'autoJobQueuePostProcessing' ]
+                self::repository()->update(
+                    'autoJobQueuePostProcessing',
+                    [ 'value' => isset( $_POST['autoJobQueuePostProcessing'] ) ? 1 : 0 ]
                 );
 
-                $wpdb->update(
-                    $table_name,
-                    [ 'value' => isset( $_POST['autoJobQueueDeployment'] ) ? 1 : 0 ],
-                    [ 'name' => 'autoJobQueueDeployment' ]
+                self::repository()->update(
+                    'autoJobQueueDeployment',
+                    [ 'value' => isset( $_POST['autoJobQueueDeployment'] ) ? 1 : 0 ]
                 );
 
                 break;
@@ -826,10 +763,9 @@ class CoreOptions {
                 $crawl_concurrency = isset( $_POST['crawlConcurrency'] )
                     ? absint( wp_unslash( $_POST['crawlConcurrency'] ) )
                     : 1;
-                $wpdb->update(
-                    $table_name,
-                    [ 'value' => $crawl_concurrency < 1 ? 1 : $crawl_concurrency ],
-                    [ 'name' => 'crawlConcurrency' ]
+                self::repository()->update(
+                    'crawlConcurrency',
+                    [ 'value' => $crawl_concurrency < 1 ? 1 : $crawl_concurrency ]
                 );
 
                 $file_extensions_to_ignore = preg_replace(
@@ -837,10 +773,9 @@ class CoreOptions {
                     '',
                     strval( filter_input( INPUT_POST, 'fileExtensionsToIgnore' ) )
                 );
-                $wpdb->update(
-                    $table_name,
-                    [ 'blob_value' => $file_extensions_to_ignore ],
-                    [ 'name' => 'fileExtensionsToIgnore' ]
+                self::repository()->update(
+                    'fileExtensionsToIgnore',
+                    [ 'blob_value' => $file_extensions_to_ignore ]
                 );
 
                 $filenames_to_ignore = preg_replace(
@@ -848,10 +783,9 @@ class CoreOptions {
                     '',
                     strval( filter_input( INPUT_POST, 'filenamesToIgnore' ) )
                 );
-                $wpdb->update(
-                    $table_name,
-                    [ 'blob_value' => $filenames_to_ignore ],
-                    [ 'name' => 'filenamesToIgnore' ]
+                self::repository()->update(
+                    'filenamesToIgnore',
+                    [ 'blob_value' => $filenames_to_ignore ]
                 );
 
                 $hosts_to_rewrite = preg_replace(
@@ -859,16 +793,14 @@ class CoreOptions {
                     '',
                     strval( filter_input( INPUT_POST, 'hostsToRewrite' ) )
                 );
-                $wpdb->update(
-                    $table_name,
-                    [ 'blob_value' => $hosts_to_rewrite ],
-                    [ 'name' => 'hostsToRewrite' ]
+                self::repository()->update(
+                    'hostsToRewrite',
+                    [ 'blob_value' => $hosts_to_rewrite ]
                 );
 
-                $wpdb->update(
-                    $table_name,
-                    [ 'value' => isset( $_POST['skipURLRewrite'] ) ? 1 : 0 ],
-                    [ 'name' => 'skipURLRewrite' ]
+                self::repository()->update(
+                    'skipURLRewrite',
+                    [ 'value' => isset( $_POST['skipURLRewrite'] ) ? 1 : 0 ]
                 );
                 break;
         }
@@ -881,17 +813,7 @@ class CoreOptions {
      * @param mixed $value Updated option value
      */
     public static function save( string $name, $value ) : void {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-
-        $table_name = $wpdb->prefix . self::$table_name;
-
         // TODO: some validation on save types
-        $wpdb->update(
-            $table_name,
-            [ 'value' => $value ],
-            [ 'name' => $name ]
-        );
+        self::repository()->update( $name, [ 'value' => $value ] );
     }
 }
-
