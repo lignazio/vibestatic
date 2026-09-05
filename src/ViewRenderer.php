@@ -94,12 +94,30 @@ class ViewRenderer {
 
     public static function renderDiagnosticsPage() : void {
         $view = [];
-        $view['memoryLimit'] = ini_get( 'memory_limit' );
+        /*
+         * Convertiti QUI, non nella view.
+         *
+         * `ini_get()` restituisce sempre una stringa: `max_execution_time`
+         * illimitato arriva come `"0"`, non come `0`. La view lo dichiarava
+         * `@var int` e lo confrontava con `===`, quindi `0 === "0"` era falso e
+         * la pagina Diagnostics diceva «0 seconds — Needs attention» per una
+         * configurazione che invece va bene. Prima il confronto era `==`, che
+         * la stringa la digeriva; passando a `===` senza sistemare il tipo alla
+         * sorgente il difetto e' diventato visibile — e PHPStan non poteva
+         * vederlo, perche' credeva al docblock.
+         *
+         * La lezione e' quella gia' scritta nel piano: il tipo si stabilisce
+         * dove il dato nasce, non si dichiara dove viene letto.
+         */
+        $view['memoryLimit'] = (string) ini_get( 'memory_limit' );
         $view['coreOptions'] = array_values( CoreOptions::getAll() );
         $view['site_info'] = SiteInfo::getAllInfo();
-        $view['phpOutOfDate'] = version_compare( PHP_VERSION, '7.4', '<' );
+        // 8.2, che e' quello che il plugin richiede dalla fase 2 e quello che la
+        // stessa pagina dichiara due righe piu' in la'. Era rimasto 7.4: su PHP
+        // 8.0 la spunta era verde accanto a un testo che diceva di aggiornare.
+        $view['phpOutOfDate'] = version_compare( PHP_VERSION, '8.2', '<' );
         $view['uploadsWritable'] = SiteInfo::isUploadsWritable();
-        $view['maxExecutionTime'] = ini_get( 'max_execution_time' );
+        $view['maxExecutionTime'] = (int) ini_get( 'max_execution_time' );
         $view['curlSupported'] = SiteInfo::hasCURLSupport();
         $view['permalinksAreCompatible'] = SiteInfo::permalinksAreCompatible();
         $view['domDocumentAvailable'] = class_exists( 'DOMDocument' );
