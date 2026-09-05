@@ -285,6 +285,51 @@ class Controller {
         foreach ( $hidden_pages as $slug => $page ) {
             self::addHiddenPage( self::pageTitle( $page[0] ), $slug, $page[1] );
         }
+
+        self::registerAddonPages();
+    }
+
+    /**
+     * Le pagine che gli addon chiedono di aggiungere.
+     *
+     * `wp2static_add_menu_items` e' un gancio morto dal 9 maggio 2020, commit
+     * 0b1db4e3 «rm old submenu page setup»: da allora il core non lo lancia
+     * piu', ma sftp, s3 e netlify continuano a registrarcisi — e` l'unica
+     * strada che hanno per avere una pagina di configurazione. Il risultato e`
+     * che quei tre addon, in WP2Static 7.2, si installano, si attivano, si
+     * agganciano al deploy, e non hanno nessun posto dove inserire le
+     * credenziali.
+     *
+     * Il contratto e' quello di allora, ed e' quello che gli addon si aspettano
+     * ancora oggi: un array `slug => callable`, dove lo slug diventa
+     * `wp2static-<slug>`.
+     *
+     * L'etichetta non passa da `__()` di proposito. Il testo lo decide l'addon,
+     * non noi: e' l'unica stringa dell'interfaccia che questo plugin non
+     * possiede, e tradurla vorrebbe dire tradurre il nome di un prodotto altrui.
+     */
+    public static function registerAddonPages() : void {
+        /** @var mixed $addon_pages */
+        $addon_pages = apply_filters( 'wp2static_add_menu_items', [] );
+
+        if ( ! is_array( $addon_pages ) ) {
+            return;
+        }
+
+        foreach ( $addon_pages as $slug => $callback ) {
+            if ( ! is_string( $slug ) || ! is_callable( $callback ) ) {
+                continue;
+            }
+
+            add_submenu_page(
+                'wp2static',
+                self::pageTitle( $slug ),
+                $slug,
+                'manage_options',
+                'wp2static-' . $slug,
+                $callback
+            );
+        }
     }
 
     /**

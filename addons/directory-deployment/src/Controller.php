@@ -4,10 +4,13 @@ namespace WP2StaticDirectoryDeployer;
 
 class Controller {
     public function run() : void {
-        add_filter(
-            'wp2static_add_menu_items',
-            [ 'WP2StaticDirectoryDeployer\Controller', 'addSubmenuPage' ]
-        );
+        /*
+         * Niente `wp2static_add_menu_items`. Da quando il core lo lancia di
+         * nuovo, registrarcisi darebbe a questo addon DUE pagine identiche —
+         * quella e `wp2static-addon-directory-deployment`, che e' la sola a cui
+         * punta l'ingranaggio della pagina Add-ons. Quel gancio resta per gli
+         * addon che non sono stati adottati e che non hanno altra strada.
+         */
 
         add_action(
             'admin_post_wp2static_directory_deployment_save_options',
@@ -255,18 +258,6 @@ class Controller {
         } else {
             self::activateForSingleSite();
         }
-    }
-
-    /**
-     * Add WP2Static submenu
-     *
-     * @param mixed[] $submenu_pages array of submenu pages
-     * @return mixed[] array of submenu pages
-     */
-    public static function addSubmenuPage( array $submenu_pages ) : array {
-        $submenu_pages['directorydeployer'] = [ 'WP2StaticDirectoryDeployer\Controller', 'renderDirectoryDeployerPage' ];
-
-        return $submenu_pages;
     }
 
     public static function saveOptionsFromUI() : void {
