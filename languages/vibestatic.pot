@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-05T04:12:39+00:00\n"
+"POT-Creation-Date: 2026-09-05T09:09:13+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vibestatic\n"
@@ -72,53 +72,53 @@ msgid "Advanced"
 msgstr ""
 
 #: src/Controller.php:264
-#: views/crawl-queue-page.php:33
+#: views/crawl-queue-page.php:40
 msgid "Crawl Queue"
 msgstr ""
 
 #: src/Controller.php:268
-#: views/caches-page.php:139
-#: views/crawl-cache-page.php:33
+#: views/caches-page.php:100
+#: views/crawl-cache-page.php:40
 msgid "Crawl Cache"
 msgstr ""
 
 #: src/Controller.php:272
-#: views/caches-page.php:237
-#: views/caches-page.php:245
-#: views/deploy-cache-page.php:33
+#: views/caches-page.php:195
+#: views/caches-page.php:203
+#: views/deploy-cache-page.php:37
 msgid "Deploy Cache"
 msgstr ""
 
 #: src/Controller.php:276
-#: views/caches-page.php:164
-#: views/static-site-paths-page.php:33
+#: views/caches-page.php:124
+#: views/static-site-paths-page.php:37
 msgid "Generated Static Site"
 msgstr ""
 
 #: src/Controller.php:280
-#: views/caches-page.php:197
-#: views/post-processed-site-paths-page.php:33
+#: views/caches-page.php:156
+#: views/post-processed-site-paths-page.php:37
 msgid "Post-processed Static Site"
 msgstr ""
 
 #. translators: %s: name of the admin page, e.g. "Jobs".
-#: src/Controller.php:302
+#: src/Controller.php:298
 #, php-format
 msgid "VibeStatic %s"
 msgstr ""
 
-#: src/Controller.php:395
-#: src/Controller.php:416
+#: src/Controller.php:391
+#: src/Controller.php:412
 msgid "You do not have permission to manage VibeStatic."
 msgstr ""
 
 #. translators: %s: the site title.
-#: src/Controller.php:922
+#: src/Controller.php:918
 #, php-format
 msgid "VibeStatic deployment complete on site: %s"
 msgstr ""
 
-#: src/Controller.php:926
+#: src/Controller.php:922
 msgid "VibeStatic deployment complete!"
 msgstr ""
 
@@ -282,31 +282,31 @@ msgstr ""
 msgid "Directories and files with these names will be ignored while crawling."
 msgstr ""
 
-#: src/CoreOptions.php:441
+#: src/CoreOptions.php:453
 msgid "Hosts to Rewrite"
 msgstr ""
 
-#: src/CoreOptions.php:445
+#: src/CoreOptions.php:457
 msgid "Hosts to rewrite to the deployment URL."
 msgstr ""
 
-#: src/CoreOptions.php:455
+#: src/CoreOptions.php:467
 msgid "Skip URL Rewrite"
 msgstr ""
 
-#: src/CoreOptions.php:459
+#: src/CoreOptions.php:471
 msgid "Do not rewrite any URLs. This may give a slight speed-up when the deployment URL is the same as the WordPress URL."
 msgstr ""
 
-#: src/CoreOptions.php:469
+#: src/CoreOptions.php:481
 msgid "Remove WordPress emoji and RSD output"
 msgstr ""
 
-#: src/CoreOptions.php:473
+#: src/CoreOptions.php:485
 msgid "Removes the emoji scripts, the wlwmanifest link and the wp-embed and comment-reply scripts. This changes your LIVE site as well as the exported one, on purpose: a static copy should look like what your visitors actually get."
 msgstr ""
 
-#: src/WordPressAdmin.php:371
+#: src/WordPressAdmin.php:375
 msgid "Invalid request method."
 msgstr ""
 
@@ -314,542 +314,542 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: views/addons-page.php:24
-#: views/addons-page.php:63
+#: views/addons-page.php:37
+#: views/addons-page.php:76
 msgid "Enabled"
 msgstr ""
 
-#: views/addons-page.php:25
-#: views/diagnostics-page.php:195
-#: views/diagnostics-page.php:214
+#: views/addons-page.php:38
+#: views/diagnostics-page.php:215
+#: views/diagnostics-page.php:234
 msgid "Name"
 msgstr ""
 
-#: views/addons-page.php:26
+#: views/addons-page.php:39
 msgid "Type"
 msgstr ""
 
-#: views/addons-page.php:27
+#: views/addons-page.php:40
 msgid "Documentation URL"
 msgstr ""
 
-#: views/addons-page.php:28
+#: views/addons-page.php:41
 msgid "Configure"
 msgstr ""
 
 #. translators: %s: link to the project page, with the link text as its own string.
-#: views/addons-page.php:38
+#: views/addons-page.php:51
 #, php-format
 msgid "No add-ons are installed. %s"
 msgstr ""
 
-#: views/addons-page.php:40
+#: views/addons-page.php:53
 msgid "Get add-ons"
 msgstr ""
 
-#: views/addons-page.php:64
+#: views/addons-page.php:77
 msgid "Disabled"
 msgstr ""
 
 #. translators: %s: add-on name.
-#: views/addons-page.php:84
+#: views/addons-page.php:97
 #, php-format
 msgid "Documentation for %s"
 msgstr ""
 
 #. translators: %s: add-on name.
-#: views/addons-page.php:98
+#: views/addons-page.php:111
 #, php-format
 msgid "Configure %s"
 msgstr ""
 
-#: views/advanced-options-page.php:31
+#: views/advanced-options-page.php:37
 msgid "Advanced Options"
 msgstr ""
 
-#: views/advanced-options-page.php:33
-#: views/options-page.php:31
+#: views/advanced-options-page.php:39
+#: views/options-page.php:37
 msgid "Detection Options"
 msgstr ""
 
-#: views/advanced-options-page.php:48
-#: views/options-page.php:70
+#: views/advanced-options-page.php:54
+#: views/options-page.php:76
 msgid "Post-processing Options"
 msgstr ""
 
-#: views/advanced-options-page.php:68
-#: views/options-page.php:125
+#: views/advanced-options-page.php:74
+#: views/options-page.php:133
 msgid "Save options"
 msgstr ""
 
-#: views/caches-page.php:62
-msgid "Action"
-msgstr ""
-
-#: views/caches-page.php:74
-msgid "Go"
-msgstr ""
-
-#: views/caches-page.php:80
+#: views/caches-page.php:42
 msgid "Show URLs"
 msgstr ""
 
-#: views/caches-page.php:81
+#: views/caches-page.php:43
 msgid "Show Paths"
 msgstr ""
 
 #. translators: %s: a link whose text is "Refresh page".
-#: views/caches-page.php:96
-#: views/jobs-page.php:175
+#: views/caches-page.php:58
+#: views/jobs-page.php:189
 #, php-format
 msgid "%s to see latest status"
 msgstr ""
 
-#: views/caches-page.php:98
-#: views/jobs-page.php:177
+#: views/caches-page.php:60
+#: views/jobs-page.php:191
 msgid "Refresh page"
 msgstr ""
 
-#: views/caches-page.php:107
+#: views/caches-page.php:69
 msgid "Cache Type"
 msgstr ""
 
-#: views/caches-page.php:108
+#: views/caches-page.php:70
 msgid "Statistics"
 msgstr ""
 
-#: views/caches-page.php:109
+#: views/caches-page.php:71
 msgid "Actions"
 msgstr ""
 
-#: views/caches-page.php:114
+#: views/caches-page.php:76
 msgid "Crawl Queue (Detected URLs)"
 msgstr ""
 
 #. translators: %s: number of URLs.
-#: views/caches-page.php:120
-#: views/caches-page.php:145
+#: views/caches-page.php:82
+#: views/caches-page.php:106
 #, php-format
 msgid "%s URL in database"
 msgid_plural "%s URLs in database"
 msgstr[0] ""
 msgstr[1] ""
 
-#: views/caches-page.php:132
+#: views/caches-page.php:93
 msgid "Delete Crawl Queue"
 msgstr ""
 
-#: views/caches-page.php:157
+#: views/caches-page.php:117
 msgid "Delete Crawl Cache"
 msgstr ""
 
 #. translators: 1: number of files, 2: disk space used, e.g. "12 MB".
-#: views/caches-page.php:170
-#: views/caches-page.php:203
+#: views/caches-page.php:130
+#: views/caches-page.php:162
 #, php-format
 msgid "%1$s file, using %2$s"
 msgid_plural "%1$s files, using %2$s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: views/caches-page.php:182
-#: views/caches-page.php:215
+#: views/caches-page.php:142
+#: views/caches-page.php:174
 msgid "Path"
 msgstr ""
 
-#: views/caches-page.php:190
-#: views/caches-page.php:223
+#: views/caches-page.php:149
+#: views/caches-page.php:181
 msgid "Delete Files"
 msgstr ""
 
-#: views/caches-page.php:238
+#: views/caches-page.php:196
 msgid "No paths in database"
 msgstr ""
 
 #. translators: 1: number of paths, 2: deploy namespace, e.g. the add-on name.
-#: views/caches-page.php:253
+#: views/caches-page.php:211
 #, php-format
 msgid "%1$s path in database for %2$s"
 msgid_plural "%1$s paths in database for %2$s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: views/caches-page.php:271
+#: views/caches-page.php:228
 msgid "Delete Deploy Cache"
 msgstr ""
 
-#: views/caches-page.php:293
+#: views/caches-page.php:250
 msgid "Delete all caches"
 msgstr ""
 
-#: views/crawl-cache-page.php:46
-msgid "Search Crawl Cache URLs:"
-msgstr ""
-
-#: views/crawl-cache-page.php:48
-#: views/crawl-queue-page.php:48
-msgid "Search URLs"
-msgstr ""
-
 #: views/crawl-cache-page.php:53
-#: views/crawl-queue-page.php:53
-msgid "Select bulk action"
+msgid "Search Crawl Cache URLs:"
 msgstr ""
 
 #: views/crawl-cache-page.php:55
 #: views/crawl-queue-page.php:55
+msgid "Search URLs"
+msgstr ""
+
+#: views/crawl-cache-page.php:60
+#: views/crawl-queue-page.php:60
+msgid "Select bulk action"
+msgstr ""
+
+#: views/crawl-cache-page.php:62
+#: views/crawl-queue-page.php:62
 msgid "Bulk Actions"
 msgstr ""
 
-#: views/crawl-cache-page.php:56
-#: views/crawl-queue-page.php:56
+#: views/crawl-cache-page.php:63
+#: views/crawl-queue-page.php:63
 msgid "Remove"
 msgstr ""
 
-#: views/crawl-cache-page.php:58
-#: views/crawl-queue-page.php:58
+#: views/crawl-cache-page.php:65
+#: views/crawl-queue-page.php:65
 msgid "Apply"
 msgstr ""
 
-#: views/crawl-cache-page.php:70
-#: views/crawl-queue-page.php:70
+#: views/crawl-cache-page.php:77
+#: views/crawl-queue-page.php:77
 msgid "Select All"
 msgstr ""
 
-#: views/crawl-cache-page.php:73
+#: views/crawl-cache-page.php:80
 msgid "URLs in Crawl Cache"
 msgstr ""
 
-#: views/crawl-cache-page.php:74
+#: views/crawl-cache-page.php:81
 msgid "Page MD5 Hash"
 msgstr ""
 
-#: views/crawl-cache-page.php:80
+#: views/crawl-cache-page.php:87
 msgid "Crawl cache is empty."
 msgstr ""
 
 #. translators: %s: a URL from the list.
-#: views/crawl-cache-page.php:91
-#: views/crawl-queue-page.php:90
+#: views/crawl-cache-page.php:98
+#: views/crawl-queue-page.php:97
 #, php-format
 msgid "Select %s"
 msgstr ""
 
-#: views/crawl-queue-page.php:46
+#: views/crawl-queue-page.php:53
 msgid "Search Crawl Queue URLs:"
 msgstr ""
 
-#: views/crawl-queue-page.php:73
+#: views/crawl-queue-page.php:80
 msgid "URLs in Crawl Queue"
 msgstr ""
 
-#: views/crawl-queue-page.php:79
+#: views/crawl-queue-page.php:86
 msgid "Crawl queue is empty."
 msgstr ""
 
-#: views/deploy-cache-page.php:45
+#: views/deploy-cache-page.php:49
 msgid "Search Deploy Cache paths:"
 msgstr ""
 
-#: views/deploy-cache-page.php:47
-#: views/post-processed-site-paths-page.php:47
-#: views/static-site-paths-page.php:47
+#: views/deploy-cache-page.php:51
+#: views/post-processed-site-paths-page.php:51
+#: views/static-site-paths-page.php:51
 msgid "Search paths"
 msgstr ""
 
-#: views/deploy-cache-page.php:59
+#: views/deploy-cache-page.php:63
 msgid "Paths in Deploy Cache"
 msgstr ""
 
-#: views/deploy-cache-page.php:65
+#: views/deploy-cache-page.php:69
 msgid "Deploy Cache is empty."
 msgstr ""
 
-#: views/diagnostics-page.php:22
+#: views/diagnostics-page.php:23
 msgid "OK"
 msgstr ""
 
-#: views/diagnostics-page.php:22
+#: views/diagnostics-page.php:23
 msgid "Needs attention"
 msgstr ""
 
-#: views/diagnostics-page.php:41
+#: views/diagnostics-page.php:63
 msgid "Health check"
 msgstr ""
 
-#: views/diagnostics-page.php:42
-#: views/jobs-page.php:190
+#: views/diagnostics-page.php:64
+#: views/jobs-page.php:204
 msgid "Status"
 msgstr ""
 
-#: views/diagnostics-page.php:43
+#: views/diagnostics-page.php:65
 msgid "Advice"
 msgstr ""
 
-#: views/diagnostics-page.php:52
+#: views/diagnostics-page.php:74
 msgid "Unlimited"
 msgstr ""
 
 #. translators: %s: a number of seconds.
-#: views/diagnostics-page.php:57
+#: views/diagnostics-page.php:79
 #, php-format
 msgid "%s second"
 msgid_plural "%s seconds"
 msgstr[0] ""
 msgstr[1] ""
 
-#: views/diagnostics-page.php:66
+#: views/diagnostics-page.php:88
 msgid "Generating a static site can involve long-running processes. Set your PHP max_execution_time to unlimited, or find a better webhost if you are prevented from doing so."
 msgstr ""
 
-#: views/diagnostics-page.php:71
+#: views/diagnostics-page.php:93
 msgid "VibeStatic will use as much memory as is available to it during processing. Allocating more of your system RAM to PHP should improve performance."
 msgstr ""
 
-#: views/diagnostics-page.php:74
+#: views/diagnostics-page.php:96
 msgid "Uploads directory writable"
 msgstr ""
 
-#: views/diagnostics-page.php:78
+#: views/diagnostics-page.php:100
 msgid "Writable"
 msgstr ""
 
-#: views/diagnostics-page.php:79
+#: views/diagnostics-page.php:101
 msgid "Non-writable"
 msgstr ""
 
-#: views/diagnostics-page.php:84
+#: views/diagnostics-page.php:106
 msgid "By default VibeStatic writes the generated static site under the wp-content/uploads directory. Make sure VibeStatic has permission to do so."
 msgstr ""
 
-#: views/diagnostics-page.php:87
+#: views/diagnostics-page.php:109
 msgid "PHP version"
 msgstr ""
 
 #. translators: %s: a link whose text is "PHP.net".
-#: views/diagnostics-page.php:100
+#: views/diagnostics-page.php:122
 #, php-format
 msgid "The currently supported PHP versions are listed on %s."
 msgstr ""
 
-#: views/diagnostics-page.php:106
+#: views/diagnostics-page.php:128
 msgid "VibeStatic requires PHP 8.2 or newer. It is tested on 8.2, 8.3 and 8.4."
 msgstr ""
 
-#: views/diagnostics-page.php:110
+#: views/diagnostics-page.php:132
 msgid "cURL extension loaded"
 msgstr ""
 
-#: views/diagnostics-page.php:114
-#: views/diagnostics-page.php:141
+#: views/diagnostics-page.php:136
+#: views/diagnostics-page.php:163
 msgid "Yes"
 msgstr ""
 
-#: views/diagnostics-page.php:115
-#: views/diagnostics-page.php:142
+#: views/diagnostics-page.php:137
+#: views/diagnostics-page.php:164
 msgid "No"
 msgstr ""
 
-#: views/diagnostics-page.php:121
+#: views/diagnostics-page.php:143
 msgid "VibeStatic needs the cURL extension enabled on your web server to crawl your site and to deploy it to services such as S3, BunnyCDN or Netlify."
 msgstr ""
 
 #. translators: %s: a link whose text is "report it on GitHub".
-#: views/diagnostics-page.php:127
+#: views/diagnostics-page.php:149
 #, php-format
 msgid "Enabling it is usually a matter of one line in your PHP configuration, or one click in your host control panel. If you are stuck, %s."
 msgstr ""
 
-#: views/diagnostics-page.php:129
+#: views/diagnostics-page.php:151
 msgid "report it on GitHub"
 msgstr ""
 
-#: views/diagnostics-page.php:137
+#: views/diagnostics-page.php:159
 msgid "WordPress permalinks compatible"
 msgstr ""
 
 #. translators: %s: a link whose text is "Permalink Settings".
-#: views/diagnostics-page.php:152
+#: views/diagnostics-page.php:174
 #, php-format
 msgid "Because of how static sites work, you need a permalink structure defined in your %s, and it must end in a trailing slash."
 msgstr ""
 
-#: views/diagnostics-page.php:154
+#: views/diagnostics-page.php:176
 msgid "Permalink Settings"
 msgstr ""
 
-#: views/diagnostics-page.php:165
+#: views/diagnostics-page.php:187
 msgid "Loaded PHP extensions"
 msgstr ""
 
-#: views/diagnostics-page.php:176
+#: views/diagnostics-page.php:196
 msgid "No extensions loaded."
 msgstr ""
 
-#: views/diagnostics-page.php:190
+#: views/diagnostics-page.php:210
 msgid "VibeStatic Core Options"
 msgstr ""
 
-#: views/diagnostics-page.php:196
-#: views/diagnostics-page.php:215
+#: views/diagnostics-page.php:216
+#: views/diagnostics-page.php:235
 msgid "Value"
 msgstr ""
 
-#: views/diagnostics-page.php:209
+#: views/diagnostics-page.php:229
 msgid "WordPress Site Info"
 msgstr ""
 
-#: views/jobs-page.php:35
+#: views/jobs-page.php:49
 msgid "disable (never)"
 msgstr ""
 
-#: views/jobs-page.php:36
+#: views/jobs-page.php:50
 msgid "every minute"
 msgstr ""
 
-#: views/jobs-page.php:37
+#: views/jobs-page.php:51
 msgid "every 5 minutes"
 msgstr ""
 
-#: views/jobs-page.php:38
+#: views/jobs-page.php:52
 msgid "every 10 minutes"
 msgstr ""
 
-#: views/jobs-page.php:54
+#: views/jobs-page.php:68
 msgid "Events to queue new jobs"
 msgstr ""
 
-#: views/jobs-page.php:56
+#: views/jobs-page.php:70
 msgid "Enabled?"
 msgstr ""
 
-#: views/jobs-page.php:77
+#: views/jobs-page.php:91
 msgid "Jobs that will be added to queue"
 msgstr ""
 
 #. translators: 1: wp-cron.php, 2: a WP-CLI command, 3: a WordPress action hook. All three are literals and must not be translated.
-#: views/jobs-page.php:118
+#: views/jobs-page.php:132
 #, php-format
 msgid "If WP-Cron is not expected to be triggered by site visitors, you can also call %1$s directly, run the WP-CLI command %2$s or call the hook %3$s from within your own theme or plugin."
 msgstr ""
 
-#: views/jobs-page.php:149
+#: views/jobs-page.php:163
 msgid "Save Job Automation Settings"
 msgstr ""
 
-#: views/jobs-page.php:164
+#: views/jobs-page.php:178
 msgid "Manually Enqueue Jobs Now"
 msgstr ""
 
-#: views/jobs-page.php:169
+#: views/jobs-page.php:183
 msgid "Job Queue/History"
 msgstr ""
 
-#: views/jobs-page.php:188
+#: views/jobs-page.php:202
 msgid "Date"
 msgstr ""
 
-#: views/jobs-page.php:189
+#: views/jobs-page.php:203
 msgid "Job"
 msgstr ""
 
-#: views/jobs-page.php:196
+#: views/jobs-page.php:210
 msgid "No jobs yet."
 msgstr ""
 
-#: views/jobs-page.php:219
+#: views/jobs-page.php:233
 msgid "Delete all Jobs from Queue"
 msgstr ""
 
-#: views/logs-page.php:24
+#: views/logs-page.php:28
 msgid "When"
 msgstr ""
 
-#: views/logs-page.php:25
+#: views/logs-page.php:29
 msgid "What"
 msgstr ""
 
-#: views/logs-page.php:31
+#: views/logs-page.php:35
 msgid "Logs are empty."
 msgstr ""
 
-#: views/logs-page.php:55
+#: views/logs-page.php:59
 msgid "Delete Log"
 msgstr ""
 
-#: views/options-page.php:33
+#: views/options-page.php:39
 msgid "Control Detected URLs"
 msgstr ""
 
-#: views/options-page.php:35
+#: views/options-page.php:41
 msgid "VibeStatic will crawl these WordPress URLs to generate a static site."
 msgstr ""
 
-#: views/options-page.php:40
+#: views/options-page.php:46
 msgid "URL Type"
 msgstr ""
 
-#: views/options-page.php:41
+#: views/options-page.php:47
 msgid "Include in detection"
 msgstr ""
 
-#: views/options-page.php:56
+#: views/options-page.php:62
 msgid "Crawling Options"
 msgstr ""
 
-#: views/options-page.php:80
+#: views/options-page.php:86
 msgid "Deployment Options"
 msgstr ""
 
+#: views/partials/cache-actions.php:36
+msgid "Action"
+msgstr ""
+
+#: views/partials/cache-actions.php:48
+msgid "Go"
+msgstr ""
+
 #. translators: %s: name of the list being paginated, e.g. "Crawl Queue".
-#: views/partials/paginator.php:33
+#: views/partials/paginator.php:39
 #, php-format
 msgid "%s list navigation"
 msgstr ""
 
 #. translators: %s: number of items in the list, already formatted.
-#: views/partials/paginator.php:44
+#: views/partials/paginator.php:50
 #, php-format
 msgid "%s item"
 msgid_plural "%s items"
 msgstr[0] ""
 msgstr[1] ""
 
-#: views/partials/paginator.php:56
+#: views/partials/paginator.php:62
 msgid "First page"
 msgstr ""
 
-#: views/partials/paginator.php:60
+#: views/partials/paginator.php:66
 msgid "Previous page"
 msgstr ""
 
-#: views/partials/paginator.php:65
+#: views/partials/paginator.php:71
 msgid "Current Page"
 msgstr ""
 
 #. translators: %s: total number of pages.
-#: views/partials/paginator.php:71
+#: views/partials/paginator.php:77
 #, php-format
 msgid "of %s"
 msgstr ""
 
-#: views/partials/paginator.php:82
+#: views/partials/paginator.php:88
 msgid "Next page"
 msgstr ""
 
-#: views/partials/paginator.php:86
+#: views/partials/paginator.php:92
 msgid "Last page"
 msgstr ""
 
-#: views/post-processed-site-paths-page.php:45
+#: views/post-processed-site-paths-page.php:49
 msgid "Search post-processed site paths:"
 msgstr ""
 
-#: views/post-processed-site-paths-page.php:59
+#: views/post-processed-site-paths-page.php:63
 msgid "Paths in Post-processed Static Site"
 msgstr ""
 
-#: views/post-processed-site-paths-page.php:65
+#: views/post-processed-site-paths-page.php:69
 msgid "Post-processed site directory is empty."
 msgstr ""
 
@@ -875,14 +875,14 @@ msgstr ""
 msgid "Logs will appear here on completion, or click \"Refresh logs\" to check progress."
 msgstr ""
 
-#: views/static-site-paths-page.php:45
+#: views/static-site-paths-page.php:49
 msgid "Search generated static site paths:"
 msgstr ""
 
-#: views/static-site-paths-page.php:59
+#: views/static-site-paths-page.php:63
 msgid "Paths in Generated Static Site"
 msgstr ""
 
-#: views/static-site-paths-page.php:65
+#: views/static-site-paths-page.php:69
 msgid "Generated static site directory is empty."
 msgstr ""

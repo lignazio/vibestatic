@@ -5,6 +5,25 @@ require_once __DIR__ . '/../../vendor-prefixed/autoload.php';
 
 WP_Mock::bootstrap();
 
+/*
+ * Le costanti di tempo di WordPress. Non le definisce WP_Mock, che sostituisce
+ * le funzioni e non il core: senza, qualunque classe che scriva
+ * `12 * HOUR_IN_SECONDS` muore con «Undefined constant» dentro il test invece
+ * che nel codice.
+ */
+foreach (
+    [
+        'MINUTE_IN_SECONDS' => 60,
+        'HOUR_IN_SECONDS' => 3600,
+        'DAY_IN_SECONDS' => 86400,
+        'WEEK_IN_SECONDS' => 604800,
+    ] as $constant => $seconds
+) {
+    if ( ! defined( $constant ) ) {
+        define( $constant, $seconds );
+    }
+}
+
 if ( ! function_exists( 'untrailingslashit' ) ) {
     function untrailingslashit( $string ) {
         return rtrim( $string, '/\\' );

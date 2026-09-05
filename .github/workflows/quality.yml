@@ -60,6 +60,12 @@ jobs:
         continue-on-error: true
         run: composer run-script phpcs
 
+      # Bloccante come quello di sicurezza, e per una ragione simile: una
+      # stringa avvolta col dominio sbagliato non si vede finché qualcuno non
+      # installa una traduzione, cioè mai durante lo sviluppo in inglese.
+      - name: i18n (bloccante)
+        run: composer run-script phpcs-i18n
+
       - name: Compatibilità PHP 8.2+
         run: composer run-script phpcompat
 
@@ -104,3 +110,50 @@ jobs:
         # Preinstallato sui runner Ubuntu: una dipendenza esterna in meno, e
         # nessuna action di terzi puntata a un branch mutabile.
         run: shellcheck tools/*.sh
+
+  pot:
+    name: Il .pot è aggiornato
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: dom, libxml, mbstring, simplexml
+          coverage: none
+          tools: composer:v2, wp-cli
+
+      # Il .pot sta nel repository perché è il file che un traduttore apre.
+      # Il rovescio è che può restare indietro rispetto al codice senza che
+      # niente lo segnali: una stringa nuova semplicemente non arriva a chi
+      # traduce. Qui si rigenera e si confronta.
+      #
+      # `POT-Creation-Date` cambia a ogni esecuzione per costruzione, quindi
+      # va tolta da entrambi i lati prima del diff: altrimenti questo passo
+      # sarebbe rosso sempre, e diventerebbe rumore da ignorare.
+      - name: Rigenera e confronta
+        run: |
+          cp languages/vibestatic.pot /tmp/atteso.pot
+          cp addons/directory-deployment/languages/vibestatic-directory-deployment.pot \
+             /tmp/atteso-addon.pot
+
+          composer run-script i18n
+
+          senza_data() { grep -v '^"POT-Creation-Date:' "$1"; }
+
+          fallito=0
+          for coppia in \
+            "/tmp/atteso.pot:languages/vibestatic.pot" \
+            "/tmp/atteso-addon.pot:addons/directory-deployment/languages/vibestatic-directory-deployment.pot"
+          do
+            vecchio="${coppia%%:*}"
+            nuovo="${coppia##*:}"
+            if ! diff -u <(senza_data "$vecchio") <(senza_data "$nuovo"); then
+              echo "::error file=$nuovo::Il .pot non corrisponde al codice. Lancia 'composer i18n' e committa."
+              fallito=1
+            fi
+          done
+          exit $fallito
+        shell: bash

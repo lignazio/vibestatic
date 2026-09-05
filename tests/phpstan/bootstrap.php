@@ -18,3 +18,9 @@ define( 'VIBESTATIC_PATH', '' );
 // I due nomi vecchi, mantenuti come alias per gli addon.
 define( 'WP2STATIC_VERSION', '' );
 define( 'WP2STATIC_PATH', '' );
+
+// Le costanti di tempo di WordPress, per le stesse ragioni del bootstrap dei test.
+define( 'MINUTE_IN_SECONDS', 60 );
+define( 'HOUR_IN_SECONDS', 3600 );
+define( 'DAY_IN_SECONDS', 86400 );
+define( 'WEEK_IN_SECONDS', 604800 );

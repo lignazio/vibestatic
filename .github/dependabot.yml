@@ -1,0 +1,23 @@
+# Perche' il progetto non si ritrovi fra tre anni nella condizione da cui e'
+# partito: WP2Static distribuiva un fork di Guzzle fermo al 2020, senza le patch
+# di sicurezza pubblicate dopo quella data, e nessuno se n'e' accorto perche'
+# nessuno guardava.
+version: 2
+
+updates:
+  - package-ecosystem: composer
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    # Le dipendenze di sviluppo si muovono spesso e da sole non arrivano a
+    # nessun utente: raggrupparle tiene separata la PR che conta — quella su
+    # Guzzle, che e' l'unica dipendenza di produzione — dal rumore.
+    groups:
+      dev-dependencies:
+        dependency-type: development
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

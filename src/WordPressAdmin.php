@@ -50,6 +50,10 @@ class WordPressAdmin {
          */
         add_action( 'init', [ Schema::class, 'updateIfNeeded' ], 5 );
 
+        // Aggiornamenti per chi ha installato da zip. Registra solo dei filtri:
+        // la chiamata a GitHub parte quando WordPress controlla, non adesso.
+        Updater::registerHooks();
+
         add_filter(
             // phpcs:ignore WordPress.WP.CronInterval -- namespaces not yet fully supported
             'cron_schedules',
