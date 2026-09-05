@@ -5,11 +5,11 @@ namespace WP2StaticDirectoryDeployer;
 class Controller {
     public function run() : void {
         /*
-         * Niente `wp2static_add_menu_items`. Da quando il core lo lancia di
-         * nuovo, registrarcisi darebbe a questo addon DUE pagine identiche —
-         * quella e `wp2static-addon-directory-deployment`, che e' la sola a cui
-         * punta l'ingranaggio della pagina Add-ons. Quel gancio resta per gli
-         * addon che non sono stati adottati e che non hanno altra strada.
+         * No `wp2static_add_menu_items`. Now that the core fires it again,
+         * registering on it would give this add-on TWO identical pages — that
+         * one and `wp2static-addon-directory-deployment`, which is the only one
+         * the Add-ons page's gear icon points at. The hook stays for the
+         * add-ons that were not adopted and have no other route.
          */
 
         add_action(
@@ -33,13 +33,20 @@ class Controller {
             1
         );
 
+        /*
+         * The docs URL points at this fork, not at the upstream repository the
+         * add-on came from: github.com/twardoch/wp2static-addon-directory-
+         * deployment now returns 404, so the Add-ons page's book icon led
+         * users nowhere. The add-on is maintained here now, and this is where
+         * its documentation lives.
+         */
         do_action(
             'wp2static_register_addon',
             'wp2static-addon-directory-deployment',
             'deploy',
             'Directory Deployment',
-            'https://github.com/twardoch/wp2static-addon-directory-deployment',
-            'Deploys to local directory, either overwriting or replacing existing files'
+            'https://github.com/lignazio/vibestatic#directory-deployment',
+            'Deploys the generated site to a directory on the same machine, copying only what changed'
         );
 
         if ( defined( 'WP_CLI' ) ) {
@@ -71,13 +78,13 @@ class Controller {
     }
 
     /**
-     * Inserisce le opzioni che non ci sono ancora, senza toccare quelle presenti.
+     * Insert the options that are not there yet, leaving existing ones alone.
      *
-     * Nome e valore, non piu' etichetta e descrizione. Le due colonne le
-     * scriveva questo metodo alla prima apertura della pagina, cioe' congelava
-     * nel database la lingua attiva in quel momento; ora le etichette stanno
-     * nella view, tradotte a ogni caricamento. Il core aveva la stessa coppia di
-     * colonne e le ha lasciate cadere per la stessa ragione.
+     * Name and value, no longer label and description. This method wrote those
+     * two columns the first time the page was opened, which froze whichever
+     * language was active at that moment into the database; the labels now live
+     * in the view, translated on every load. The core had the same pair of
+     * columns and dropped them for the same reason.
      */
     public static function seedOptions() : void {
         global $wpdb;
@@ -169,10 +176,10 @@ class Controller {
         dbDelta( $sql );
 
         /*
-         * `label` e `description` non le legge piu' nessuno: le etichette stanno
-         * nella view, dove possono essere tradotte. dbDelta non toglie una
-         * colonna che non c'e' piu' nella CREATE TABLE, quindi va tolta a mano —
-         * stesso rattoppo che il core ha sulla sua tabella delle opzioni.
+         * Nothing reads `label` and `description` any more: the labels live in
+         * the view, where they can be translated. dbDelta does not drop a column
+         * that has left the CREATE TABLE, so it has to go by hand — the same
+         * patch the core carries on its own options table.
          */
         foreach ( [ 'label', 'description' ] as $obsolete_column ) {
             $exists = $wpdb->get_var(
@@ -262,17 +269,15 @@ class Controller {
 
     public static function saveOptionsFromUI() : void {
         /*
-         * Il nonce c'era, la capability no. Non e' la stessa cosa: il nonce
-         * dice da dove arriva la richiesta, non chi la manda, e su questo
-         * modulo la differenza pesa quanto puo' pesare — la cartella di
-         * destinazione che si salva qui e' quella che il deploy cancella con
-         * rrmdir() prima di riempirla. Un utente con un ruolo qualunque, in
-         * possesso del nonce, aveva un modo per far cancellare una cartella a
-         * scelta sul server.
+         * The nonce was there, the capability was not. They are not the same
+         * thing: a nonce says where a request came from, not who sent it, and on
+         * this module the difference weighs as much as it possibly can — the
+         * target directory saved here is the one the deploy wipes with rrmdir()
+         * before filling it. A user of any role, in possession of the nonce, had
+         * a way to have a directory of their choosing deleted on the server.
          *
-         * Controller::authorize() del core verifica capability e nonce, in
-         * quest'ordine, ed e' lo stesso guardiano dei ventiquattro handler del
-         * core.
+         * The core's Controller::authorize() checks capability and nonce, in
+         * that order, and is the same guard the core's twenty-four handlers use.
          */
         \WP2Static\Controller::authorize( 'wp2static-directory-deployment-options' );
 
@@ -283,11 +288,10 @@ class Controller {
                 'directoryDeploymentAdditionalSourceDirectory',
             ] as $name
         ) {
-            // `?? ''` e wp_unslash(): i tre campi venivano letti come
-            // $_POST['x'] diretto — una richiesta senza quel campo dava un
-            // warning e salvava null — e senza togliere le barre che WordPress
-            // aggiunge, quindi un percorso con un apostrofo tornava indietro
-            // cambiato.
+            // `?? ''` and wp_unslash(): the three fields used to be read as a
+            // bare $_POST['x'] — a request without that field gave a warning
+            // and saved null — and without stripping the slashes WordPress
+            // adds, so a path containing an apostrophe came back altered.
             $value = isset( $_POST[ $name ] ) ? wp_unslash( $_POST[ $name ] ) : '';
 
             self::saveOption( $name, sanitize_text_field( strval( $value ) ) );
@@ -307,9 +311,9 @@ class Controller {
 
         $table_name = $wpdb->prefix . 'wp2static_addon_directory_deployment_options';
 
-        // %i per l'identificatore, come nel core: il nome della tabella non
-        // arriva da fuori, ma interpolarlo a mano e' l'abitudine da cui e'
-        // nata la SQL injection chiusa alla fase 3.
+        // %i for the identifier, as in the core: the table name does not come
+        // from outside, but interpolating it by hand is the habit the SQL
+        // injection this project already closed grew out of.
         $option_value = $wpdb->get_var(
             $wpdb->prepare(
                 'SELECT value FROM %i WHERE name = %s LIMIT 1',
@@ -326,8 +330,9 @@ class Controller {
     }
 
     public function addOptionsPage() : void {
-        // Passa dal core, che alla pagina nascosta da' anche un titolo: senza,
-        // WordPress non lo trova e admin-header.php fa strip_tags( null ).
+        // Goes through the core, which also gives the hidden page a title:
+        // without one, WordPress cannot find it and admin-header.php calls
+        // strip_tags( null ).
         \WP2Static\Controller::addHiddenPage(
             __( 'Directory Deployment Options', 'vibestatic-directory-deployment' ),
             'wp2static-addon-directory-deployment',

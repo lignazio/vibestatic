@@ -39,12 +39,35 @@ class Addons {
 
         $table_name = $wpdb->prefix . 'wp2static_addons';
 
+        /*
+         * INSERT IGNORE used to be the whole of it, and it meant an add-on's
+         * metadata was frozen at the moment it was first registered. That is
+         * right for `enabled`, which is the user's choice, and wrong for
+         * everything else: name, type, description and documentation URL belong
+         * to the add-on and change with it.
+         *
+         * It showed up as a dead link. This add-on's docs URL still pointed at
+         * the upstream repository it came from, which now returns 404, and
+         * correcting it in the source changed nothing on any installation that
+         * already had the row — the book icon on the Add-ons page kept leading
+         * nowhere.
+         *
+         * `enabled` is deliberately absent from the UPDATE: re-registering an
+         * add-on on every page load must not switch a deployer back on that the
+         * user switched off.
+         */
         $wpdb->query(
             $wpdb->prepare(
-                'INSERT IGNORE INTO %i (slug, type, name, docs_url, description)
-                 VALUES (%s, %s, %s, %s, %s)',
+                'INSERT INTO %i (slug, type, name, docs_url, description)
+                 VALUES (%s, %s, %s, %s, %s)
+                 ON DUPLICATE KEY UPDATE
+                 type = %s, name = %s, docs_url = %s, description = %s',
                 $table_name,
                 $slug,
+                $type,
+                $name,
+                $docs_url,
+                $description,
                 $type,
                 $name,
                 $docs_url,
@@ -122,9 +145,9 @@ class Addons {
      *
      * "There can be only one!"
      *
-     * Il tipo dichiarato era `string|bool`, che dice «una stringa, oppure vero,
-     * oppure falso»: il vero non e' mai stato un valore possibile, e chi legge
-     * il risultato si trovava a doverlo escludere. Qui sotto e' `string|false`.
+     * The declared type used to be `string|bool`, which says "a string, or
+     * true, or false": true was never a possible value, and callers had to rule
+     * it out themselves. Below it is `string|false`.
      *
      * @return string|false deployment add-on slug or false
      */
