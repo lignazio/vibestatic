@@ -32,3 +32,6 @@ result-*
 phpunit.xml
 .phpunit.cache/
 dist/
+
+# The adopted add-ons' own dependencies, installed like the core's.
+addons/*/vendor/

@@ -9,11 +9,20 @@
   -->
   <file>src</file>
   <file>views</file>
+
+  <!--
+    The adopted add-ons. They were outside this ruleset entirely, which meant
+    the blocking security sniffs had never looked at them — and add-on code is
+    exactly what they exist for: it takes $_POST, writes SQL, and saves the
+    credentials of the server the whole site is uploaded to.
+  -->
+  <file>addons</file>
   <file>tests/unit</file>
   <file>vibestatic.php</file>
   <file>uninstall.php</file>
 
   <exclude-pattern>*/vendor/*</exclude-pattern>
+  <exclude-pattern>*/addons/*/vendor/*</exclude-pattern>
   <exclude-pattern>*/vendor-prefixed/*</exclude-pattern>
   <exclude-pattern>*/node_modules/*</exclude-pattern>
   <exclude-pattern>*/coverage/*</exclude-pattern>
@@ -187,6 +196,14 @@
     <properties>
       <property name="text_domain" type="array">
         <element value="vibestatic"/>
+        <!--
+          The adopted add-ons are separate plugins with headers and languages
+          directories of their own, so each has its own domain. Listing them
+          here is what lets the sniff tell "another plugin's domain" from
+          "this plugin's other domain".
+        -->
+        <element value="vibestatic-sftp"/>
+        <element value="vibestatic-directory-deployment"/>
       </property>
     </properties>
     <exclude-pattern>tests/unit/*</exclude-pattern>

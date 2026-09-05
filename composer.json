@@ -76,7 +76,8 @@
         "phpcs-i18n": "phpcs -s --sniffs=WordPress.WP.I18n",
         "i18n": [
             "wp i18n make-pot . languages/vibestatic.pot --domain=vibestatic --exclude=addons,dev,dist,tests,integration-tests,tools,vendor,vendor-prefixed --headers='{\"Report-Msgid-Bugs-To\":\"https://github.com/lignazio/vibestatic/issues\"}'",
-            "wp i18n make-pot addons/directory-deployment addons/directory-deployment/languages/vibestatic-directory-deployment.pot --domain=vibestatic-directory-deployment --headers='{\"Report-Msgid-Bugs-To\":\"https://github.com/lignazio/vibestatic/issues\"}'"
+            "wp i18n make-pot addons/directory-deployment addons/directory-deployment/languages/vibestatic-directory-deployment.pot --domain=vibestatic-directory-deployment --headers='{\"Report-Msgid-Bugs-To\":\"https://github.com/lignazio/vibestatic/issues\"}'",
+            "wp i18n make-pot addons/sftp addons/sftp/languages/vibestatic-sftp.pot --domain=vibestatic-sftp --exclude=vendor --headers='{\"Report-Msgid-Bugs-To\":\"https://github.com/lignazio/vibestatic/issues\"}'"
         ],
         "phpcbf": "phpcbf",
         "phpcompat": "phpcs -p --standard=./.phpcompat.xml.dist",

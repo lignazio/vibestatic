@@ -6,6 +6,16 @@ require_once __DIR__ . '/../../vendor-prefixed/autoload.php';
 WP_Mock::bootstrap();
 
 /*
+ * The adopted add-ons' autoloaders. They are separate plugins with namespaces
+ * of their own, so the core's PSR-4 map does not reach them — and without this
+ * their classes cannot be exercised at all, which is how an add-on that
+ * uploaded on every deploy went five years without anyone noticing.
+ */
+foreach ( glob( __DIR__ . '/../../addons/*/autoload.php' ) as $addon_autoloader ) {
+    require_once $addon_autoloader;
+}
+
+/*
  * WordPress's time constants. WP_Mock does not define them, because it replaces
  * the functions and not the core: without these, any class writing
  * `12 * HOUR_IN_SECONDS` dies with "Undefined constant" inside the test rather

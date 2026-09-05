@@ -1,0 +1,116 @@
+# Copyright (C) 2026 Ignazio Lucenti
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: VibeStatic Add-on: Deploy over sFTP 2.0.0-dev\n"
+"Report-Msgid-Bugs-To: https://github.com/lignazio/vibestatic/issues\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-09-05T14:41:47+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: vibestatic-sftp\n"
+
+#. Plugin Name of the plugin
+#: wp2static-addon-sftp.php
+msgid "VibeStatic Add-on: Deploy over sFTP"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: wp2static-addon-sftp.php
+msgid "https://github.com/lignazio/vibestatic"
+msgstr ""
+
+#. Description of the plugin
+#: wp2static-addon-sftp.php
+msgid "Uploads the generated site to a remote server over sFTP, sending only what changed."
+msgstr ""
+
+#. Author of the plugin
+#: wp2static-addon-sftp.php
+msgid "Ignazio Lucenti"
+msgstr ""
+
+#. Author URI of the plugin
+#: wp2static-addon-sftp.php
+msgid "https://lucenti.studio"
+msgstr ""
+
+#: views/sftp-page.php:37
+msgid "Remote host"
+msgstr ""
+
+#: views/sftp-page.php:39
+msgid "Host name of the sFTP server."
+msgstr ""
+
+#: views/sftp-page.php:42
+msgid "Port"
+msgstr ""
+
+#: views/sftp-page.php:44
+msgid "Defaults to 22 when left empty."
+msgstr ""
+
+#: views/sftp-page.php:47
+msgid "Username"
+msgstr ""
+
+#: views/sftp-page.php:52
+msgid "Password"
+msgstr ""
+
+#: views/sftp-page.php:54
+msgid "Leave empty when authenticating with a private key."
+msgstr ""
+
+#: views/sftp-page.php:57
+msgid "Private key path"
+msgstr ""
+
+#: views/sftp-page.php:59
+msgid "Path on this server to the private key. Takes precedence over the password."
+msgstr ""
+
+#: views/sftp-page.php:62
+msgid "Private key passphrase"
+msgstr ""
+
+#: views/sftp-page.php:67
+msgid "Remote root path"
+msgstr ""
+
+#: views/sftp-page.php:69
+msgid "Where the site is uploaded to. Empty means the login directory."
+msgstr ""
+
+#: views/sftp-page.php:72
+msgid "Remote directory permissions"
+msgstr ""
+
+#: views/sftp-page.php:77
+msgid "Remote file permissions"
+msgstr ""
+
+#: views/sftp-page.php:82
+msgid "Remote owner"
+msgstr ""
+
+#: views/sftp-page.php:87
+msgid "Remote group"
+msgstr ""
+
+#: views/sftp-page.php:97
+msgid "sFTP Deployment Options"
+msgstr ""
+
+#: views/sftp-page.php:148
+msgid "Save Options"
+msgstr ""
+
+#: wp2static-addon-sftp.php:70
+msgid "The VibeStatic sFTP add-on needs the phpseclib library. Run \"composer install\" in its plugin directory, or install the packaged zip."
+msgstr ""

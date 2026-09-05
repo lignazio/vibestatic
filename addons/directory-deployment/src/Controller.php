@@ -68,7 +68,9 @@ class Controller {
 
         $table_name = $wpdb->prefix . 'wp2static_addon_directory_deployment_options';
 
-        $rows = $wpdb->get_results( "SELECT * FROM $table_name" );
+        $rows = $wpdb->get_results(
+            $wpdb->prepare( 'SELECT * FROM %i', $table_name )
+        );
 
         foreach ( $rows as $row ) {
             $options[ $row->name ] = $row;
@@ -200,9 +202,14 @@ class Controller {
         }
 
         // dbDelta doesn't handle unique indexes well.
-        $indexes = $wpdb->query( "SHOW INDEX FROM $table_name WHERE key_name = 'name'" );
+        $indexes = $wpdb->query(
+            $wpdb->prepare( 'SHOW INDEX FROM %i WHERE key_name = %s', $table_name, 'name' )
+        );
+
         if ( 0 === $indexes ) {
-            $result = $wpdb->query( "CREATE UNIQUE INDEX name ON $table_name (name)" );
+            $result = $wpdb->query(
+                $wpdb->prepare( 'CREATE UNIQUE INDEX name ON %i (name)', $table_name )
+            );
             if ( false === $result ) {
                 \WP2Static\WsLog::l( "Failed to create 'name' index on $table_name." );
             }
@@ -221,11 +228,12 @@ class Controller {
         if ( $network_wide ) {
             global $wpdb;
 
-            $query = 'SELECT blog_id FROM %s WHERE site_id = %d;';
-
+            // prepare() with %i, not sprintf(): a table name pushed through
+            // sprintf is a query assembled by string, which is the shape every
+            // SQL injection in this project has had.
             $site_ids = $wpdb->get_col(
-                sprintf(
-                    $query,
+                $wpdb->prepare(
+                    'SELECT blog_id FROM %i WHERE site_id = %d',
                     $wpdb->blogs,
                     $wpdb->siteid
                 )
@@ -246,11 +254,12 @@ class Controller {
         if ( $network_wide ) {
             global $wpdb;
 
-            $query = 'SELECT blog_id FROM %s WHERE site_id = %d;';
-
+            // prepare() with %i, not sprintf(): a table name pushed through
+            // sprintf is a query assembled by string, which is the shape every
+            // SQL injection in this project has had.
             $site_ids = $wpdb->get_col(
-                sprintf(
-                    $query,
+                $wpdb->prepare(
+                    'SELECT blog_id FROM %i WHERE site_id = %d',
                     $wpdb->blogs,
                     $wpdb->siteid
                 )
@@ -292,9 +301,16 @@ class Controller {
             // bare $_POST['x'] — a request without that field gave a warning
             // and saved null — and without stripping the slashes WordPress
             // adds, so a path containing an apostrophe came back altered.
-            $value = isset( $_POST[ $name ] ) ? wp_unslash( $_POST[ $name ] ) : '';
+            // Sanitised on the same line the superglobal is read: the sniff
+            // cannot follow a value that is cleaned one statement later, and
+            // being able to see it at a glance is the point of the rule.
+            // phpcs:disable WordPress.Security.NonceVerification.Missing -- the nonce is verified by \WP2Static\Controller::authorize() at the top of this method; WPCS discards guards reached through :: (see has_object_operator_before() in NonceVerificationSniff).
+            $value = isset( $_POST[ $name ] )
+                ? sanitize_text_field( wp_unslash( $_POST[ $name ] ) )
+                : '';
+            // phpcs:enable WordPress.Security.NonceVerification.Missing
 
-            self::saveOption( $name, sanitize_text_field( strval( $value ) ) );
+            self::saveOption( $name, $value );
         }
 
         wp_safe_redirect( admin_url( 'admin.php?page=wp2static-addon-directory-deployment' ) );
