@@ -30,6 +30,22 @@ define( 'WP2STATIC_DIRECTORY_DEPLOYMENT_VERSION', '2.0.0-dev' );
 
 require_once WP2STATIC_DIRECTORY_DEPLOYMENT_PATH . 'autoload.php';
 
+/**
+ * Carica le traduzioni dell'addon.
+ *
+ * Su `init`, come nel core: da WordPress 6.7 chiedere una traduzione prima di
+ * `after_setup_theme` fa scattare un `_doing_it_wrong`.
+ */
+function vibestatic_directory_deployment_load_textdomain() : void {
+    load_plugin_textdomain(
+        'vibestatic-directory-deployment',
+        false,
+        dirname( plugin_basename( __FILE__ ) ) . '/languages'
+    );
+}
+
+add_action( 'init', 'vibestatic_directory_deployment_load_textdomain' );
+
 function run_wp2static_addon_copy() : void {
     $controller = new WP2StaticDirectoryDeployer\Controller();
     $controller->run();

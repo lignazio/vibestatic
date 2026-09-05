@@ -1,36 +1,56 @@
 <?php
-// phpcs:disable Generic.Files.LineLength.MaxExceeded                              
-// phpcs:disable Generic.Files.LineLength.TooLong                                  
-
 /**
- * @var mixed[] $view
+ * @package WP2Static
+
  */
 
-use WP2Static\OptionRenderer;
+namespace WP2Static;
 
-/**
- * @var mixed[] $jobs
- */
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+/** @var array<string, mixed> $view */
+
+/** @var list<object{created_at: string, job_type: string, status: string}> $jobs */
 $jobs = $view['jobs'];
 
-/**
- * @var array<string, mixed> $options
- */
+/** @var array<string, object{name: string, value: string, label: string, description: string, type: string}> $options */
 $options = $view['jobOptions'];
 
-$input = function ( $name ) use ( $options ) {
-    return OptionRenderer::optionInput( (array) $options[ $name ] );
-};
+/** @var string $nonce_action */
+$nonce_action = $view['nonce_action'];
 
-$label = function ( $name, $description = false ) use ( $options ) {
-    return OptionRenderer::optionLabel( (array) $options[ $name ], $description );
-};
-
-$row = function ( $name ) use ( $options ) {
+/**
+ * @param string $name Nome dell'opzione.
+ * @return array<string, ?string>
+ */
+$spec = function ( string $name ) use ( $options ) : array {
+    /** @var array<string, ?string> $opt */
     $opt = (array) $options[ $name ];
-    return '<tr><td style="width: 50%">' . OptionRenderer::optionLabel( $opt, true ) .
-            '</td><td>' . optionrenderer::optionInput( $opt ) . '</td></tr>';
-}
+
+    return $opt;
+};
+
+$input = function ( string $name ) use ( $spec ) : string {
+    return OptionRenderer::optionInput( $spec( $name ) );
+};
+
+$label = function ( string $name, bool $description = false ) use ( $spec ) : string {
+    return OptionRenderer::optionLabel( $spec( $name ), $description );
+};
+
+$row = function ( string $name ) use ( $spec ) : string {
+    return '<tr><td style="width: 50%">' . OptionRenderer::optionLabel( $spec( $name ), true ) .
+            '</td><td>' . OptionRenderer::optionInput( $spec( $name ) ) . '</td></tr>';
+};
+
+$intervals = [
+    0 => __( 'disable (never)', 'vibestatic' ),
+    1 => __( 'every minute', 'vibestatic' ),
+    5 => __( 'every 5 minutes', 'vibestatic' ),
+    10 => __( 'every 10 minutes', 'vibestatic' ),
+];
 
 ?>
 
@@ -45,100 +65,92 @@ $row = function ( $name ) use ( $options ) {
     <table class="widefat striped">
         <thead>
             <tr>
-                <td style="width:33%;">
-                    Events to queue new jobs
-                </td>
-                <td>
-                    &nbsp;
-                </td>
-                <td>
-                    Enabled?
-                </td>
+                <td style="width:33%;"><?php esc_html_e( 'Events to queue new jobs', 'vibestatic' ); ?></td>
+                <td>&nbsp;</td>
+                <td><?php esc_html_e( 'Enabled?', 'vibestatic' ); ?></td>
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td style="width:33%;">
-                    <?php echo $label( 'queueJobOnPostSave' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
-                </td>
-                <td>
-                    <?php echo esc_html( $options['queueJobOnPostSave']->description ); ?>
-                </td>
-                <td>
-                    <?php echo $input( 'queueJobOnPostSave' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
-                </td>
-            </tr>
-            <tr>
-                <td style="width:33%;">
-                    <?php echo $label( 'queueJobOnPostDelete' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
-                </td>
-                <td>
-                    <?php echo esc_html( $options['queueJobOnPostDelete']->description ); ?>
-                </td>
-                <td>
-                    <?php echo $input( 'queueJobOnPostDelete' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
-                </td>
-            </tr>
+            <?php foreach ( [ 'queueJobOnPostSave', 'queueJobOnPostDelete' ] as $job_event ) : ?>
+                <tr>
+                    <td style="width:33%;">
+                        <?php echo $label( $job_event ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
+                    </td>
+                    <td>
+                        <?php echo esc_html( $options[ $job_event ]->description ); ?>
+                    </td>
+                    <td>
+                        <?php echo $input( $job_event ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
         </tbody>
     </table>
 
 
-    <h4>Jobs that will be added to queue</h4>
+    <h4><?php esc_html_e( 'Jobs that will be added to queue', 'vibestatic' ); ?></h4>
+
+    <?php
+    $auto_jobs = [
+        'autoJobQueueDetection',
+        'autoJobQueueCrawling',
+        'autoJobQueuePostProcessing',
+        'autoJobQueueDeployment',
+    ];
+    ?>
 
     <table class="widefat striped">
         <thead>
             <tr>
-                <td style="text-align:center;">
-                    <?php echo $label( 'autoJobQueueDetection' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
-                </td>
-                <td style="text-align:center;">
-                    <?php echo $label( 'autoJobQueueCrawling' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
-                </td>
-                <td style="text-align:center;">
-                    <?php echo $label( 'autoJobQueuePostProcessing' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
-                </td>
-                <td style="text-align:center;">
-                    <?php echo $label( 'autoJobQueueDeployment' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
-                </td>
+                <?php foreach ( $auto_jobs as $auto_job ) : ?>
+                    <td style="text-align:center;">
+                        <?php echo $label( $auto_job ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
+                    </td>
+                <?php endforeach; ?>
             </tr>
         </thead>
         <tbody>
             <tr style="text-align:center;">
-                <td><?php echo $input( 'autoJobQueueDetection' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?></td>
-                <td><?php echo $input( 'autoJobQueueCrawling' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?></td>
-                <td><?php echo $input( 'autoJobQueuePostProcessing' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?></td>
-                <td><?php echo $input( 'autoJobQueueDeployment' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?></td>
+                <?php foreach ( $auto_jobs as $auto_job ) : ?>
+                    <td><?php echo $input( $auto_job ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?></td>
+                <?php endforeach; ?>
             </tr>
         </tbody>
     </table>
 
-    <p/>
+    <p></p>
 
     <table class="widefat striped">
         <tbody>
             <tr>
                 <td style="width: 50%">
                     <?php echo $label( 'processQueueInterval', true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
-                    <p><i>If WP-Cron is not expected to be triggered by site visitors, you can also call `wp-cron.php` directly, run the WP-CLI command `wp wp2static process_queue` or call the hook `wp2staticProcessQueue` from within your own theme or plugin.</i></p>
+                    <p><i>
+                        <?php
+                        printf(
+                            /* translators: 1: wp-cron.php, 2: a WP-CLI command, 3: a WordPress action hook. All three are literals and must not be translated. */
+                            esc_html__(
+                                'If WP-Cron is not expected to be triggered by site visitors, you can also call %1$s directly, run the WP-CLI command %2$s or call the hook %3$s from within your own theme or plugin.',
+                                'vibestatic'
+                            ),
+                            '<code>wp-cron.php</code>',
+                            '<code>wp vibestatic process_queue</code>',
+                            '<code>wp2staticProcessQueue</code>'
+                        );
+                        ?>
+                    </i></p>
                 </td>
                 <td>
                     <select
                         id="<?php echo esc_attr( $options['processQueueInterval']->name ); ?>"
                         name="<?php echo esc_attr( $options['processQueueInterval']->name ); ?>"
-                        value="<?php echo esc_attr( (int) $options['processQueueInterval']->value ); ?>"
                     >
-                    <option
-                        <?php echo esc_attr( (int) $options['processQueueInterval']->value === 0 ? 'selected' : '' ); ?>
-                        value="0">disable (never)</option>
-                    <option
-                        <?php echo esc_attr( (int) $options['processQueueInterval']->value === 1 ? 'selected' : '' ); ?>
-                        value="1">every minute</option>
-                    <option
-                        <?php echo esc_attr( (int) $options['processQueueInterval']->value === 5 ? 'selected' : '' ); ?>
-                        value="5">every 5 minutes</option>
-                    <option
-                        <?php echo esc_attr( (int) $options['processQueueInterval']->value === 10 ? 'selected' : '' ); ?>
-                        value="10">every 10 minutes</option>
+                        <?php foreach ( $intervals as $minutes => $interval_label ) : ?>
+                            <option
+                                value="<?php echo esc_attr( (string) $minutes ); ?>"
+                                <?php selected( (int) $options['processQueueInterval']->value, $minutes ); ?>
+                            ><?php echo esc_html( $interval_label ); ?></option>
+                        <?php endforeach; ?>
                     </select>
                 </td>
             </tr>
@@ -146,14 +158,14 @@ $row = function ( $name ) use ( $options ) {
         </tbody>
     </table>
 
-    <p/>
+    <p></p>
 
-    <button class="button btn-primary">Save Job Automation Settings</button>
-    <?php wp_nonce_field( strval( $view['nonce_action'] ) ); ?>
+    <button class="button btn-primary"><?php esc_html_e( 'Save Job Automation Settings', 'vibestatic' ); ?></button>
+    <?php wp_nonce_field( $nonce_action ); ?>
     <input name="action" type="hidden" value="wp2static_ui_save_job_options" />
     </form>
 
-    <p/>
+    <p></p>
 
     <form
         name="wp2static-manually-enqueue-jobs"
@@ -163,26 +175,41 @@ $row = function ( $name ) use ( $options ) {
         <?php wp_nonce_field( 'wp2static-manually-enqueue-jobs' ); ?>
         <input name="action" type="hidden" value="wp2static_manually_enqueue_jobs" />
 
-        <button class="button">Manually Enqueue Jobs Now</button>
+        <button class="button"><?php esc_html_e( 'Manually Enqueue Jobs Now', 'vibestatic' ); ?></button>
     </form>
 
     <hr>
 
-    <h3>Job Queue/History</h3>
+    <h3><?php esc_html_e( 'Job Queue/History', 'vibestatic' ); ?></h3>
 
-    <p><i><a href="<?php echo esc_url( admin_url( 'admin.php?page=wp2static-jobs' ) ); ?>">Refresh page</a> to see latest status</i><p>
+    <p><i>
+        <?php
+        printf(
+            /* translators: %s: a link whose text is "Refresh page". */
+            esc_html__( '%s to see latest status', 'vibestatic' ),
+            '<a href="' . esc_url( admin_url( 'admin.php?page=wp2static-jobs' ) ) . '">' .
+                esc_html__( 'Refresh page', 'vibestatic' ) .
+            '</a>'
+        );
+        ?>
+    </i></p>
 
     <hr>
 
     <table class="widefat striped">
         <thead>
             <tr>
-                <th>Date</th>
-                <th>Job</th>
-                <th>Status</th>
+                <th><?php esc_html_e( 'Date', 'vibestatic' ); ?></th>
+                <th><?php esc_html_e( 'Job', 'vibestatic' ); ?></th>
+                <th><?php esc_html_e( 'Status', 'vibestatic' ); ?></th>
             </tr>
         </thead>
         <tbody>
+            <?php if ( ! $jobs ) : ?>
+                <tr>
+                    <td colspan="3"><?php esc_html_e( 'No jobs yet.', 'vibestatic' ); ?></td>
+                </tr>
+            <?php endif; ?>
             <?php foreach ( $jobs as $job ) : ?>
             <tr>
                 <td><?php echo esc_html( $job->created_at ); ?></td>
@@ -200,28 +227,10 @@ $row = function ( $name ) use ( $options ) {
         method="POST"
         action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 
-    <?php wp_nonce_field( strval( $view['nonce_action'] ) ); ?>
+    <?php wp_nonce_field( $nonce_action ); ?>
     <input name="action" type="hidden" value="wp2static_delete_jobs_queue" />
 
-    <button class="wp2static-button button btn-danger">Delete all Jobs from Queue</button>
+    <button class="wp2static-button button btn-danger"><?php esc_html_e( 'Delete all Jobs from Queue', 'vibestatic' ); ?></button>
 
     </form>
-
-    <!-- TODO: consider manual queue processing, needs further testing, unstable execution so far
-
-    <br>
-
-    <form
-        name="wp2static-process-jobs-queue"
-        method="POST"
-        action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-
-    <?php wp_nonce_field( strval( $view['nonce_action'] ) ); ?>
-    <input name="action" type="hidden" value="wp2static_process_jobs_queue" />
-
-    <button class="wp2static-button button btn-danger">Manually process Job Queue</button>
-
-    </form>
-
--->
 </div>

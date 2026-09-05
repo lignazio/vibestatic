@@ -144,11 +144,18 @@
     </properties>
   </rule>
 
+  <!--
+    Le view sono markup: una riga di HTML con dentro un `printf()` supera i cento
+    caratteri senza che ci sia niente da riscrivere. Prima ogni view apriva con
+    due righe di `phpcs:disable Generic.Files.LineLength` — tredici copie della
+    stessa decisione, che è il posto sbagliato dove tenerla.
+  -->
   <rule ref="Generic.Files.LineLength">
     <properties>
       <property name="lineLimit" value="100"/>
       <property name="absoluteLineLimit" value="120"/>
     </properties>
+    <exclude-pattern>views/*</exclude-pattern>
   </rule>
 
   <!--
@@ -168,7 +175,20 @@
   <rule ref="WordPress.Security">
     <exclude-pattern>tests/unit/*</exclude-pattern>
   </rule>
+
+  <!--
+    Senza `text_domain` questo sniff controlla solo la forma delle chiamate —
+    segnaposto, commenti per i traduttori — e non si accorge del dominio: una
+    stringa avvolta in `__( 'x', 'wp2static' )`, o in `__( 'x' )` senza dominio
+    affatto, passerebbe. È il dominio la cosa che si sbaglia per prima quando il
+    plugin ne cambia uno, ed è appena successo.
+  -->
   <rule ref="WordPress.WP.I18n">
+    <properties>
+      <property name="text_domain" type="array">
+        <element value="vibestatic"/>
+      </property>
+    </properties>
     <exclude-pattern>tests/unit/*</exclude-pattern>
   </rule>
 </ruleset>

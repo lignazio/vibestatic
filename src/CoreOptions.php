@@ -85,113 +85,197 @@ class CoreOptions {
                 'boolean',
                 'detectCustomPostTypes',
                 '1',
-                'Detect Custom Post Types',
-                'Include Custom Post Types in URL Detection.'
+                __(
+                    'Detect Custom Post Types',
+                    'vibestatic'
+                ),
+                __(
+                    'Include Custom Post Types in URL Detection.',
+                    'vibestatic'
+                )
             ),
             self::makeOptionSpec(
                 'boolean',
                 'detectPages',
                 '1',
-                'Detect Pages',
-                'Include Pages in URL Detection.'
+                __(
+                    'Detect Pages',
+                    'vibestatic'
+                ),
+                __(
+                    'Include Pages in URL Detection.',
+                    'vibestatic'
+                )
             ),
             self::makeOptionSpec(
                 'boolean',
                 'detectPosts',
                 '1',
-                'Detect Posts',
-                'Include Posts in URL Detection.'
+                __(
+                    'Detect Posts',
+                    'vibestatic'
+                ),
+                __(
+                    'Include Posts in URL Detection.',
+                    'vibestatic'
+                )
             ),
             self::makeOptionSpec(
                 'boolean',
                 'detectUploads',
                 '1',
-                'Detect Uploads',
-                'Include Uploads in URL Detection.'
+                __(
+                    'Detect Uploads',
+                    'vibestatic'
+                ),
+                __(
+                    'Include Uploads in URL Detection.',
+                    'vibestatic'
+                )
             ),
             self::makeOptionSpec(
                 'boolean',
                 'queueJobOnPostSave',
                 '1',
-                'Post Save',
-                'Queues a new job every time a Post or Page is saved.'
+                __(
+                    'Post Save',
+                    'vibestatic'
+                ),
+                __(
+                    'Queues a new job every time a Post or Page is saved.',
+                    'vibestatic'
+                )
             ),
             self::makeOptionSpec(
                 'boolean',
                 'queueJobOnPostDelete',
                 '1',
-                'Post Delete',
-                'Queues a new job every time a Post or Page is deleted.'
+                __(
+                    'Post Delete',
+                    'vibestatic'
+                ),
+                __(
+                    'Queues a new job every time a Post or Page is deleted.',
+                    'vibestatic'
+                )
             ),
             self::makeOptionSpec(
                 'boolean',
                 'processQueueImmediately',
                 '0',
-                'Process Queue Immediately',
-                'Begin processing the queue as soon as a job is added, without waiting for WP-Cron.'
+                __(
+                    'Process Queue Immediately',
+                    'vibestatic'
+                ),
+                __(
+                    'Begin processing the queue as soon as a job is added, without waiting for WP-Cron.',
+                    'vibestatic'
+                )
             ),
             self::makeOptionSpec(
                 'integer',
                 'processQueueInterval',
                 '0',
-                'Process Queue Interval',
-                'WP-Cron will attempt to process the job queue at this interval'
+                __(
+                    'Process Queue Interval',
+                    'vibestatic'
+                ),
+                __(
+                    'WP-Cron will attempt to process the job queue at this interval',
+                    'vibestatic'
+                )
             ),
             self::makeOptionSpec(
                 'boolean',
                 'autoJobQueueDetection',
                 '1',
-                'Detect URLs',
+                __(
+                    'Detect URLs',
+                    'vibestatic'
+                ),
                 ''
             ),
             self::makeOptionSpec(
                 'boolean',
                 'autoJobQueueCrawling',
                 '1',
-                'Crawl Site',
+                __(
+                    'Crawl Site',
+                    'vibestatic'
+                ),
                 ''
             ),
             self::makeOptionSpec(
                 'boolean',
                 'autoJobQueuePostProcessing',
                 '1',
-                'Post-Process',
+                __(
+                    'Post-Process',
+                    'vibestatic'
+                ),
                 ''
             ),
             self::makeOptionSpec(
                 'boolean',
                 'autoJobQueueDeployment',
                 '1',
-                'Deploy',
+                __(
+                    'Deploy',
+                    'vibestatic'
+                ),
                 ''
             ),
             self::makeOptionSpec(
                 'string',
                 'basicAuthUser',
                 '',
-                'Basic Auth User',
-                'Username for basic authentication.'
+                __(
+                    'Basic Auth User',
+                    'vibestatic'
+                ),
+                __(
+                    'Username for basic authentication.',
+                    'vibestatic'
+                )
             ),
             self::makeOptionSpec(
                 'string',
                 'deploymentURL',
                 'https://example.com',
-                'Deployment URL',
-                'URL your static site will be hosted at.'
+                __(
+                    'Deployment URL',
+                    'vibestatic'
+                ),
+                __(
+                    'URL your static site will be hosted at.',
+                    'vibestatic'
+                )
             ),
             self::makeOptionSpec(
                 'password',
                 'basicAuthPassword',
                 '',
-                'Basic Auth Password',
-                'Password for basic authentication.'
+                __(
+                    'Basic Auth Password',
+                    'vibestatic'
+                ),
+                __(
+                    'Password for basic authentication.',
+                    'vibestatic'
+                )
             ),
             self::makeOptionSpec(
                 'boolean',
                 'useCrawlCaching',
                 '1',
-                'Use CrawlCache',
-                'Skip crawling unchanged URLs.',
+                __(
+                    'Use CrawlCache',
+                    'vibestatic'
+                ),
+                __(
+                    'Skip crawling unchanged URLs.',
+                    'vibestatic'
+                ),
                 null,
                 'wp2static_use_crawl_cache'
             ),
@@ -199,22 +283,40 @@ class CoreOptions {
                 'string',
                 'completionEmail',
                 '',
-                'Completion Email',
-                'Email to send deployment completion notification to.'
+                __(
+                    'Completion Email',
+                    'vibestatic'
+                ),
+                __(
+                    'Email to send deployment completion notification to.',
+                    'vibestatic'
+                )
             ),
             self::makeOptionSpec(
                 'string',
                 'completionWebhook',
                 '',
-                'Completion Webhook',
-                'Webhook to send deployment completion notification to.'
+                __(
+                    'Completion Webhook',
+                    'vibestatic'
+                ),
+                __(
+                    'Webhook to send deployment completion notification to.',
+                    'vibestatic'
+                )
             ),
             self::makeOptionSpec(
                 'string',
                 'completionWebhookMethod',
                 'POST',
-                'Completion Webhook Method',
-                'How to send completion webhook payload (GET|POST).'
+                __(
+                    'Completion Webhook Method',
+                    'vibestatic'
+                ),
+                __(
+                    'How to send completion webhook payload (GET|POST).',
+                    'vibestatic'
+                )
             ),
 
             // Advanced options
@@ -222,15 +324,27 @@ class CoreOptions {
                 'integer',
                 'crawlConcurrency',
                 '1',
-                'Crawl Concurrency',
-                'The maximum number of files that will be crawled at the same time.'
+                __(
+                    'Crawl Concurrency',
+                    'vibestatic'
+                ),
+                __(
+                    'The maximum number of files that will be crawled at the same time.',
+                    'vibestatic'
+                )
             ),
             self::makeOptionSpec(
                 'array',
                 'fileExtensionsToIgnore',
                 '1',
-                'File Extensions to Ignore',
-                'Files with these extensions will be ignored while crawling.',
+                __(
+                    'File Extensions to Ignore',
+                    'vibestatic'
+                ),
+                __(
+                    'Files with these extensions will be ignored while crawling.',
+                    'vibestatic'
+                ),
                 implode(
                     "\n",
                     [
@@ -265,8 +379,14 @@ class CoreOptions {
                 'array',
                 'filenamesToIgnore',
                 '1',
-                'Directory and File Names to Ignore',
-                'Directories and files with these names will be ignored while crawling.',
+                __(
+                    'Directory and File Names to Ignore',
+                    'vibestatic'
+                ),
+                __(
+                    'Directories and files with these names will be ignored while crawling.',
+                    'vibestatic'
+                ),
                 implode(
                     "\n",
                     [
@@ -318,27 +438,43 @@ class CoreOptions {
                 'array',
                 'hostsToRewrite',
                 '1',
-                'Hosts to Rewrite',
-                'Hosts to rewrite to the deployment URL.',
+                __(
+                    'Hosts to Rewrite',
+                    'vibestatic'
+                ),
+                __(
+                    'Hosts to rewrite to the deployment URL.',
+                    'vibestatic'
+                ),
                 'localhost'
             ),
             self::makeOptionSpec(
                 'boolean',
                 'skipURLRewrite',
                 '0',
-                'Skip URL Rewrite',
-                'Don\'t rewrite any URLs. This may give a slight speed-up when the'
-                . ' deployment URL is the same as WordPress\'s URL.'
+                __(
+                    'Skip URL Rewrite',
+                    'vibestatic'
+                ),
+                __(
+                    // phpcs:ignore Generic.Files.LineLength.TooLong -- gettext vuole un letterale solo: spezzarla con `.` la rende inestraibile.
+                    'Do not rewrite any URLs. This may give a slight speed-up when the deployment URL is the same as the WordPress URL.',
+                    'vibestatic'
+                )
             ),
             self::makeOptionSpec(
                 'boolean',
                 'removeWordPressCruft',
                 '0',
-                'Remove WordPress emoji and RSD output',
-                'Removes the emoji scripts, the wlwmanifest link and the wp-embed and'
-                . ' comment-reply scripts. This changes your LIVE site as well as the'
-                . ' exported one, on purpose: a static copy should look like what your'
-                . ' visitors actually get.'
+                __(
+                    'Remove WordPress emoji and RSD output',
+                    'vibestatic'
+                ),
+                __(
+                    // phpcs:ignore Generic.Files.LineLength.TooLong -- gettext vuole un letterale solo: spezzarla con `.` la rende inestraibile.
+                    'Removes the emoji scripts, the wlwmanifest link and the wp-embed and comment-reply scripts. This changes your LIVE site as well as the exported one, on purpose: a static copy should look like what your visitors actually get.',
+                    'vibestatic'
+                )
             ),
         ];
 

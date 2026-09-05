@@ -68,46 +68,35 @@ class Controller {
     }
 
     /**
-     * Seed options
+     * Inserisce le opzioni che non ci sono ancora, senza toccare quelle presenti.
+     *
+     * Nome e valore, non piu' etichetta e descrizione. Le due colonne le
+     * scriveva questo metodo alla prima apertura della pagina, cioe' congelava
+     * nel database la lingua attiva in quel momento; ora le etichette stanno
+     * nella view, tradotte a ogni caricamento. Il core aveva la stessa coppia di
+     * colonne e le ha lasciate cadere per la stessa ragione.
      */
     public static function seedOptions() : void {
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_addon_directory_deployment_options';
 
-        $query_string =
-            "INSERT IGNORE INTO $table_name (name, value, label, description) " .
-            'VALUES (%s, %s, %s, %s);';
+        $defaults = [
+            'directoryDeploymentDeleteBeforeDeployment' => '1',
+            'directoryDeploymentTargetDirectory' => '',
+            'directoryDeploymentAdditionalSourceDirectory' => '',
+        ];
 
-        $query = $wpdb->prepare(
-            $query_string,
-            'directoryDeploymentDeleteBeforeDeployment',
-            '1',
-            'Delete target folder before deployment',
-            ''
-        );
-
-        $wpdb->query( $query );
-
-        $query = $wpdb->prepare(
-            $query_string,
-            'directoryDeploymentTargetDirectory',
-            '',
-            'Target directory (absolute path)',
-            ''
-        );
-
-        $wpdb->query( $query );
-
-        $query = $wpdb->prepare(
-            $query_string,
-            'directoryDeploymentAdditionalSourceDirectory',
-            '',
-            'Additional source directory to include in deployment (absolute path)',
-            ''
-        );
-
-        $wpdb->query( $query );
+        foreach ( $defaults as $name => $value ) {
+            $wpdb->query(
+                $wpdb->prepare(
+                    'INSERT IGNORE INTO %i (name, value) VALUES (%s, %s)',
+                    $table_name,
+                    $name,
+                    $value
+                )
+            );
+        }
     }
 
     /**
@@ -170,13 +159,35 @@ class Controller {
             id mediumint(9) NOT NULL AUTO_INCREMENT,
             name VARCHAR(191) NOT NULL,
             value VARCHAR(255) NOT NULL,
-            label VARCHAR(255) NULL,
-            description VARCHAR(255) NULL,
             PRIMARY KEY  (id)
         ) $charset_collate;";
 
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         dbDelta( $sql );
+
+        /*
+         * `label` e `description` non le legge piu' nessuno: le etichette stanno
+         * nella view, dove possono essere tradotte. dbDelta non toglie una
+         * colonna che non c'e' piu' nella CREATE TABLE, quindi va tolta a mano —
+         * stesso rattoppo che il core ha sulla sua tabella delle opzioni.
+         */
+        foreach ( [ 'label', 'description' ] as $obsolete_column ) {
+            $exists = $wpdb->get_var(
+                $wpdb->prepare(
+                    'SHOW COLUMNS FROM %i LIKE %s',
+                    $table_name,
+                    $obsolete_column
+                )
+            );
+
+            if ( ! $exists ) {
+                continue;
+            }
+
+            $wpdb->query(
+                $wpdb->prepare( 'ALTER TABLE %i DROP COLUMN %i', $table_name, $obsolete_column )
+            );
+        }
 
         // dbDelta doesn't handle unique indexes well.
         $indexes = $wpdb->query( "SHOW INDEX FROM $table_name WHERE key_name = 'name'" );
@@ -327,7 +338,7 @@ class Controller {
         // Passa dal core, che alla pagina nascosta da' anche un titolo: senza,
         // WordPress non lo trova e admin-header.php fa strip_tags( null ).
         \WP2Static\Controller::addHiddenPage(
-            'Directory Deployment Options',
+            __( 'Directory Deployment Options', 'vibestatic-directory-deployment' ),
             'wp2static-addon-directory-deployment',
             [ $this, 'renderDirectoryDeployerPage' ]
         );

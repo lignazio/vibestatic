@@ -1,15 +1,22 @@
 <?php
-// phpcs:disable Generic.Files.LineLength.MaxExceeded                              
-// phpcs:disable Generic.Files.LineLength.TooLong                                  
-
 /**
- * @var mixed[] $view
+ * @package WP2Static
+
  */
 
-/**
- * @var string[] $logs
- */
+namespace WP2Static;
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+/** @var array<string, mixed> $view */
+
+/** @var list<object{time: string, log: string}> $logs */
 $logs = $view['logs'];
+
+/** @var string $nonce_action */
+$nonce_action = $view['nonce_action'];
 ?>
 
 <div class="wrap">
@@ -18,17 +25,16 @@ $logs = $view['logs'];
     <table class="widefat striped">
         <thead>
             <tr>
-                <th>When</th>
-                <th>What</th>
+                <th><?php esc_html_e( 'When', 'vibestatic' ); ?></th>
+                <th><?php esc_html_e( 'What', 'vibestatic' ); ?></th>
             </tr>
         </thead>
         <tbody>
             <?php if ( ! $logs ) : ?>
                 <tr>
-                    <td colspan="2">Logs are empty.</td>
+                    <td colspan="2"><?php esc_html_e( 'Logs are empty.', 'vibestatic' ); ?></td>
                 </tr>
             <?php endif; ?>
-
 
             <?php foreach ( $logs as $log ) : ?>
                 <tr>
@@ -39,18 +45,18 @@ $logs = $view['logs'];
         </tbody>
     </table>
 
-    <br> 
+    <br>
 
-    <?php if ( $view['logs'] ) : ?>
+    <?php if ( $logs ) : ?>
         <form
             name="wp2static-log-delete"
             method="POST"
             action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 
-        <?php wp_nonce_field( $view['nonce_action'] ); ?>
+        <?php wp_nonce_field( $nonce_action ); ?>
         <input name="action" type="hidden" value="wp2static_log_delete" />
 
-        <button class="wp2static-button button btn-danger">Delete Log</button>
+        <button class="wp2static-button button btn-danger"><?php esc_html_e( 'Delete Log', 'vibestatic' ); ?></button>
 
         </form>
     <?php endif; ?>

@@ -69,6 +69,11 @@
         "lint": "parallel-lint --exclude integration-tests --exclude vendor .",
         "phpcs": "phpcs -s",
         "phpcs-security": "phpcs -s --sniffs=WordPress.DB.PreparedSQL,WordPress.DB.PreparedSQLPlaceholders,WordPress.Security.EscapeOutput,WordPress.Security.NonceVerification,WordPress.Security.ValidatedSanitizedInput",
+        "phpcs-i18n": "phpcs -s --sniffs=WordPress.WP.I18n",
+        "i18n": [
+            "wp i18n make-pot . languages/vibestatic.pot --domain=vibestatic --exclude=addons,dev,dist,tests,integration-tests,tools,vendor,vendor-prefixed --headers='{\"Report-Msgid-Bugs-To\":\"https://github.com/lignazio/vibestatic/issues\"}'",
+            "wp i18n make-pot addons/directory-deployment addons/directory-deployment/languages/vibestatic-directory-deployment.pot --domain=vibestatic-directory-deployment --headers='{\"Report-Msgid-Bugs-To\":\"https://github.com/lignazio/vibestatic/issues\"}'"
+        ],
         "phpcbf": "phpcbf",
         "phpcompat": "phpcs -p --standard=./.phpcompat.xml.dist",
         "phpstan": "@php -d memory_limit=-1 ./vendor/bin/phpstan analyse",
@@ -82,7 +87,8 @@
             "@phpcompat",
             "@phpstan",
             "@phpunit",
-            "@phpcs-security"
+            "@phpcs-security",
+            "@phpcs-i18n"
         ],
         "build": "/bin/sh tools/build_release.sh"
     },
@@ -91,6 +97,8 @@
         "lint": "Parsa ogni file PHP con l'interprete corrente. Comprende vendor-prefixed/, ed è voluto: è il controllo che la riscrittura dei namespace fatta da Strauss non abbia prodotto codice che non compila.",
         "phpcs": "WordPress coding standards, per intero. Ha ancora 422 violazioni: sono documentazione e stile, ed e\u0300 la ragione per cui non sta in `test`.",
         "phpcs-security": "I soli cinque sniff di sicurezza \u2014 SQL preparato, nonce, escaping, input sanificato. Questo e\u0300 a zero, e ci deve restare.",
+        "phpcs-i18n": "Il solo sniff di internazionalizzazione: stringa avvolta, dominio giusto, segnaposto numerati dove sono pi\u00f9 di uno, commento per i traduttori dove serve. A zero, e ci deve restare: una stringa non avvolta non si vede finch\u00e9 qualcuno non installa una traduzione.",
+        "i18n": "Rigenera languages/vibestatic.pot. Da lanciare a ogni cambio di stringa; il .pot sta nel repository perch\u00e9 \u00e8 quello che i traduttori aprono.",
         "phpcompat": "PHP cross-version compatibility, 8.2 and up.",
         "phpstan": "Static analysis at level max, with the accepted debt in the baseline.",
         "phpunit": "Unit tests. Excludes the suite that makes real network requests.",

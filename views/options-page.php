@@ -1,23 +1,30 @@
 <?php
-// phpcs:disable Generic.Files.LineLength.MaxExceeded                              
-// phpcs:disable Generic.Files.LineLength.TooLong                                  
-
 /**
- * @var mixed[] $view
+ * @package WP2Static
+
  */
 
-use WP2Static\OptionRenderer;
+namespace WP2Static;
 
-/**
- * @var array<string, mixed> $options
- */
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+/** @var array<string, mixed> $view */
+
+/** @var array<string, object{name: string, value: string, label: string, description: string, type: string}> $options */
 $options = $view['coreOptions'];
 
-$row = function ( $name ) use ( $options ) {
+/** @var string $nonce_action */
+$nonce_action = $view['nonce_action'];
+
+$row = function ( string $name ) use ( $options ) : string {
+    /** @var array<string, ?string> $opt */
     $opt = (array) $options[ $name ];
+
     return '<tr><td style="width: 50%">' . OptionRenderer::optionLabel( $opt, true ) .
-            '</td><td>' . optionrenderer::optionInput( $opt ) . '</td></tr>';
-}
+            '</td><td>' . OptionRenderer::optionInput( $opt ) . '</td></tr>';
+};
 
 ?>
 
@@ -27,53 +34,69 @@ $row = function ( $name ) use ( $options ) {
         method="POST"
         action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 
-    <h2>Detection Options</h2>
+    <h2><?php esc_html_e( 'Detection Options', 'vibestatic' ); ?></h2>
 
-    <h4>Control Detected URLs</h4>
+    <h4><?php esc_html_e( 'Control Detected URLs', 'vibestatic' ); ?></h4>
 
-    <p>VibeStatic will crawl these WordPress URLs to generate a static site.</p>
+    <p><?php esc_html_e( 'VibeStatic will crawl these WordPress URLs to generate a static site.', 'vibestatic' ); ?></p>
 
     <table class="striped widefat">
         <thead>
             <tr>
-                <th style="width:50%;">URL Type</th>
-                <th>Include in detection</th>
+                <th style="width:50%;"><?php esc_html_e( 'URL Type', 'vibestatic' ); ?></th>
+                <th><?php esc_html_e( 'Include in detection', 'vibestatic' ); ?></th>
             </tr>
         </thead>
         <tbody>
-            <?php echo $row( 'detectCustomPostTypes' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
-            <?php echo $row( 'detectPages' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
-            <?php echo $row( 'detectPosts' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
-            <?php echo $row( 'detectUploads' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
+            <?php
+            // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer.
+            echo $row( 'detectCustomPostTypes' );
+            echo $row( 'detectPages' );
+            echo $row( 'detectPosts' );
+            echo $row( 'detectUploads' );
+            // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+            ?>
         </tbody>
     </table>
 
-    <h2>Crawling Options</h2>
+    <h2><?php esc_html_e( 'Crawling Options', 'vibestatic' ); ?></h2>
 
     <table class="widefat striped">
         <tbody>
-            <?php echo $row( 'basicAuthUser' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
-            <?php echo $row( 'basicAuthPassword' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
-            <?php echo $row( 'useCrawlCaching' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
+            <?php
+            // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer.
+            echo $row( 'basicAuthUser' );
+            echo $row( 'basicAuthPassword' );
+            echo $row( 'useCrawlCaching' );
+            // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+            ?>
         </tbody>
     </table>
 
-    <h2>Post-processing Options</h2>
+    <h2><?php esc_html_e( 'Post-processing Options', 'vibestatic' ); ?></h2>
 
     <table class="widefat striped">
         <tbody>
-            <?php echo $row( 'deploymentURL' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
+            <?php
+            echo $row( 'deploymentURL' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer.
+            ?>
         </tbody>
     </table>
 
-    <h2>Deployment Options</h2>
+    <h2><?php esc_html_e( 'Deployment Options', 'vibestatic' ); ?></h2>
 
     <table class="widefat striped">
         <tbody>
-            <?php echo $row( 'completionEmail' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
+            <?php
+            echo $row( 'completionEmail' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer.
+            ?>
             <tr>
                 <td style="width:50%;">
-                    <?php echo OptionRenderer::optionLabel( (array) $options['completionWebhook'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
+                    <?php
+                    /** @var array<string, ?string> $webhook_option */
+                    $webhook_option = (array) $options['completionWebhook'];
+                    echo OptionRenderer::optionLabel( $webhook_option ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer.
+                    ?>
                 </td>
                 <td>
                     <input
@@ -81,7 +104,7 @@ $row = function ( $name ) use ( $options ) {
                         type="url"
                         id="completionWebhook"
                         name="completionWebhook"
-                        value="<?php echo esc_attr( $options['completionWebhook']->value !== '' ? $options['completionWebhook']->value : '' ); ?>"
+                        value="<?php echo esc_attr( $options['completionWebhook']->value ); ?>"
                     />
 
                     <select
@@ -90,11 +113,11 @@ $row = function ( $name ) use ( $options ) {
                         >
                         <option
                             value="POST"
-                            <?php echo esc_attr( $options['completionWebhookMethod']->value === 'POST' ? 'selected' : '' ); ?>
+                            <?php selected( $options['completionWebhookMethod']->value, 'POST' ); ?>
                             >POST</option>
                         <option
                             value="GET"
-                            <?php echo esc_attr( $options['completionWebhookMethod']->value === 'GET' ? 'selected' : '' ); ?>
+                            <?php selected( $options['completionWebhookMethod']->value, 'GET' ); ?>
                             >GET</option>
                     </select>
                 </td>
@@ -104,10 +127,10 @@ $row = function ( $name ) use ( $options ) {
 
     <br>
 
-    <?php wp_nonce_field( strval( $view['nonce_action'] ) ); ?>
+    <?php wp_nonce_field( $nonce_action ); ?>
     <input name="action" type="hidden" value="wp2static_ui_save_options" />
 
-    <button class="button btn-primary" type="submit">Save options</button>
+    <button class="button btn-primary" type="submit"><?php esc_html_e( 'Save options', 'vibestatic' ); ?></button>
 
     </form>
 </div>

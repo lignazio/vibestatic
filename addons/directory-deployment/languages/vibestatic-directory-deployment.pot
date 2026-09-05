@@ -1,0 +1,65 @@
+# Copyright (C) 2026 Ignazio Lucenti
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: VibeStatic Add-on: Deploy to local directory 2.0.0-dev\n"
+"Report-Msgid-Bugs-To: https://github.com/lignazio/vibestatic/issues\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-09-05T04:12:39+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: vibestatic-directory-deployment\n"
+
+#. Plugin Name of the plugin
+#: wp2static-addon-directory-deployment.php
+msgid "VibeStatic Add-on: Deploy to local directory"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: wp2static-addon-directory-deployment.php
+msgid "https://github.com/lignazio/vibestatic"
+msgstr ""
+
+#. Description of the plugin
+#: wp2static-addon-directory-deployment.php
+msgid "Deploys the generated site to a directory on the same machine, copying only what changed."
+msgstr ""
+
+#. Author of the plugin
+#: wp2static-addon-directory-deployment.php
+msgid "Ignazio Lucenti"
+msgstr ""
+
+#. Author URI of the plugin
+#: wp2static-addon-directory-deployment.php
+msgid "https://lucenti.studio"
+msgstr ""
+
+#: src/Controller.php:341
+#: views/directory-deployment-page.php:70
+msgid "Directory Deployment Options"
+msgstr ""
+
+#: views/directory-deployment-page.php:35
+msgid "Target directory (absolute path)"
+msgstr ""
+
+#: views/directory-deployment-page.php:36
+msgid "Delete target directory before deployment"
+msgstr ""
+
+#: views/directory-deployment-page.php:37
+msgid "Additional source directory to include in deployment (absolute path)"
+msgstr ""
+
+#: views/directory-deployment-page.php:94
+msgid "Leave this off and each deployment copies only the files that changed, removing the ones that are gone. Turn it on and the target directory is emptied before every deployment: that is for starting over, not for daily use — while it empties, the published site is not there."
+msgstr ""
+
+#: views/directory-deployment-page.php:118
+msgid "Save Options"
+msgstr ""

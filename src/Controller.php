@@ -203,51 +203,101 @@ class Controller {
             'dashicons-shield-alt'
         );
 
-        /** @var array<string, callable> $submenu_pages */
+        /*
+         * I titoli sono scritti, non calcolati. Prima erano `ucfirst( $slug )`,
+         * cioe' le otto etichette piu' visibili del plugin non esistevano come
+         * stringa da nessuna parte e non c'era niente da tradurre: qualunque
+         * lingua avrebbe letto «Run», «Caches», «Addons». E `ucfirst()` non e'
+         * nemmeno una regola tipografica valida fuori dall'inglese.
+         *
+         * @var array<string, array{0: string, 1: callable}> slug => [ etichetta, callback ]
+         */
         $submenu_pages = [
-            'run' => [ ViewRenderer::class, 'renderRunPage' ],
-            'options' => [ ViewRenderer::class, 'renderOptionsPage' ],
-            'jobs' => [ ViewRenderer::class, 'renderJobsPage' ],
-            'caches' => [ ViewRenderer::class, 'renderCachesPage' ],
-            'diagnostics' => [ ViewRenderer::class, 'renderDiagnosticsPage' ],
-            'logs' => [ ViewRenderer::class, 'renderLogsPage' ],
-            'addons' => [ ViewRenderer::class, 'renderAddonsPage' ],
-            'advanced' => [ ViewRenderer::class, 'renderAdvancedOptionsPage' ],
+            'wp2static' => [
+                __( 'Run', 'vibestatic' ),
+                [ ViewRenderer::class, 'renderRunPage' ],
+            ],
+            'wp2static-options' => [
+                __( 'Options', 'vibestatic' ),
+                [ ViewRenderer::class, 'renderOptionsPage' ],
+            ],
+            'wp2static-jobs' => [
+                __( 'Jobs', 'vibestatic' ),
+                [ ViewRenderer::class, 'renderJobsPage' ],
+            ],
+            'wp2static-caches' => [
+                __( 'Caches', 'vibestatic' ),
+                [ ViewRenderer::class, 'renderCachesPage' ],
+            ],
+            'wp2static-diagnostics' => [
+                __( 'Diagnostics', 'vibestatic' ),
+                [ ViewRenderer::class, 'renderDiagnosticsPage' ],
+            ],
+            'wp2static-logs' => [
+                __( 'Logs', 'vibestatic' ),
+                [ ViewRenderer::class, 'renderLogsPage' ],
+            ],
+            'wp2static-addons' => [
+                __( 'Add-ons', 'vibestatic' ),
+                [ ViewRenderer::class, 'renderAddonsPage' ],
+            ],
+            'wp2static-advanced' => [
+                __( 'Advanced', 'vibestatic' ),
+                [ ViewRenderer::class, 'renderAdvancedOptionsPage' ],
+            ],
         ];
 
-        foreach ( $submenu_pages as $slug => $method ) {
-            $menu_slug =
-                $slug === 'run' ? 'wp2static' : 'wp2static-' . $slug;
-
-            $title = ucfirst( $slug );
-
+        foreach ( $submenu_pages as $menu_slug => $page ) {
             add_submenu_page(
                 'wp2static',
-                'VibeStatic ' . ucfirst( $slug ),
-                $title,
+                self::pageTitle( $page[0] ),
+                $page[0],
                 'manage_options',
                 $menu_slug,
-                $method
+                $page[1]
             );
         }
 
-
+        /** @var array<string, array{0: string, 1: callable}> slug => [ titolo, callback ] */
         $hidden_pages = [
-            'wp2static-crawl-queue' => [ 'Crawl Queue', 'renderCrawlQueue' ],
-            'wp2static-crawl-cache' => [ 'Crawl Cache', 'renderCrawlCache' ],
-            'wp2static-deploy-cache' => [ 'Deploy Cache', 'renderDeployCache' ],
-            'wp2static-static-site' => [ 'Static Site', 'renderStaticSitePaths' ],
-            'wp2static-post-processed-site' =>
-                [ 'Post Processed Site', 'renderPostProcessedSitePaths' ],
+            'wp2static-crawl-queue' => [
+                __( 'Crawl Queue', 'vibestatic' ),
+                [ ViewRenderer::class, 'renderCrawlQueue' ],
+            ],
+            'wp2static-crawl-cache' => [
+                __( 'Crawl Cache', 'vibestatic' ),
+                [ ViewRenderer::class, 'renderCrawlCache' ],
+            ],
+            'wp2static-deploy-cache' => [
+                __( 'Deploy Cache', 'vibestatic' ),
+                [ ViewRenderer::class, 'renderDeployCache' ],
+            ],
+            'wp2static-static-site' => [
+                __( 'Generated Static Site', 'vibestatic' ),
+                [ ViewRenderer::class, 'renderStaticSitePaths' ],
+            ],
+            'wp2static-post-processed-site' => [
+                __( 'Post-processed Static Site', 'vibestatic' ),
+                [ ViewRenderer::class, 'renderPostProcessedSitePaths' ],
+            ],
         ];
 
         foreach ( $hidden_pages as $slug => $page ) {
-            self::addHiddenPage(
-                'VibeStatic ' . $page[0],
-                $slug,
-                [ ViewRenderer::class, $page[1] ]
-            );
+            self::addHiddenPage( self::pageTitle( $page[0] ), $slug, $page[1] );
         }
+    }
+
+    /**
+     * «VibeStatic Jobs», ma con l'ordine delle due parole nelle mani di chi
+     * traduce: concatenare il nome del plugin davanti all'etichetta funziona in
+     * inglese e in poco altro.
+     */
+    private static function pageTitle( string $label ) : string {
+        return sprintf(
+            /* translators: %s: name of the admin page, e.g. "Jobs". */
+            __( 'VibeStatic %s', 'vibestatic' ),
+            $label
+        );
     }
 
     /**
@@ -358,7 +408,12 @@ class Controller {
 
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_send_json_error(
-                [ 'message' => 'Insufficient permissions.' ],
+                [
+                    'message' => __(
+                        'You do not have permission to manage VibeStatic.',
+                        'vibestatic'
+                    ),
+                ],
                 403
             );
         }
@@ -857,15 +912,19 @@ class Controller {
         WsLog::l( 'Sending deployment notification email...' );
 
         $to = CoreOptions::getValue( 'completionEmail' );
-        $subject = 'VibeStatic deployment complete on site: ' .
-            $site_title = get_bloginfo( 'name' );
-        $body = 'VibeStatic deployment complete!';
-        $headers = [];
 
-        if ( wp_mail( $to, $subject, $body, $headers ) ) {
+        $subject = sprintf(
+            /* translators: %s: the site title. */
+            __( 'VibeStatic deployment complete on site: %s', 'vibestatic' ),
+            get_bloginfo( 'name' )
+        );
+
+        $body = __( 'VibeStatic deployment complete!', 'vibestatic' );
+
+        if ( wp_mail( $to, $subject, $body, [] ) ) {
             WsLog::l( 'Deployment notification email sent without error.' );
         } else {
-            WsLog::l( 'Failed to send deployment notificaiton email.' );
+            WsLog::l( 'Failed to send deployment notification email.' );
         }
     }
 
@@ -880,8 +939,16 @@ class Controller {
 
         $http_method = CoreOptions::getValue( 'completionWebhookMethod' );
 
-        $body = $http_method === 'POST' ? 'VibeStatic deployment complete!' :
-            [ 'message' => 'VibeStatic deployment complete!' ];
+        /*
+         * Questo NON passa da __(). Il messaggio dell'email lo legge una
+         * persona, quindi va nella lingua del sito; questo lo legge un
+         * programma dall'altra parte del webhook, che si aspetta la stringa che
+         * ha visto durante la configurazione. Tradurlo trasformerebbe un cambio
+         * di lingua del sito in un guasto silenzioso di un'integrazione.
+         */
+        $message = 'VibeStatic deployment complete!';
+
+        $body = $http_method === 'POST' ? $message : [ 'message' => $message ];
 
         $webhook_response = wp_remote_request(
             $webhook_url,

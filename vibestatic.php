@@ -118,6 +118,33 @@ add_filter(
 );
 
 /**
+ * Carica le traduzioni del plugin.
+ *
+ * Serve davvero, e non e' cerimoniale: il registro dei text domain di
+ * WordPress cerca da solo in `WP_LANG_DIR/plugins` e `WP_LANG_DIR/themes`, cioe'
+ * dove finiscono le traduzioni scaricate da wordpress.org, e in nessun altro
+ * posto. La cartella `languages/` che il plugin si porta dietro entra
+ * nell'elenco solo perche' `load_plugin_textdomain()` la registra come percorso
+ * personalizzato — vedi `WP_Textdomain_Registry::get_paths_for_domain()`.
+ *
+ * Su `init`, ed e' il punto in cui va: da WordPress 6.7 chiedere una traduzione
+ * prima di `after_setup_theme` fa scattare un `_doing_it_wrong`. Il guaio e' che
+ * quel controllo sta dietro `$wp_textdomain_registry->has( $domain )`, quindi si
+ * accorge del problema solo dove una traduzione esiste davvero: su
+ * un'installazione inglese non succede niente e il difetto resta invisibile a
+ * chi sviluppa, per comparire da chi il plugin lo usa tradotto.
+ */
+function vibestatic_load_textdomain() : void {
+    load_plugin_textdomain(
+        'vibestatic',
+        false,
+        dirname( plugin_basename( __FILE__ ) ) . '/languages'
+    );
+}
+
+add_action( 'init', 'vibestatic_load_textdomain' );
+
+/**
  * Toglie dall'output di WordPress le cose che su un sito statico non servono.
  *
  * Erano quattro righe eseguite sempre, con accanto un TODO degli autori che

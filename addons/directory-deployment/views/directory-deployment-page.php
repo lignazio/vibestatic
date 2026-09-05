@@ -9,23 +9,47 @@
  * altrettanto vecchia, `wp2static_copy_save_options`, che nessuno ascolta. Sono
  * gli ultimi residui del rinominamento lasciato a meta` nel 2021.
  *
- * @var mixed[] $view
  * @package WP2StaticDirectoryDeployer
+
  */
 
+namespace WP2StaticDirectoryDeployer;
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+/** @var array<string, mixed> $view */
+
+/** @var array<string, object> $options */
 $options = $view['options'];
+
+/*
+ * Le etichette stanno qui, non nella colonna `label` della tabella dell'addon.
+ * Quella colonna e' scritta da `seedOptions()` alla prima apertura della pagina:
+ * tradurla vorrebbe dire congelare nel database la lingua attiva in quel
+ * momento, e chi cambiasse lingua al sito si ritroverebbe l'interfaccia meta' e
+ * meta'. Il core ha gia' fatto la stessa scelta e le due colonne le ha proprio
+ * lasciate cadere.
+ */
+$labels = [
+    'directoryDeploymentTargetDirectory' => __( 'Target directory (absolute path)', 'vibestatic-directory-deployment' ),
+    'directoryDeploymentDeleteBeforeDeployment' => __( 'Delete target directory before deployment', 'vibestatic-directory-deployment' ),
+    'directoryDeploymentAdditionalSourceDirectory' => __( 'Additional source directory to include in deployment (absolute path)', 'vibestatic-directory-deployment' ),
+];
 
 /**
  * Stampa una riga della tabella per un'opzione di testo.
  *
  * @param object $option Opzione da rendere.
+ * @param string $label  Etichetta gia' tradotta.
  */
-$text_row = function ( $option ) : void {
+$text_row = function ( $option, string $label ) : void {
     ?>
     <tr>
         <td style="width:50%;">
             <label for="<?php echo esc_attr( $option->name ); ?>">
-                <?php echo esc_html( $option->label ); ?>
+                <?php echo esc_html( $label ); ?>
             </label>
         </td>
         <td>
@@ -42,7 +66,9 @@ $text_row = function ( $option ) : void {
 };
 ?>
 
-<h2>Directory Deployment Options</h2>
+<div class="wrap">
+
+<h2><?php esc_html_e( 'Directory Deployment Options', 'vibestatic-directory-deployment' ); ?></h2>
 
 <form
     name="wp2static-directory-deployment-save-options"
@@ -54,37 +80,43 @@ $text_row = function ( $option ) : void {
 
     <table class="widefat striped">
         <tbody>
-            <?php $text_row( $options['directoryDeploymentTargetDirectory'] ); ?>
+            <?php
+            $text_row(
+                $options['directoryDeploymentTargetDirectory'],
+                $labels['directoryDeploymentTargetDirectory']
+            );
+            ?>
 
             <tr>
                 <td style="width:50%;">
-                    <label
-                        for="<?php echo esc_attr( $options['directoryDeploymentDeleteBeforeDeployment']->name ); ?>"
-                    ><?php echo esc_html( $options['directoryDeploymentDeleteBeforeDeployment']->label ); ?></label>
-                    <p><i>
-                        Lasciando questa casella spenta il deploy copia solo i
-                        file cambiati e cancella quelli spariti. Accendendola si
-                        svuota la destinazione a ogni pubblicazione: serve per
-                        ripartire da zero, non per l'uso quotidiano — mentre
-                        svuota, il sito pubblicato non c'è.
-                    </i></p>
+                    <label for="<?php echo esc_attr( $options['directoryDeploymentDeleteBeforeDeployment']->name ); ?>">
+                        <?php echo esc_html( $labels['directoryDeploymentDeleteBeforeDeployment'] ); ?>
+                    </label>
+                    <p><i><?php esc_html_e( 'Leave this off and each deployment copies only the files that changed, removing the ones that are gone. Turn it on and the target directory is emptied before every deployment: that is for starting over, not for daily use — while it empties, the published site is not there.', 'vibestatic-directory-deployment' ); ?></i></p>
                 </td>
                 <td>
                     <input
                         id="<?php echo esc_attr( $options['directoryDeploymentDeleteBeforeDeployment']->name ); ?>"
                         name="<?php echo esc_attr( $options['directoryDeploymentDeleteBeforeDeployment']->name ); ?>"
                         value="1"
-                        <?php echo 1 === (int) $options['directoryDeploymentDeleteBeforeDeployment']->value ? 'checked' : ''; ?>
+                        <?php checked( 1, (int) $options['directoryDeploymentDeleteBeforeDeployment']->value ); ?>
                         type="checkbox"
                     />
                 </td>
             </tr>
 
-            <?php $text_row( $options['directoryDeploymentAdditionalSourceDirectory'] ); ?>
+            <?php
+            $text_row(
+                $options['directoryDeploymentAdditionalSourceDirectory'],
+                $labels['directoryDeploymentAdditionalSourceDirectory']
+            );
+            ?>
         </tbody>
     </table>
 
     <br>
 
-    <button class="button btn-primary">Save Options</button>
+    <button class="button btn-primary"><?php esc_html_e( 'Save Options', 'vibestatic-directory-deployment' ); ?></button>
 </form>
+
+</div>

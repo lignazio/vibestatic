@@ -34,9 +34,21 @@ class WordPressAdmin {
             [ Controller::class, 'deactivate' ]
         );
 
-        // L'attivazione non scatta a ogni aggiornamento del plugin, quindi da
-        // sola non basta a portare a destinazione una modifica dello schema.
-        add_action( 'plugins_loaded', [ Schema::class, 'updateIfNeeded' ] );
+        /*
+         * L'attivazione non scatta a ogni aggiornamento del plugin, quindi da
+         * sola non basta a portare a destinazione una modifica dello schema.
+         *
+         * Su `init` e non su `plugins_loaded`, dove stava: l'aggiornamento passa
+         * da `CoreOptions::seedOptions()`, quindi da `optionSpecs()`, dove
+         * adesso le etichette sono avvolte in `__()`. Chiedere una traduzione
+         * prima di `after_setup_theme` fa scattare il `_doing_it_wrong` che
+         * WordPress 6.7 ha aggiunto a `_load_textdomain_just_in_time()`, e lo fa
+         * soltanto dove una traduzione del dominio esiste davvero — cioe' mai
+         * durante lo sviluppo in inglese, e sempre da chi il plugin lo usa
+         * tradotto. La priorita' 5 tiene l'aggiornamento dello schema prima di
+         * qualunque altro gancio su `init` che legga un'opzione.
+         */
+        add_action( 'init', [ Schema::class, 'updateIfNeeded' ], 5 );
 
         add_filter(
             // phpcs:ignore WordPress.WP.CronInterval -- namespaces not yet fully supported
@@ -355,7 +367,11 @@ class WordPressAdmin {
         // messaggio d'errore era per giunta scritto male, "wpstatic".
         if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || $_SERVER['REQUEST_METHOD'] !== 'POST' ) {
             WsLog::l( 'Non-POST request to admin-post.php (wp2static_process_queue)' );
-            wp_die( 'Invalid request method.', '', [ 'response' => 405 ] );
+            wp_die(
+                esc_html__( 'Invalid request method.', 'vibestatic' ),
+                '',
+                [ 'response' => 405 ]
+            );
         }
 
         Controller::authorize( 'wp2static_process_queue' );
