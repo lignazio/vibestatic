@@ -39,12 +39,12 @@ final class CoreOptionsTest extends TestCase {
 
     public function testAnUnknownOptionReturnsEmptyInsteadOfWarning() : void {
         /*
-         * La riga era `$opt_spec = self::optionSpecs()[ $name ];` seguita da
-         * `if ( ! $opt_spec )`. Su un nome sconosciuto PHP emette «Undefined
-         * array key» PRIMA di arrivare alla guardia: qui, dove i warning sono
-         * convertiti in eccezioni, il vecchio codice fa fallire questo test.
-         * In produzione riempiva il log con un avviso che non nomina nemmeno
-         * l'opzione, mentre il messaggio scritto apposta non usciva mai.
+         * The line used to be `$opt_spec = self::optionSpecs()[ $name ];`
+         * followed by `if ( ! $opt_spec )`. On an unknown name PHP emits
+         * "Undefined array key" BEFORE reaching the guard: here, where warnings
+         * become exceptions, the old code fails this test. In production it
+         * filled the log with a notice that does not even name the option,
+         * while the message written for the purpose never appeared.
          */
         $this->repository()->shouldNotReceive( 'getValue' );
 
@@ -67,10 +67,9 @@ final class CoreOptionsTest extends TestCase {
 
     public function testAPasswordOptionWithNoRowReturnsItsDefaultInsteadOfDying() : void {
         /*
-         * La decifratura stava prima del controllo su $option e leggeva
-         * `$option->value` su un risultato che puo' essere null: un'opzione di
-         * tipo password mai salvata dava un fatal error, non un valore di
-         * partenza.
+         * Decryption sat before the check on $option and read `$option->value`
+         * on a result that can be null: a password option that had never been
+         * saved gave a fatal error rather than a default.
          */
         $this->repository()->shouldReceive( 'getRow' )->once()->andReturn( null );
 
@@ -85,11 +84,12 @@ final class CoreOptionsTest extends TestCase {
 
     public function testEncryptingRefusesToUseAPublishedKey() : void {
         /*
-         * Senza AUTH_KEY e AUTH_SALT qui c'erano due chiavi scritte nel codice.
-         * Il codice e' pubblico: cifrare la password della basic auth con una
-         * chiave che chiunque puo' leggere non e' cifrarla, e' codificarla —
-         * con l'aggravante che sembra cifrata. In questo processo le due
-         * costanti non sono definite, che e' esattamente la condizione.
+         * Without AUTH_KEY and AUTH_SALT there used to be two keys written into
+         * the source here. The source is public: encrypting the basic auth
+         * password with a key anyone can read is not encrypting it, it is
+         * encoding it — with the added harm that it looks encrypted. In this
+         * process the two constants are undefined, which is exactly the
+         * condition.
          */
         $this->expectException( WP2StaticException::class );
         $this->expectExceptionMessageMatches( '/AUTH_KEY e AUTH_SALT/' );
@@ -99,10 +99,10 @@ final class CoreOptionsTest extends TestCase {
 
     public function testGetAllFillsInOptionsThatAreNotYetInTheTable() : void {
         /*
-         * Ogni opzione nuova, fra l'aggiornamento del plugin e la prima
-         * seedOptions(), non ha una riga: `$options_map[ $name ]` senza `??`
-         * emetteva un «Undefined array key» prima della guardia che gestisce
-         * proprio quel caso.
+         * Every new option, between the plugin update and the first
+         * seedOptions(), has no row: `$options_map[ $name ]` without `??`
+         * emitted an "Undefined array key" before the very guard meant to
+         * handle that case.
          */
         $this->repository()->shouldReceive( 'getAllRows' )->once()->andReturn( [] );
 

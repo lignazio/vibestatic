@@ -1,9 +1,9 @@
 <?php
 /**
- * Accesso alla tabella wp_wp2static_urls, la coda degli URL da crawlare.
+ * Access to the wp_wp2static_urls table, the queue of URLs to crawl.
  *
- * Stesso trattamento di CrawlCacheRepository: la connessione arriva dal
- * costruttore, le query sono le stesse.
+ * Same treatment as CrawlCacheRepository: the connection arrives through the
+ * constructor, the queries are unchanged.
  *
  * @package WP2Static
  */
@@ -13,9 +13,9 @@ namespace WP2Static;
 class CrawlQueueRepository {
 
     /**
-     * Quanti URL entrano in una singola INSERT. Cento non e' un numero magico:
-     * ogni URL sono due segnaposto, e le liste in gioco arrivano a decine di
-     * migliaia di righe — una INSERT sola supererebbe max_allowed_packet.
+     * How many URLs go into a single INSERT. A hundred is not a magic number:
+     * each URL is two placeholders, and the lists involved run to tens of
+     * thousands of rows — a single INSERT would exceed max_allowed_packet.
      */
     const CHUNK_SIZE = 100;
 
@@ -54,9 +54,9 @@ class CrawlQueueRepository {
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         dbDelta( $sql );
 
-        // dbDelta non e' affidabile sugli indici: il commento originale degli
-        // autori e` ancora vero, e questo resta un aggancio statico finche` le
-        // migrazioni di schema non hanno un posto loro.
+        // dbDelta is unreliable for indexes: the original authors' comment is
+        // still true, and this stays a static hook until schema migrations have
+        // a place of their own.
         Controller::ensureIndex( $table, 'hashed_url', [ 'hashed_url' ], true );
     }
 
@@ -74,9 +74,9 @@ class CrawlQueueRepository {
                 array_push( $values, md5( $url ), rawurldecode( $url ) );
             }
 
-            // I segnaposto sono tanti quanti gli URL del chunk, quindi la
-            // stringa si compone; ma è composta di soli '(%s, %s)', e ogni
-            // valore passa da prepare().
+            // There are as many placeholders as URLs in the chunk, so the
+            // string is assembled; but it is assembled out of '(%s, %s)' only,
+            // and every value goes through prepare().
             $query_string =
                 'INSERT IGNORE INTO %i (hashed_url, url) VALUES ' .
                 implode( ', ', $placeholders );
@@ -124,9 +124,9 @@ class CrawlQueueRepository {
             return;
         }
 
-        // A chunk come le INSERT: da quando la rilevazione allinea la coda,
-        // qui puo' arrivare tutta la parte di sito che e' sparita in un colpo
-        // solo, e una DELETE con migliaia di %d supererebbe max_allowed_packet.
+        // Chunked like the INSERTs: now that detection reconciles the queue,
+        // the entire vanished part of a site can arrive here at once, and a
+        // DELETE with thousands of %d would exceed max_allowed_packet.
         foreach ( array_chunk( $ids, self::CHUNK_SIZE ) as $chunk ) {
             $placeholders = implode( ', ', array_fill( 0, count( $chunk ), '%d' ) );
 
@@ -142,7 +142,7 @@ class CrawlQueueRepository {
     }
 
     /**
-     * @param string $url URL da togliere dalla coda.
+     * @param string $url URL to remove from the queue.
      */
     public function rmUrl( string $url ) : void {
         $this->db->delete(
@@ -163,7 +163,7 @@ class CrawlQueueRepository {
     }
 
     /**
-     * Svuota la coda.
+     * Empty the queue.
      */
     public function truncate() : void {
         $this->db->query( (string) $this->db->prepare( 'TRUNCATE TABLE %i', $this->table ) );

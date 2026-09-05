@@ -1,14 +1,15 @@
 <?php
 /**
- * Accesso alla tabella wp_wp2static_deploy_cache.
+ * Access to the wp_wp2static_deploy_cache table.
  *
- * Come CrawlCacheRepository, ma con una dipendenza in piu' che qui e' il punto:
- * per sapere se un file e` cambiato bisogna leggerlo, e il percorso della
- * cartella post-processata arrivava da ProcessedSite::getPath(), una chiamata
- * statica dentro il metodo. Ora arriva dal costruttore, e un test puo' montare
- * un filesystem virtuale e verificare davvero «file identico -> gia' in cache».
+ * Like CrawlCacheRepository, but with one extra dependency that is the whole
+ * point here: telling whether a file changed means reading it, and the path to
+ * the post-processed directory used to come from ProcessedSite::getPath(), a
+ * static call inside the method. It now comes from the constructor, so a test
+ * can mount a virtual filesystem and actually check "identical file -> already
+ * cached".
  *
- * E' la verifica su cui poggia il deploy incrementale della fase 6.
+ * That check is what the incremental deploy rests on.
  *
  * @package WP2Static
  */
@@ -82,25 +83,25 @@ class DeployCacheRepository {
     }
 
     /**
-     * L'hash del percorso e' l'md5 del percorso ASSOLUTO del file, non di
-     * quello relativo. E' cosi' da sempre e non va cambiato: la tabella la
-     * scrivono anche gli addon, e cambiare la regola invaliderebbe ogni cache
-     * esistente senza dirlo a nessuno.
+     * The path hash is the md5 of the file's ABSOLUTE path, not the relative
+     * one. It has always been that way and must not change: add-ons write to
+     * this table too, and changing the rule would invalidate every existing
+     * cache without telling anyone.
      */
     public function pathHash( string $local_path ) : string {
         return md5( $this->processed_site_path . $local_path );
     }
 
     /**
-     * Legge il file e ne calcola l'md5. Restituisce null quando il file non
-     * c'e' o e' vuoto — e la stringa vuota qui conta come «non c'e'», che e'
-     * il comportamento originale.
+     * Read the file and compute its md5. Returns null when the file is missing
+     * or empty — and an empty string counts as "missing" here, which is the
+     * original behaviour.
      *
-     * Il controllo is_readable() e' nuovo. Prima si chiamava file_get_contents()
-     * a freddo, e su un file mancante quella emette un warning PHP: durante un
-     * deploy con qualche percorso non piu' presente il log si riempiva di righe
-     * che non descrivono un guasto, solo un file che non c'e' — cioe' proprio
-     * la condizione che questo metodo esiste per riconoscere.
+     * The is_readable() check is new. file_get_contents() used to be called
+     * cold, and on a missing file that emits a PHP warning: during a deploy
+     * with a few paths no longer present, the log filled with lines that
+     * describe no failure at all, only a file that is not there — which is
+     * exactly the condition this method exists to recognise.
      */
     public function fileHash( string $local_path ) : ?string {
         $deployed_file = $this->processed_site_path . $local_path;
@@ -109,7 +110,7 @@ class DeployCacheRepository {
             return null;
         }
 
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- file locale, non una richiesta remota.
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local file, not a remote request.
         $file_contents = file_get_contents( $deployed_file );
 
         if ( ! $file_contents ) {
@@ -125,11 +126,11 @@ class DeployCacheRepository {
         ?string $file_hash = null
     ) : void {
         /*
-         * Non `?? `: l'originale entrava nel ramo di lettura del file per
-         * qualunque valore falso, stringa vuota compresa, e il coalescing lo
-         * farebbe solo per null. Sembra una sfumatura, ma un chiamante che
-         * passa '' otterrebbe una riga con un hash vuoto invece che l'hash
-         * vero, cioe' un file che risulta «gia' deployato» per sempre.
+         * Not `??`: the original took the read-the-file branch for any falsy
+         * value, the empty string included, whereas coalescing would only do so
+         * for null. It looks like a nuance, but a caller passing '' would get a
+         * row with an empty hash instead of the real one — that is, a file that
+         * reads as "already deployed" forever.
          */
         if ( ! $file_hash ) {
             $file_hash = $this->fileHash( $local_path );
@@ -189,13 +190,13 @@ class DeployCacheRepository {
     }
 
     /**
-     * Svuota la cache di TUTTI i deployer.
+     * Empty the cache of EVERY deployer.
      *
-     * `truncate()` senza argomenti tocca il solo spazio dei nomi `default`,
-     * ed e` la cosa giusta quando un deployer vuole dimenticare cio` che ha
-     * pubblicato lui. Non lo e` dietro un pulsante che dice «cancella la Deploy
-     * Cache»: li` restavano in piedi le cache di tutti gli altri deployer, e
-     * l'utente vedeva un numero diverso da zero subito dopo aver cancellato.
+     * `truncate()` with no arguments touches only the `default` namespace, and
+     * that is the right thing when a deployer wants to forget what it published
+     * itself. It is not the right thing behind a button that says "delete the
+     * Deploy Cache": there, every other deployer's cache survived, and the user
+     * saw a non-zero count right after deleting.
      */
     public function truncateAll() : void {
         $this->db->query( (string) $this->db->prepare( 'TRUNCATE TABLE %i', $this->table ) );
@@ -248,15 +249,15 @@ class DeployCacheRepository {
     }
 
     /**
-     * Gli hash gia' pubblicati, per percorso.
+     * The hashes already published, keyed by path.
      *
-     * Una query sola. `isFileCached()` ne fa una per file, ed e' giusto cosi'
-     * quando si guarda un file solo; per confrontare un sito intero — qui sono
-     * milleottocento file — mille e ottocento interrogazioni sono il modo piu'
-     * rapido di rendere il deploy incrementale piu' lento di quello completo.
+     * One query. `isFileCached()` does one per file, which is right when you
+     * are looking at a single file; to compare a whole site — eighteen hundred
+     * files here — eighteen hundred queries are the quickest way to make the
+     * incremental deploy slower than a full one.
      *
-     * @param string $namespace Spazio dei nomi del deployer.
-     * @return array<string, string> percorso => hash del file
+     * @param string $namespace The deployer's namespace.
+     * @return array<string, string> path => file hash
      */
     public function getHashesByPath( string $namespace = self::DEFAULT_NAMESPACE ) : array {
         /** @var list<object{path: string, file_hash: string}> $rows */
@@ -278,17 +279,17 @@ class DeployCacheRepository {
     }
 
     /**
-     * Confronta il sito processato con quello gia' pubblicato.
+     * Compare the processed site against what has already been published.
      *
-     * I percorsi devono arrivare nella stessa forma in cui il deployer li
-     * scrive in cache — quella di `ProcessedSite::getPaths()`, cioe' relativi
-     * alla radice e con lo slash iniziale. Se le due forme divergono, ogni file
-     * risulta nuovo e il deploy incrementale diventa un deploy completo che
-     * dice di essere incrementale: e' il modo peggiore di sbagliare, perche'
-     * non si vede.
+     * The paths must arrive in the same shape the deployer writes into the
+     * cache — the shape `ProcessedSite::getPaths()` produces, that is, relative
+     * to the root and with a leading slash. If the two shapes diverge, every
+     * file reads as new and the incremental deploy becomes a full deploy that
+     * claims to be incremental: the worst way to be wrong, because it does not
+     * show.
      *
-     * @param string[] $current_paths Percorsi presenti ora nel sito processato.
-     * @param string   $namespace     Spazio dei nomi del deployer.
+     * @param string[] $current_paths Paths present in the processed site now.
+     * @param string   $namespace     The deployer's namespace.
      */
     public function plan(
         array $current_paths,
@@ -303,9 +304,8 @@ class DeployCacheRepository {
             $hash = $this->fileHash( $path );
 
             if ( null === $hash ) {
-                // Illeggibile o vuoto: non c'e' niente da caricare, e dirlo
-                // «invariato» sarebbe una bugia. Lo si lascia fuori da entrambe
-                // le liste.
+                // Unreadable or empty: there is nothing to upload, and calling
+                // it "unchanged" would be a lie. It stays out of both lists.
                 continue;
             }
 
@@ -326,14 +326,14 @@ class DeployCacheRepository {
     }
 
     /**
-     * Toglie dalla cache i percorsi indicati.
+     * Drop the given paths from the cache.
      *
-     * Va chiamata dopo averli rimossi a destinazione, non prima: se il deploy
-     * fallisce a meta', una cache che ha gia' dimenticato quei file li
-     * ripubblicherebbe al giro successivo.
+     * Call it after removing them at the destination, not before: if the deploy
+     * fails halfway, a cache that has already forgotten those files would
+     * republish them on the next run.
      *
-     * @param string[] $paths     Percorsi da dimenticare.
-     * @param string   $namespace Spazio dei nomi del deployer.
+     * @param string[] $paths     Paths to forget.
+     * @param string   $namespace The deployer's namespace.
      */
     public function rmPaths( array $paths, string $namespace = self::DEFAULT_NAMESPACE ) : void {
         foreach ( $paths as $path ) {

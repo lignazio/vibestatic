@@ -1,22 +1,22 @@
 <?php
 /**
- * Navigazione fra le pagine di un elenco.
+ * Navigation between the pages of a list.
  *
- * Esisteva gia' come blocco identico in tutte e cinque le viste impaginate,
- * fra i commenti «start/end Paginator template partial» che gli autori avevano
- * lasciato senza estrarlo. Copiato cinque volte era gia' divergente: il titolo
- * per gli screen reader diceva «Crawl Queue» anche sulla pagina della Deploy
- * Cache. Con le stringhe da tradurre il costo di tenerle allineate diventa
- * cinque volte quello di scriverle una volta sola, e due copie che divergono
- * dopo la traduzione danno due msgid quasi uguali da tradurre due volte.
+ * This already existed as an identical block in all five paginated views,
+ * between the "start/end Paginator template partial" comments the original
+ * authors left without ever extracting it. Copied five times, it had already
+ * drifted: the screen-reader heading said "Crawl Queue" on the Deploy Cache
+ * page too. With strings to translate, the cost of keeping them in step becomes
+ * five times the cost of writing them once, and two copies that drift after
+ * translation give two near-identical msgids to translate twice.
  *
  * @package WP2Static
  *
- * @var int    $paginator_page          Pagina corrente.
- * @var int    $paginator_first_page    Prima pagina.
- * @var int    $paginator_last_page     Ultima pagina.
- * @var int    $paginator_total_records Totale dei record.
- * @var string $paginator_label         Nome dell'elenco, per gli screen reader.
+ * @var int    $paginator_page          Current page.
+ * @var int    $paginator_first_page    First page.
+ * @var int    $paginator_last_page     Last page.
+ * @var int    $paginator_total_records Total records.
+ * @var string $paginator_label         Name of the list, for screen readers.
  */
 
 namespace WP2Static;

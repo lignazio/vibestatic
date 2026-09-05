@@ -6,10 +6,10 @@ require_once __DIR__ . '/../../vendor-prefixed/autoload.php';
 WP_Mock::bootstrap();
 
 /*
- * Le costanti di tempo di WordPress. Non le definisce WP_Mock, che sostituisce
- * le funzioni e non il core: senza, qualunque classe che scriva
- * `12 * HOUR_IN_SECONDS` muore con «Undefined constant» dentro il test invece
- * che nel codice.
+ * WordPress's time constants. WP_Mock does not define them, because it replaces
+ * the functions and not the core: without these, any class writing
+ * `12 * HOUR_IN_SECONDS` dies with "Undefined constant" inside the test rather
+ * than in the code.
  */
 foreach (
     [
@@ -37,17 +37,17 @@ if ( ! function_exists( 'trailingslashit' ) ) {
 }
 
 /**
- * Dà a un mock di \WPDB una prepare() che si comporta come quella vera.
+ * Gives a \WPDB mock a prepare() that behaves like the real one.
  *
- * Serve da quando le query del plugin passano tutte da $wpdb->prepare(): senza,
- * i test che mockano $wpdb fallirebbero con "Method prepare() does not exist",
- * e mockarla per farle restituire la stringa così com'è renderebbe i test
- * ciechi proprio sul punto che conta — cioè che gli identificatori finiscano
- * fra backtick e i valori fra apici.
+ * Needed since all the plugin's queries go through $wpdb->prepare(): without
+ * it, tests that mock $wpdb would fail with "Method prepare() does not exist",
+ * and mocking it to return the string unchanged would make the tests blind on
+ * the very point that matters — that identifiers end up in backticks and values
+ * in quotes.
  *
- * Copre i tre segnaposto che il plugin usa: %i (identificatore), %s (stringa),
- * %d (intero). Non è la prepare() di WordPress e non vuole esserlo: è quel
- * tanto che basta perché l'asserzione sul SQL finale resti significativa.
+ * It covers the three placeholders the plugin uses: %i (identifier), %s
+ * (string), %d (integer). It is not WordPress's prepare() and does not try to
+ * be: it is just enough for the assertion on the final SQL to stay meaningful.
  *
  * @param \Mockery\MockInterface $wpdb
  */
@@ -55,7 +55,7 @@ function wp2static_test_mock_prepare( $wpdb ) : void {
     $wpdb->shouldReceive( 'prepare' )
         ->andReturnUsing(
             function ( $query, ...$args ) {
-                // prepare() accetta sia una lista di argomenti sia un array solo.
+                // prepare() accepts either a list of arguments or a single array.
                 if ( count( $args ) === 1 && is_array( $args[0] ) ) {
                     $args = $args[0];
                 }

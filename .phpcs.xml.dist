@@ -3,9 +3,9 @@
   <description>Coding standard for VibeStatic.</description>
 
   <!--
-    I file da guardare e quelli da saltare stanno qui, non negli argomenti dei
-    comandi composer: prima erano una riga di «ignore» lunga trecento caratteri,
-    ripetuta in cinque script che divergevano fra loro.
+    The files to look at and the ones to skip live here, not in the arguments
+    of the composer commands: they used to be a three-hundred-character "ignore"
+    line, repeated across five scripts that had drifted apart.
   -->
   <file>src</file>
   <file>views</file>
@@ -28,27 +28,27 @@
   <arg value="s"/>
 
   <!--
-    Quattro spazi, che è quello che il codice usa davvero e quello che dice
-    .editorconfig. Prima questo file imponeva 2 e .editorconfig 4, e le due
-    regole si contraddicevano da anni.
+    Four spaces, which is what the code actually uses and what .editorconfig
+    says. This file used to demand 2 and .editorconfig 4, and the two rules
+    contradicted each other for years.
   -->
   <arg name="tab-width" value="4"/>
 
-  <!-- Serve ai sniff di i18n e di prefissazione. -->
+  <!-- Needed by the i18n and prefixing sniffs. -->
   <config name="minimum_wp_version" value="6.5"/>
 
   <rule ref="WordPress">
     <!--
-      Stile: il progetto non segue le convenzioni di nomenclatura del core
-      WordPress (usa PSR-4, camelCase e classi in namespace) ed è una scelta
-      deliberata, non un difetto da correggere.
+      Style: this project does not follow WordPress core's naming conventions
+      (it uses PSR-4, camelCase and namespaced classes) and that is a deliberate
+      choice, not a defect to fix.
     -->
     <!--
-      WPCS 3 ha spostato questo sniff da Generic a Universal. La
-      configurazione originale escludeva il nome vecchio, che non esiste più:
-      il risultato era che il progetto — che usa le array corte ovunque, di
-      proposito, e che poco sotto impone DisallowLongArraySyntax — si vedeva
-      segnalare 615 violazioni per una scelta deliberata.
+      WPCS 3 moved this sniff from Generic to Universal. The original
+      configuration excluded the old name, which no longer exists: the result
+      was that the project — which uses short arrays everywhere, deliberately,
+      and which enforces DisallowLongArraySyntax a little below — was reported
+      615 violations for a decision it had made on purpose.
     -->
     <exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
     <exclude name="Generic.Commenting.DocComment.MissingShort"/>
@@ -81,30 +81,30 @@
     <exclude name="WordPress.PHP.YodaConditions.NotYoda"/>
 
     <!--
-      Universal.WhiteSpace.PrecisionAlignment è il nome che WPCS 3 ha dato
-      allo sniff che la configurazione originale escludeva come
-      WordPress.WhiteSpace.PrecisionAlignment. Stessa regola, stessa
-      decisione: allineare a mano dentro gli array è leggibile e non è un
-      difetto. Va escluso anche perché è quello che mandava phpcbf in loop
-      su 69 file, senza mai chiuderli.
+      Universal.WhiteSpace.PrecisionAlignment is the name WPCS 3 gave the
+      sniff the original configuration excluded as
+      WordPress.WhiteSpace.PrecisionAlignment. Same rule, same decision:
+      aligning by hand inside arrays is readable and is not a defect. It also
+      has to be excluded because it is what sent phpcbf into a loop on 69
+      files, never finishing them.
     -->
     <exclude name="Universal.WhiteSpace.PrecisionAlignment"/>
 
     <!--
-      Il codice scrive `) : void`, con lo spazio, in 243 punti. PSR-12 vuole
-      `): void`, e a lungo andare ha ragione, ma cambiarlo adesso produce un
-      diff su ogni firma del progetto e seppellisce le correzioni di
-      sicurezza che vengono dopo. Si converge alla fase 5, quando quei file
-      vengono riscritti comunque. phpcbf per giunta non riesce a farlo:
-      entra in conflitto con altri sniff e lascia i file a metà.
+      The code writes `) : void`, with the space, in 243 places. PSR-12 wants
+      `): void`, and in the long run it is right, but changing it now produces
+      a diff on every signature in the project and buries the security fixes
+      that come after. This converges when those files are rewritten anyway.
+      phpcbf cannot do it either: it conflicts with other sniffs and leaves
+      files half-done.
     -->
     <exclude name="PSR12.Functions.ReturnTypeDeclaration.SpaceBeforeColon"/>
 
     <!--
-      Query dirette: il plugin ha otto tabelle proprie e le interroga per
-      forza. Quello che NON è escluso, e non va riescluso, è PreparedSQL:
-      la domanda non è se si possa fare una query diretta, è se il valore
-      sia passato da $wpdb->prepare().
+      Direct queries: the plugin has eight tables of its own and has to query
+      them. What is NOT excluded, and must not be re-excluded, is PreparedSQL:
+      the question is not whether a direct query is allowed, it is whether the
+      value went through $wpdb->prepare().
     -->
     <exclude name="WordPress.DB.DirectDatabaseQuery.DirectQuery"/>
     <exclude name="WordPress.DB.DirectDatabaseQuery.NoCaching"/>
@@ -113,19 +113,19 @@
 
   <!--
     ═══════════════════════════════════════════════════════════════════════
-    I quattro sniff qui sotto erano ESCLUSI nella configurazione originale:
+    The four sniffs below were EXCLUDED in the original configuration:
 
         WordPress.DB.PreparedSQL
         WordPress.Security.EscapeOutput.OutputNotEscaped
         WordPress.Security.NonceVerification
         WordPress.Security.ValidatedSanitizedInput
 
-    Sono esattamente i quattro che avrebbero trovato la SQL injection di
-    Controller.php, i nonce verificati dopo la scrittura e i quaranta echo
-    non escapati nelle view. Il linter era configurato per non vedere
-    nessuno dei problemi che ha il progetto. Non vanno riesclusi: se uno
-    di loro segnala un falso positivo, si annota quel punto con
-    phpcs:ignore e la ragione, non si spegne la regola per tutti.
+    They are exactly the four that would have found the SQL injection in
+    Controller.php, the nonces verified after the write, and the forty
+    unescaped echoes in the views. The linter was configured not to see a
+    single one of the problems this project has. They must not be re-excluded:
+    if one of them reports a false positive, that spot gets a phpcs:ignore with
+    the reason, rather than the rule being switched off for everyone.
     ═══════════════════════════════════════════════════════════════════════
   -->
   <rule ref="WordPress.DB.PreparedSQL"/>
@@ -145,10 +145,10 @@
   </rule>
 
   <!--
-    Le view sono markup: una riga di HTML con dentro un `printf()` supera i cento
-    caratteri senza che ci sia niente da riscrivere. Prima ogni view apriva con
-    due righe di `phpcs:disable Generic.Files.LineLength` — tredici copie della
-    stessa decisione, che è il posto sbagliato dove tenerla.
+    The views are markup: a line of HTML with a `printf()` inside it passes a
+    hundred characters with nothing to rewrite. Every view used to open with two
+    lines of `phpcs:disable Generic.Files.LineLength` — thirteen copies of the
+    same decision, which is the wrong place to keep it.
   -->
   <rule ref="Generic.Files.LineLength">
     <properties>
@@ -159,10 +159,10 @@
   </rule>
 
   <!--
-    Nei test il nome del metodo è la documentazione: `testRmUrlsByIdWithNoIdsRunsNoQuery`
-    dice già cosa verifica, e un docblock che lo ripete in prosa è rumore che
-    invecchia. Vale solo per tests/: nel codice sorgente la regola resta accesa
-    ed è parte del debito da smaltire.
+    In the tests the method name is the documentation:
+    `testRmUrlsByIdWithNoIdsRunsNoQuery` already says what it verifies, and a
+    docblock repeating it in prose is noise that ages. This applies to tests/
+    only: in the source the rule stays on and is part of the debt to clear.
   -->
   <rule ref="Squiz.Commenting.FunctionComment.Missing">
     <exclude-pattern>tests/unit/*</exclude-pattern>
@@ -171,17 +171,17 @@
     <exclude-pattern>tests/unit/*</exclude-pattern>
   </rule>
 
-  <!-- I test mockano funzioni WordPress: le regole di i18n e di escaping non li riguardano. -->
+  <!-- The tests mock WordPress functions: the i18n and escaping rules do not apply to them. -->
   <rule ref="WordPress.Security">
     <exclude-pattern>tests/unit/*</exclude-pattern>
   </rule>
 
   <!--
-    Senza `text_domain` questo sniff controlla solo la forma delle chiamate —
-    segnaposto, commenti per i traduttori — e non si accorge del dominio: una
-    stringa avvolta in `__( 'x', 'wp2static' )`, o in `__( 'x' )` senza dominio
-    affatto, passerebbe. È il dominio la cosa che si sbaglia per prima quando il
-    plugin ne cambia uno, ed è appena successo.
+    Without `text_domain` this sniff only checks the shape of the calls —
+    placeholders, translator comments — and does not notice the domain: a string
+    wrapped in `__( 'x', 'wp2static' )`, or in `__( 'x' )` with no domain at all,
+    would pass. The domain is the first thing to get wrong when a plugin changes
+    one, and that has just happened.
   -->
   <rule ref="WordPress.WP.I18n">
     <properties>

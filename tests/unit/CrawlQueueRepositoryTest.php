@@ -47,8 +47,8 @@ final class CrawlQueueRepositoryTest extends TestCase {
             'INSERT IGNORE INTO `wp_wp2static_urls` (hashed_url, url) VALUES',
             $queries[0]
         );
-        // L'hash è dell'URL come arriva, il valore memorizzato è decodificato:
-        // le due cose sono diverse di proposito e vanno lette insieme.
+        // The hash is of the URL as it arrives, the stored value is decoded:
+        // the two differ deliberately and have to be read together.
         $this->assertStringContainsString( "'" . md5( '/caff%C3%A8/' ) . "'", $queries[0] );
         $this->assertStringContainsString( "'/caffè/'", $queries[0] );
     }
@@ -72,8 +72,8 @@ final class CrawlQueueRepositoryTest extends TestCase {
 
         ( new CrawlQueueRepository( $wpdb ) )->addUrls( $urls );
 
-        // 250 URL: due INSERT piene e una da 50. Una INSERT sola con 500
-        // segnaposto supererebbe max_allowed_packet su una sitemap vera.
+        // 250 URLs: two full INSERTs and one of 50. A single INSERT with 500
+        // placeholders would exceed max_allowed_packet on a real sitemap.
         $this->assertCount( 3, $queries );
         $this->assertSame( 100, substr_count( $queries[0], '(' ) - 1 );
         $this->assertSame( 50, substr_count( $queries[2], '(' ) - 1 );
@@ -150,9 +150,9 @@ final class CrawlQueueRepositoryTest extends TestCase {
             }
         );
 
-        // Da quando la rilevazione allinea la coda, qui puo' arrivare tutta la
-        // parte di sito sparita in un colpo solo: una DELETE con 250 %d
-        // supererebbe max_allowed_packet su installazioni strette.
+        // Now that detection reconciles the queue, the entire vanished part of
+        // a site can arrive here at once: a DELETE with 250 %d would exceed
+        // max_allowed_packet on tight installations.
         ( new CrawlQueueRepository( $wpdb ) )->rmUrlsById(
             array_map( 'strval', range( 1, 250 ) )
         );
@@ -185,8 +185,8 @@ final class CrawlQueueRepositoryTest extends TestCase {
         CrawlQueue::setRepository( $repository );
 
         try {
-            // getTotalCrawlableURLs() e getTotal() sono due nomi per la stessa
-            // domanda: se un giorno divergono, questo test se ne accorge.
+            // getTotalCrawlableURLs() and getTotal() are two names for the
+            // same question: if they ever diverge, this test notices.
             $this->assertSame( 1830, CrawlQueue::getTotalCrawlableURLs() );
         } finally {
             CrawlQueue::setRepository( null );

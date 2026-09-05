@@ -1,14 +1,14 @@
 <?php
 /**
- * Facciata statica della Crawl Cache.
+ * Static facade over the Crawl Cache.
  *
- * Non contiene piu' query: le tiene CrawlCacheRepository, che riceve la
- * connessione dal costruttore ed e' quindi verificabile. Questa classe resta
- * perche' e' API pubblica — ventuno addon la chiamano staticamente, e
- * `wp2static_list_redirects` e' agganciata a un filtro con quel nome esatto.
+ * It holds no queries any more: CrawlCacheRepository does, taking the
+ * connection through its constructor, which makes it testable. This class stays
+ * because it is public API — twenty-one add-ons call it statically, and
+ * `wp2static_list_redirects` is hooked to a filter of exactly that name.
  *
- * setRepository() esiste per i test e per chi voglia sostituire lo strato di
- * persistenza; passandogli null si torna al comportamento normale.
+ * setRepository() exists for tests, and for anyone wanting to replace the
+ * persistence layer; passing null restores the normal behaviour.
  *
  * @package WP2Static
  */

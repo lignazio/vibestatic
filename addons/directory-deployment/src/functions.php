@@ -1,10 +1,11 @@
 <?php
 /**
- * Le due funzioni di filesystem dell'addon.
+ * The add-on's two filesystem functions.
  *
- * Stavano in cima a Deployer.php, sotto la dichiarazione di namespace ma fuori
- * dalla classe. Qui hanno un file loro, che l'autoloader carica sempre: le
- * funzioni non si autocaricano per nome come le classi.
+ * They used to sit at the top of Deployer.php, below the namespace declaration
+ * but outside the class. Here they have a file of their own, which the
+ * autoloader always loads: functions are not autoloaded by name the way classes
+ * are.
  *
  * @package WP2StaticDirectoryDeployer
  */
@@ -12,9 +13,9 @@
 namespace WP2StaticDirectoryDeployer;
 
 /**
- * Cancella una cartella e tutto quello che contiene.
+ * Delete a directory and everything in it.
  *
- * @param string $path Percorso assoluto.
+ * @param string $path Absolute path.
  */
 function rrmdir( string $path ) : void {
     if ( '' === trim( pathinfo( $path, PATHINFO_BASENAME ), '.' ) ) {
@@ -30,9 +31,9 @@ function rrmdir( string $path ) : void {
 
     $entries = glob( $path . DIRECTORY_SEPARATOR . '{,.}*', GLOB_BRACE | GLOB_NOSORT );
 
-    // Il nome della funzione va qualificato: senza __NAMESPACE__, array_map
-    // cerca una `rrmdir` globale che non esiste, e il deploy muore proprio
-    // mentre svuota la destinazione.
+    // The function name has to be qualified: without __NAMESPACE__, array_map
+    // looks for a global `rrmdir` that does not exist, and the deploy dies
+    // exactly while emptying the destination.
     array_map( __NAMESPACE__ . '\\rrmdir', $entries ? $entries : [] );
 
     // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
@@ -40,11 +41,11 @@ function rrmdir( string $path ) : void {
 }
 
 /**
- * Copia ricorsiva di una cartella.
+ * Recursively copy a directory.
  *
- * @param string $source      Cartella di partenza.
- * @param string $destination Cartella di destinazione.
- * @param int    $permissions Permessi delle cartelle create.
+ * @param string $source      Source directory.
+ * @param string $destination Destination directory.
+ * @param int    $permissions Permissions for directories created.
  */
 function xcopy( string $source, string $destination, int $permissions = 0755 ) : bool {
     if ( is_link( $source ) ) {
@@ -60,11 +61,11 @@ function xcopy( string $source, string $destination, int $permissions = 0755 ) :
     }
 
     /*
-     * Copiare una cartella dentro se stessa e` una ricorsione infinita.
-     * L'originale ci arrivava calcolando l'md5 dell'intero albero a ogni
-     * voce — cioe` rileggendo ogni file una volta per ogni file — per poi
-     * confrontarlo con quello della cartella corrente. Il confronto giusto e`
-     * fra i due percorsi, e costa niente.
+     * Copying a directory into itself is infinite recursion. The original got
+     * there by computing the md5 of the whole tree for every entry — that is,
+     * re-reading every file once per file — and comparing it with the current
+     * directory's. The right comparison is between the two paths, and it costs
+     * nothing.
      */
     $real_source = realpath( $source );
     $real_destination = realpath( $destination );

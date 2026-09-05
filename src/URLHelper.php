@@ -6,14 +6,14 @@ use Exception;
 
 class URLHelper {
     /**
-     * Legge una variabile di $_SERVER.
+     * Read a $_SERVER variable.
      *
-     * Non usa filter_input( INPUT_SERVER, ... ): sotto PHP-FPM, sul server
-     * integrato di PHP e in WP-Cron quella funzione legge l'array originale
-     * della richiesta, che spesso è vuoto, e restituisce null anche quando
-     * $_SERVER ha il valore. Il risultato era che getCurrent() costruiva
-     * l'URL "http://" e modifyUrl() lo rifiutava con "Unable to parse URL",
-     * cioè una schermata bianca sulle pagine Crawl Queue e Crawl Cache.
+     * It does not use filter_input( INPUT_SERVER, ... ): under PHP-FPM, on
+     * PHP's built-in server and in WP-Cron that function reads the request's
+     * original array, which is often empty, and returns null even when $_SERVER
+     * holds the value. The result was that getCurrent() built the URL "http://"
+     * and modifyUrl() rejected it with "Unable to parse URL" — a white screen on
+     * the Crawl Queue and Crawl Cache pages.
      */
     private static function server( string $key ) : string {
         if ( ! isset( $_SERVER[ $key ] ) || ! is_scalar( $_SERVER[ $key ] ) ) {
@@ -24,8 +24,8 @@ class URLHelper {
     }
 
     public static function isSecure() : bool {
-        // is_ssl() di WordPress copre anche i proxy davanti al sito, che
-        // parlano http all'origine e https al mondo.
+        // WordPress's is_ssl() also covers proxies in front of the site, which
+        // speak http to the origin and https to the world.
         if ( function_exists( 'is_ssl' ) && is_ssl() ) {
             return true;
         }
@@ -46,8 +46,8 @@ class URLHelper {
         $host = self::server( 'HTTP_HOST' );
 
         if ( $host === '' ) {
-            // Nessun host nella richiesta: WP-Cron, WP-CLI, un test. L'URL del
-            // sito è la risposta giusta, e comunque è parsabile.
+            // No host in the request: WP-Cron, WP-CLI, a test. The site URL is
+            // the right answer, and it is parseable in any case.
             return function_exists( 'home_url' ) ? strval( home_url( '/' ) ) : '';
         }
 
@@ -56,7 +56,7 @@ class URLHelper {
         // Only include port number if needed
         $port = self::server( 'SERVER_PORT' );
 
-        // L'host può già portare la porta con sé, come 'localhost:8080'.
+        // The host may already carry the port, as in 'localhost:8080'.
         if ( $port !== '' && ! in_array( $port, [ '80', '443' ], true ) &&
             ! str_contains( $host, ':' ) ) {
             $url .= ':' . $port;

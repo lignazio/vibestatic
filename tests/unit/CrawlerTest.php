@@ -13,11 +13,11 @@ use WP_Mock;
 use WP_Mock\Tools\TestCase;
 
 /**
- * Il crawler e' il pezzo che decide cosa viene ripubblicato: e' lui a
- * confrontare l'hash della pagina appena scaricata con quello in cache, ed e'
- * su quel confronto che poggia il deploy incrementale. Non aveva un test,
- * perche' il client HTTP se lo costruiva dentro il costruttore e l'unico modo
- * di esercitarlo era avere un sito vero dall'altra parte.
+ * The crawler is the piece that decides what gets republished: it compares the
+ * hash of the page just downloaded with the one in cache, and the incremental
+ * deploy rests on that comparison. It had no test, because it built its HTTP
+ * client inside the constructor and the only way to exercise it was to have a
+ * real site on the other end.
  *
  * @runTestsInSeparateProcesses
  * @preserveGlobalState disabled
@@ -25,19 +25,19 @@ use WP_Mock\Tools\TestCase;
 final class CrawlerTest extends TestCase {
 
     /**
-     * @var array<string, string> Quello che il crawler ha scritto su disco.
+     * @var array<string, string> What the crawler wrote to disk.
      */
     private $written = [];
 
     /**
-     * @var array<int, array<string, mixed>> Quello che ha messo in cache.
+     * @var array<int, array<string, mixed>> What it put in the cache.
      */
     private $cached = [];
 
     /**
-     * @var string[]|null L'elenco dei percorsi che devono restare, come e'
-     *                    arrivato a StaticSite::prune(). Null se prune() non
-     *                    e' stata chiamata affatto.
+     * @var string[]|null The list of paths that must stay, as it reached
+     *                    StaticSite::prune(). Null if prune() was never
+     *                    called at all.
      */
     private $pruned_against = null;
 
@@ -65,10 +65,10 @@ final class CrawlerTest extends TestCase {
                     return [];
                 }
             )
-            ->shouldReceive( 'getPath' )->andReturn( '/percorso/che-non-esiste/' );
+            ->shouldReceive( 'getPath' )->andReturn( '/path/that-does-not-exist/' );
 
         Mockery::mock( 'overload:\WP2Static\ProcessedSite' )
-            ->shouldReceive( 'getPath' )->andReturn( '/percorso/che-non-esiste/' );
+            ->shouldReceive( 'getPath' )->andReturn( '/path/that-does-not-exist/' );
 
         WP_Mock::userFunction( 'trailingslashit', [ 'return' => fn( $s ) => rtrim( $s, '/' ) . '/' ] );
 
@@ -107,7 +107,7 @@ final class CrawlerTest extends TestCase {
     }
 
     /**
-     * @param array<string, string|false> $cache Percorso => hash già in cache.
+     * @param array<string, string|false> $cache Path => hash already in cache.
      */
     private function mockCrawlCache( array $cache ) : void {
         Mockery::mock( 'overload:\WP2Static\CrawlCache' )
@@ -143,8 +143,8 @@ final class CrawlerTest extends TestCase {
         $this->crawler( [ new Response( 200, [], '<h1>Chi siamo</h1>' ) ] )
             ->crawlSite( '/statico' );
 
-        // Un percorso che finisce con / diventa un index.html: e' la
-        // trasformazione che rende navigabile il sito statico.
+        // A path ending in / becomes an index.html: the transformation that
+        // makes the static site navigable.
         $this->assertSame(
             [ '/chi-siamo/index.html' => '<h1>Chi siamo</h1>' ],
             $this->written
@@ -162,11 +162,11 @@ final class CrawlerTest extends TestCase {
         $this->crawler( [ new Response( 200, [], $contents ) ] )->crawlSite( '/statico' );
 
         /*
-         * E' il cuore del riconoscimento delle pagine cambiate: la richiesta
-         * HTTP si fa comunque — la cache non evita lo scaricamento — ma se
-         * l'hash coincide il file non viene riscritto. E' per questo che le
-         * pagine dipendenti da un post modificato si scoprono da sole, senza
-         * che nessuno dichiari chi dipende da chi.
+         * This is the heart of recognising changed pages: the HTTP request
+         * happens regardless — the cache does not avoid the download — but if
+         * the hash matches, the file is not rewritten. It is why the pages that
+         * depend on a modified post are discovered by themselves, without
+         * anyone declaring who depends on whom.
          */
         $this->assertSame( [], $this->written );
     }
@@ -190,8 +190,8 @@ final class CrawlerTest extends TestCase {
         $this->crawler( [ new Response( 404, [], '<h1>Non trovata</h1>' ) ] )
             ->crawlSite( '/statico' );
 
-        // Una pagina che non c'e' piu' non va scritta e non va messa in cache,
-        // o al giro dopo risulterebbe «invariata» e resterebbe pubblicata.
+        // A page that is gone must not be written and must not be cached, or
+        // on the next run it would read as "unchanged" and stay published.
         $this->assertSame( [], $this->written );
         $this->assertSame( [], $this->cached );
     }
@@ -213,8 +213,8 @@ final class CrawlerTest extends TestCase {
         $this->assertSame( [], $this->written );
         $this->assertSame( '/nuovo/', $this->cached[0]['redirect'] );
         $this->assertSame( 301, $this->cached[0]['status'] );
-        // L'hash di un redirect e' fatto di stato e destinazione, non del
-        // corpo: e' cosi' che si accorge se la destinazione cambia.
+        // A redirect's hash is made of status and destination, not of the
+        // body: that is how a changed destination is noticed.
         $this->assertSame( md5( '301/nuovo/' ), $this->cached[0]['hash'] );
     }
 
@@ -230,10 +230,10 @@ final class CrawlerTest extends TestCase {
         )->crawlSite( '/statico' );
 
         /*
-         * L'elenco di cosa tenere e' la coda passata per transformPath, non
-         * quello che il crawl ha appena scritto: un cache hit non riscrive il
-         * file, e confrontarsi con le scritture cancellerebbe tutto il sito al
-         * primo crawl a freddo.
+         * The list of what to keep is the queue put through transformPath, not
+         * what this crawl just wrote: a cache hit does not rewrite the file, and
+         * comparing against the writes would delete the whole site on the first
+         * cold crawl.
          */
         $this->assertSame(
             [ '/chi-siamo/index.html', '/logo.svg' ],
@@ -245,8 +245,8 @@ final class CrawlerTest extends TestCase {
         $this->mockOptionsAndQueue( [ '/chi-siamo/' ], false );
         $this->mockCrawlCache( [] );
 
-        // Il server non risponde: la richiesta viene rifiutata, non serviamo
-        // nessuna Response.
+        // The server does not answer: the request is rejected, we serve no
+        // Response at all.
         $stack = HandlerStack::create(
             new MockHandler( [ new ConnectException( 'niente rete', new Request( 'GET', '/' ) ) ] )
         );
@@ -255,9 +255,8 @@ final class CrawlerTest extends TestCase {
             ->crawlSite( '/statico' );
 
         /*
-         * Un sito irraggiungibile non si spubblica da se': l'URL e' ancora in
-         * coda, quindi il suo file va tenuto anche se stavolta non e' arrivato
-         * niente.
+         * An unreachable site does not unpublish itself: the URL is still in the
+         * queue, so its file must be kept even though nothing arrived this time.
          */
         $this->assertSame( [], $this->written );
         $this->assertSame( [ '/chi-siamo/index.html' ], $this->pruned_against );

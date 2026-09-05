@@ -7,9 +7,9 @@ use PHPUnit\Framework\TestCase;
 use WP_Mock;
 
 /**
- * La Crawl Cache decide quali pagine sono cambiate e quali no: e' il pezzo su
- * cui poggia tutto il resto del plugin, e fino a qui non aveva un test solo,
- * perche' le sue query stavano in metodi statici che leggevano `global $wpdb`.
+ * The Crawl Cache decides which pages changed and which did not: it is the
+ * piece the whole rest of the plugin rests on, and until now it did not have a
+ * single test, because its queries sat in static methods reading `global $wpdb`.
  */
 final class CrawlCacheRepositoryTest extends TestCase {
 
@@ -56,8 +56,8 @@ final class CrawlCacheRepositoryTest extends TestCase {
     public function testGetTotalReturnsAnInteger() : void {
         $wpdb = $this->db();
 
-        // get_var() restituisce sempre stringhe: senza il cast, un chiamante
-        // che confronta con === 0 non trova mai niente.
+        // get_var() always returns strings: without the cast, a caller
+        // comparing with === 0 never finds anything.
         $wpdb->shouldReceive( 'get_var' )->andReturn( '42' );
 
         $total = ( new CrawlCacheRepository( $wpdb ) )->getTotal();
@@ -84,13 +84,13 @@ final class CrawlCacheRepositoryTest extends TestCase {
             ->addUrl( 'https://foo.com/about/', 'abc123', 200, null );
 
         $this->assertStringContainsString( '`wp_wp2static_crawl_cache`', $captured );
-        // L'URL non compare mai grezzo: c'e' il suo md5 come chiave.
+        // The URL never appears raw: its md5 is the key.
         $this->assertStringContainsString( "'" . md5( 'https://foo.com/about/' ) . "'", $captured );
         $this->assertStringContainsString( "'https://foo.com/about/'", $captured );
 
-        // Il timestamp e' calcolato una volta sola. Prima current_time() veniva
-        // chiamata due volte, una per l'INSERT e una per l'UPDATE: a cavallo di
-        // un secondo le due meta' della stessa query dicevano orari diversi.
+        // The timestamp is computed once. current_time() used to be called
+        // twice, once for the INSERT and once for the UPDATE: across a second
+        // boundary the two halves of the same query said different times.
         $this->assertSame( 2, substr_count( $captured, "'2026-09-04 12:00:00'" ) );
     }
 
@@ -131,7 +131,7 @@ final class CrawlCacheRepositoryTest extends TestCase {
                 }
             );
 
-        // Il terzo non e' un numero: absint() lo azzera, e comunque passa da %d.
+        // The third is not a number: absint() zeroes it, and it goes through %d anyway.
         ( new CrawlCacheRepository( $wpdb ) )->rmUrlsById( [ '4', '9', '7 OR 1=1' ] );
 
         $this->assertSame(
@@ -145,8 +145,8 @@ final class CrawlCacheRepositoryTest extends TestCase {
 
         $wpdb = $this->db();
 
-        // Senza il guardiano la query diventerebbe `id IN ( )`, che e' un
-        // errore di sintassi, non una cancellazione a vuoto.
+        // Without the guard the query would become `id IN ( )`, which is a
+        // syntax error, not a delete that matches nothing.
         $wpdb->shouldNotReceive( 'query' );
 
         ( new CrawlCacheRepository( $wpdb ) )->rmUrlsById( [] );
@@ -191,7 +191,7 @@ final class CrawlCacheRepositoryTest extends TestCase {
             ]
         );
 
-        // E' una callback di filtro: deve conservare quello che le arriva.
+        // It is a filter callback: it must preserve what it is handed.
         $redirects = ( new CrawlCacheRepository( $wpdb ) )->listRedirects(
             [ '/da-un-addon/' => [ 'url' => '/da-un-addon/' ] ]
         );
@@ -207,9 +207,9 @@ final class CrawlCacheRepositoryTest extends TestCase {
     }
 
     public function testTheFacadeUsesTheInjectedRepository() : void {
-        // E' la giuntura che rende il resto verificabile: senza, CrawlCache
-        // andrebbe a prendersi `global $wpdb` e in un test non ci sarebbe
-        // niente da sostituire.
+        // This is the seam that makes the rest testable: without it CrawlCache
+        // would reach for `global $wpdb` and a test would have nothing to
+        // substitute.
         $repository = Mockery::mock( CrawlCacheRepository::class );
         $repository->shouldReceive( 'getTotal' )->once()->andReturn( 7 );
 
@@ -257,11 +257,11 @@ final class CrawlCacheRepositoryTest extends TestCase {
         ( new CrawlCacheRepository( $wpdb ) )->rmUrls( [ '/chi-siamo/', '/logo.svg' ] );
 
         /*
-         * Le righe se ne vanno insieme a quelle della coda. Se restassero, un
-         * URL che tornasse con lo stesso contenuto verrebbe riconosciuto come
-         * gia' visto, il suo file non verrebbe riscritto, e resterebbe
-         * rilevato, crawlato e assente dal sito pubblicato: un buco peggiore
-         * di quello che la potatura chiude.
+         * The rows go together with the queue's. If they stayed, a URL coming
+         * back with the same content would be recognised as already seen, its
+         * file would not be rewritten, and it would stay detected, crawled and
+         * absent from the published site: a worse hole than the one pruning
+         * closes.
          */
         $this->assertSame(
             sprintf(

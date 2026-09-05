@@ -1,6 +1,6 @@
 <?php
 /**
- * Accesso alla tabella wp_wp2static_jobs, la coda dei lavori.
+ * Access to the wp_wp2static_jobs table, the job queue.
  *
  * @package WP2Static
  */
@@ -33,7 +33,7 @@ class JobQueueRepository {
     }
 
     /**
-     * Crea la tabella dei lavori.
+     * Create the jobs table.
      */
     public function createTable() : void {
         $charset_collate = $this->db->get_charset_collate();
@@ -147,7 +147,7 @@ class JobQueueRepository {
     /**
      * Skip processing jobs where a more recent job of same type exists.
      *
-     * @return int Quanti lavori sono stati marcati come saltati.
+     * @return int How many jobs were marked as skipped.
      */
     public function squashQueue() : int {
         $squashed = 0;
@@ -156,19 +156,19 @@ class JobQueueRepository {
             $waiting_jobs = $this->getWaitingJobsOfType( $job_type );
 
             /*
-             * `count()`, non il confronto diretto. Prima la riga diceva
-             * `if ( $waiting_jobs < 2 )` con $waiting_jobs che e' un array: in
-             * PHP un array confrontato con un intero risulta sempre maggiore,
-             * quindi la guardia era falsa in ogni caso — anche con zero lavori
-             * in attesa — e non ha mai fermato niente. Subito sotto la stessa
-             * query veniva rieseguita identica, ed e' il segno di cosa doveva
-             * succedere: la prima serviva a contare, la seconda a lavorare.
+             * `count()`, not the direct comparison. The line used to read
+             * `if ( $waiting_jobs < 2 )` with $waiting_jobs being an array: in
+             * PHP an array compared against an integer always comes out
+             * greater, so the guard was false in every case — even with zero
+             * waiting jobs — and never stopped anything. Right below it the
+             * same query was run again, identically, which is the clue to what
+             * was meant: the first one to count, the second one to work.
              */
             if ( count( $waiting_jobs ) < 2 ) {
                 continue;
             }
 
-            // Il piu' recente sopravvive, gli altri si saltano.
+            // The most recent one survives, the rest are skipped.
             array_shift( $waiting_jobs );
 
             foreach ( $waiting_jobs as $waiting_job ) {
@@ -186,8 +186,8 @@ class JobQueueRepository {
     }
 
     /**
-     * @param string $job_type Tipo di lavoro.
-     * @return list<object{id: int}> I lavori in attesa di quel tipo, dal piu' recente.
+     * @param string $job_type Job type.
+     * @return list<object{id: int}> Waiting jobs of that type, most recent first.
      */
     private function getWaitingJobsOfType( string $job_type ) : array {
         /** @var list<object{id: int}> */
@@ -243,7 +243,7 @@ class JobQueueRepository {
     }
 
     /**
-     * Svuota la coda dei lavori.
+     * Empty the job queue.
      */
     public function truncate() : void {
         $this->db->query( (string) $this->db->prepare( 'TRUNCATE TABLE %i', $this->table ) );
@@ -252,12 +252,12 @@ class JobQueueRepository {
     /**
      *  Detect any 'processing' jobs that are not running and change status to 'failed'.
      *
-     *  Un lavoro «in lavorazione» che non ha nessuno che lo sta lavorando e' un
-     *  processo morto a meta': lo si riconosce dal lock MySQL, che un processo
-     *  vivo terrebbe occupato.
+     *  A job marked "processing" with nobody processing it is a half-dead
+     *  process: you recognise it by the MySQL lock, which a live process would
+     *  be holding.
      *
-     *  @return array<string, int> Quanti ne sono stati marcati, per tipo.
-     *  @throws \Throwable Se una delle UPDATE fallisce.
+     *  @return array<string, int> How many were marked, by type.
+     *  @throws \Throwable If one of the UPDATEs fails.
      */
     public function markFailedJobs() : array {
         $marked = [];
@@ -273,10 +273,10 @@ class JobQueueRepository {
                     $this->db->prepare( 'SELECT IS_FREE_LOCK(%s) AS free', $lock )
                 );
 
-                // get_row() puo' tornare null — connessione caduta, query
-                // rifiutata. Prima si faceva `->free` direttamente sul
-                // risultato, che in quel caso e' un fatal error dentro un
-                // processo di sfondo, cioe' invisibile.
+                // get_row() can return null — dropped connection, rejected
+                // query. This used to read `->free` straight off the result,
+                // which in that case is a fatal error inside a background
+                // process, i.e. an invisible one.
                 if ( ! $lock_row || ! intval( $lock_row->free ) ) {
                     continue;
                 }
@@ -297,10 +297,10 @@ class JobQueueRepository {
             }
 
             /*
-             * La COMMIT stava DENTRO il ciclo: dopo il primo tipo di lavoro la
-             * transazione era gia' chiusa, e le tre UPDATE successive giravano
-             * fuori — con un ROLLBACK, in caso di errore, che non aveva piu'
-             * niente da annullare. Qui e' dove il codice diceva di volerla.
+             * The COMMIT used to sit INSIDE the loop: after the first job type
+             * the transaction was already closed, and the three following
+             * UPDATEs ran outside it — with a ROLLBACK, on error, that had
+             * nothing left to undo. This is where the code meant to put it.
              */
             $this->db->query( 'COMMIT' );
         } catch ( \Throwable $e ) {

@@ -5,23 +5,22 @@ namespace WP2Static;
 class ViewRenderer {
 
     /**
-     * Gestisce la rimozione in blocco dalle pagine Crawl Queue e Crawl Cache.
+     * Handles bulk removal on the Crawl Queue and Crawl Cache pages.
      *
-     * Prima l'azione arrivava in GET, senza nonce e senza controllo di
-     * capability: bastava `is_admin()`, che dice soltanto «siamo dentro
-     * wp-admin» e che qualunque utente autenticato soddisfa. Per giunta non
-     * ha mai funzionato — filter_input() senza FILTER_REQUIRE_ARRAY torna
-     * null su un input array, quindi il ramo non scattava mai. Correggere
-     * solo l'autorizzazione avrebbe messo in sicurezza un ramo morto
-     * lasciandolo morto.
+     * The action used to arrive over GET, with no nonce and no capability
+     * check: `is_admin()` was enough, which only says "we are inside wp-admin"
+     * and which any authenticated user satisfies. On top of that it never
+     * worked — filter_input() without FILTER_REQUIRE_ARRAY returns null on an
+     * array input, so the branch never fired. Fixing only the authorisation
+     * would have secured a dead branch and left it dead.
      *
-     * @param callable(int[]):void $remove Rimozione vera e propria
+     * @param callable(int[]):void $remove The removal itself.
      */
     private static function handleBulkRemoval( string $nonce_action, callable $remove ) : void {
-        // Questa prima lettura sceglie soltanto se c'è qualcosa da
-        // autorizzare: su una visita normale alla pagina il nonce non c'è, e
-        // chiedere authorize() a ogni caricamento renderebbe la pagina
-        // irraggiungibile. Non tocca nulla, e la riga dopo verifica.
+        // This first read only decides whether there is anything to
+        // authorise: on an ordinary visit to the page there is no nonce, and
+        // demanding authorize() on every load would make the page
+        // unreachable. It touches nothing, and the line after it verifies.
         // phpcs:ignore WordPress.Security.NonceVerification.Missing
         $action = isset( $_POST['action'] ) ? sanitize_key( wp_unslash( $_POST['action'] ) ) : '';
 
@@ -31,10 +30,10 @@ class ViewRenderer {
 
         Controller::authorize( $nonce_action );
 
-        // Il nonce è verificato dalla riga qui sopra. phpcs non lo riconosce
-        // perché WPCS scarta le chiamate precedute da :: — vedi
-        // has_object_operator_before() in NonceVerificationSniff — quindi
-        // nessuna guardia che sia un metodo statico può essergli dichiarata.
+        // The nonce is verified by the line above. phpcs does not recognise
+        // it because WPCS discards calls preceded by :: — see
+        // has_object_operator_before() in NonceVerificationSniff — so no guard
+        // that is a static method can ever be declared to it.
         // phpcs:ignore WordPress.Security.NonceVerification.Missing
         $ids = isset( $_POST['id'] )
             // phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -50,13 +49,13 @@ class ViewRenderer {
     }
 
     /**
-     * Il termine di ricerca e la pagina arrivano in GET dai link di
-     * paginazione e in POST dal form, che ora è POST per via del nonce.
+     * The search term and the page arrive over GET from the pagination links
+     * and over POST from the form, which is POST now because of the nonce.
      */
     private static function requestValue( string $key ) : string {
-        // Sola lettura: filtra e impagina un elenco, non cambia niente. Il
-        // nonce lo verifica handleBulkRemoval(), che è l'unica strada per
-        // arrivare a una scrittura.
+        // Read only: it filters and paginates a list, changing nothing. The
+        // nonce is verified by handleBulkRemoval(), which is the only route to
+        // a write.
         // phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing
         if ( isset( $_POST[ $key ] ) && is_scalar( $_POST[ $key ] ) ) {
             return sanitize_text_field( wp_unslash( $_POST[ $key ] ) );
@@ -95,26 +94,26 @@ class ViewRenderer {
     public static function renderDiagnosticsPage() : void {
         $view = [];
         /*
-         * Convertiti QUI, non nella view.
+         * Converted HERE, not in the view.
          *
-         * `ini_get()` restituisce sempre una stringa: `max_execution_time`
-         * illimitato arriva come `"0"`, non come `0`. La view lo dichiarava
-         * `@var int` e lo confrontava con `===`, quindi `0 === "0"` era falso e
-         * la pagina Diagnostics diceva «0 seconds — Needs attention» per una
-         * configurazione che invece va bene. Prima il confronto era `==`, che
-         * la stringa la digeriva; passando a `===` senza sistemare il tipo alla
-         * sorgente il difetto e' diventato visibile — e PHPStan non poteva
-         * vederlo, perche' credeva al docblock.
+         * `ini_get()` always returns a string: an unlimited
+         * `max_execution_time` arrives as `"0"`, not as `0`. The view declared
+         * it `@var int` and compared it with `===`, so `0 === "0"` was false and
+         * the Diagnostics page reported "0 seconds — Needs attention" for a
+         * configuration that is in fact the right one. The comparison used to be
+         * `==`, which digested the string; tightening it to `===` without fixing
+         * the type at the source made the defect visible — and PHPStan could not
+         * see it, because it believed the docblock.
          *
-         * La lezione e' quella gia' scritta nel piano: il tipo si stabilisce
-         * dove il dato nasce, non si dichiara dove viene letto.
+         * The lesson: a type is established where the data is born, not
+         * declared where it is read.
          */
         $view['memoryLimit'] = (string) ini_get( 'memory_limit' );
         $view['coreOptions'] = array_values( CoreOptions::getAll() );
         $view['site_info'] = SiteInfo::getAllInfo();
-        // 8.2, che e' quello che il plugin richiede dalla fase 2 e quello che la
-        // stessa pagina dichiara due righe piu' in la'. Era rimasto 7.4: su PHP
-        // 8.0 la spunta era verde accanto a un testo che diceva di aggiornare.
+        // 8.2, which is what the plugin requires and what this same page
+        // states two lines further down. It had been left at 7.4: on PHP 8.0
+        // the tick was green next to text telling the user to upgrade.
         $view['phpOutOfDate'] = version_compare( PHP_VERSION, '8.2', '<' );
         $view['uploadsWritable'] = SiteInfo::isUploadsWritable();
         $view['maxExecutionTime'] = (int) ini_get( 'max_execution_time' );

@@ -100,8 +100,8 @@ class Controller {
     }
 
     public static function activateForSingleSite() : void {
-        // L'elenco delle tabelle sta in Schema, in un posto solo: prima era
-        // qui, e all'aggiornamento del plugin non lo leggeva nessuno.
+        // The list of tables lives in Schema, in one place only. It used to
+        // live here, where a plugin update never read it.
         Schema::install();
     }
 
@@ -130,28 +130,25 @@ class Controller {
     }
 
     /**
-     * Checks if the named index exists. If it doesn't, create it. This won't
-     * alter an existing index. If you need to change an index, give it a new name.
+     * Create an index if it does not already exist.
      *
-     * WordPress's dbDelta is very unreliable for indexes. It tends to create duplicate
-     * indexes, acts badly if whitespace isn't exactly what it expects, and fails
-     * silently. It's okay to create the table and primary key with dbDelta,
-     * but use ensureIndex for index creation.
+     * This never alters an existing index. To change one, give it a new name.
      *
-     * @param string $table_name The name of the table that the index is for.
-     * @param string $index_name The name of the index.
-     * @param string $create_index_sql The SQL to execute if the index needs to be created.
-     * @return bool true if the index already exists or was created. false if creation failed.
-     */
-    /**
-     * Crea un indice se non c'è già.
+     * WordPress's dbDelta is very unreliable for indexes: it tends to create
+     * duplicates, misbehaves when whitespace is not exactly what it expects,
+     * and fails silently. Creating the table and its primary key with dbDelta
+     * is fine; indexes go through here.
      *
-     * Prima questo metodo accettava la CREATE INDEX già scritta dal chiamante,
-     * cioè SQL grezzo che arrivava da fuori. Ora riceve i pezzi e costruisce
-     * la query qui, con %i su ogni identificatore: non c'è più nessun punto
-     * in cui una stringa di SQL attraversa il confine fra due classi.
+     * This method used to take the CREATE INDEX statement already written by
+     * the caller, which meant raw SQL crossing a class boundary. It now takes
+     * the pieces and builds the query here, with %i on every identifier, so
+     * there is no longer any point where a SQL string travels between classes.
      *
-     * @param string[] $columns Colonne dell'indice
+     * @param string   $table_name Table the index belongs to.
+     * @param string   $index_name Name of the index.
+     * @param string[] $columns    Columns the index covers.
+     * @param bool     $unique     Whether the index is unique.
+     * @return bool True if the index already existed or was created.
      */
     public static function ensureIndex( string $table_name, string $index_name,
                                         array $columns, bool $unique = false ) : bool {
@@ -167,13 +164,13 @@ class Controller {
         );
 
         if ( 0 === $indexes ) {
-            // I due frammenti interpolati qui sotto non contengono dati: $create
-            // è uno di due letterali, e $placeholders è una ripetizione di '%i'
-            // lunga quanto $columns. Tutti gli identificatori veri passano da
-            // %i, e MySQL non accetta un numero variabile di segnaposto in una
-            // stringa che sia essa stessa un letterale, quindi la generazione
-            // dev'essere dinamica. phpcs non può saperlo, e questa è la sola
-            // soppressione SQL del progetto.
+            // Neither interpolated fragment below carries data: $create is one
+            // of two literals, and $placeholders is '%i' repeated as many times
+            // as there are columns. Every real identifier goes through %i, and
+            // MySQL will not take a variable number of placeholders inside a
+            // string that is itself a literal, so the generation has to be
+            // dynamic. phpcs cannot know that, and this is the only SQL
+            // suppression in the project.
             $placeholders = implode( ', ', array_fill( 0, count( $columns ), '%i' ) );
             $create = $unique ? 'CREATE UNIQUE INDEX' : 'CREATE INDEX';
             // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders
@@ -204,13 +201,14 @@ class Controller {
         );
 
         /*
-         * I titoli sono scritti, non calcolati. Prima erano `ucfirst( $slug )`,
-         * cioe' le otto etichette piu' visibili del plugin non esistevano come
-         * stringa da nessuna parte e non c'era niente da tradurre: qualunque
-         * lingua avrebbe letto «Run», «Caches», «Addons». E `ucfirst()` non e'
-         * nemmeno una regola tipografica valida fuori dall'inglese.
+         * The titles are written out, not computed. They used to be
+         * `ucfirst( $slug )`, which meant the eight most visible labels in the
+         * plugin existed as a string nowhere at all: there was nothing to
+         * translate, and every language read "Run", "Caches", "Addons".
+         * `ucfirst()` is not a valid capitalisation rule outside English
+         * either.
          *
-         * @var array<string, array{0: string, 1: callable}> slug => [ etichetta, callback ]
+         * @var array<string, array{0: string, 1: callable}> slug => [ label, callback ]
          */
         $submenu_pages = [
             'wp2static' => [
@@ -290,23 +288,23 @@ class Controller {
     }
 
     /**
-     * Le pagine che gli addon chiedono di aggiungere.
+     * The pages add-ons ask to have registered.
      *
-     * `wp2static_add_menu_items` e' un gancio morto dal 9 maggio 2020, commit
-     * 0b1db4e3 «rm old submenu page setup»: da allora il core non lo lancia
-     * piu', ma sftp, s3 e netlify continuano a registrarcisi — e` l'unica
-     * strada che hanno per avere una pagina di configurazione. Il risultato e`
-     * che quei tre addon, in WP2Static 7.2, si installano, si attivano, si
-     * agganciano al deploy, e non hanno nessun posto dove inserire le
-     * credenziali.
+     * `wp2static_add_menu_items` has been a dead hook since 9 May 2020, commit
+     * 0b1db4e3 "rm old submenu page setup": the core stopped firing it, while
+     * sftp, s3 and netlify kept registering on it — it is the only route they
+     * have to a settings page. The result is that in WP2Static 7.2 those three
+     * add-ons install, activate, hook into the deploy, and have nowhere to put
+     * their credentials.
      *
-     * Il contratto e' quello di allora, ed e' quello che gli addon si aspettano
-     * ancora oggi: un array `slug => callable`, dove lo slug diventa
+     * The contract is the one from back then, and the one add-ons still expect:
+     * an array of `slug => callable`, where the slug becomes
      * `wp2static-<slug>`.
      *
-     * L'etichetta non passa da `__()` di proposito. Il testo lo decide l'addon,
-     * non noi: e' l'unica stringa dell'interfaccia che questo plugin non
-     * possiede, e tradurla vorrebbe dire tradurre il nome di un prodotto altrui.
+     * The label deliberately does not go through `__()`. The add-on decides
+     * that text, not us: it is the one string in this interface the plugin does
+     * not own, and translating it would mean translating somebody else's
+     * product name.
      */
     public static function registerAddonPages() : void {
         /** @var mixed $addon_pages */
@@ -333,9 +331,9 @@ class Controller {
     }
 
     /**
-     * «VibeStatic Jobs», ma con l'ordine delle due parole nelle mani di chi
-     * traduce: concatenare il nome del plugin davanti all'etichetta funziona in
-     * inglese e in poco altro.
+     * "VibeStatic Jobs", but with the word order in the translator's hands.
+     * Concatenating the plugin name in front of the label works in English and
+     * in little else.
      */
     private static function pageTitle( string $label ) : string {
         return sprintf(
@@ -346,29 +344,31 @@ class Controller {
     }
 
     /**
-     * @var array<string, string> slug della pagina => titolo
+     * @var array<string, string> page slug => title
      */
     private static $hidden_page_titles = [];
 
     /**
-     * Registra una pagina raggiungibile ma senza voce di menu.
+     * Register a page that is reachable but has no menu entry.
      *
-     * Il titolo va tenuto da parte, e non e' pignoleria. WordPress lo cerca con
-     * `get_admin_page_title()`, che quando il genitore e' vuoto — cioe' per ogni
-     * pagina nascosta — lo va a cercare fra i menu di primo livello, dove una
-     * pagina nascosta per definizione non c'e'. Non trovandolo lascia `$title`
-     * a null, e `admin-header.php` ci fa sopra `strip_tags()`: con WP_DEBUG
-     * acceso, una deprecation di WordPress in cima a ognuna delle nostre pagine.
+     * Keeping the title on the side is not fussiness. WordPress looks it up
+     * with `get_admin_page_title()`, which — when the parent is empty, that is,
+     * for every hidden page — goes looking among the top-level menus, where a
+     * hidden page by definition is not. Not finding it, it leaves `$title`
+     * null, and `admin-header.php` then calls `strip_tags()` on it: with
+     * WP_DEBUG on, a WordPress deprecation at the top of every one of our
+     * pages.
      *
-     * Registrarle sotto il genitore vero e poi toglierle dal menu non aiuta:
-     * `remove_submenu_page()` cancella proprio la voce da cui il titolo si
-     * leggerebbe. E il genitore resta la stringa vuota, non `null`: la prima
-     * cosa che `add_submenu_page()` fa e' passarlo a `plugin_basename()`, che
-     * su null emette la stessa deprecation che si sta togliendo.
+     * Registering them under the real parent and then removing them from the
+     * menu does not help: `remove_submenu_page()` deletes the very entry the
+     * title would be read from. And the parent stays the empty string, not
+     * `null`: the first thing `add_submenu_page()` does is pass it to
+     * `plugin_basename()`, which on null emits the same deprecation being
+     * removed.
      *
-     * @param string   $title    Titolo della pagina.
-     * @param string   $slug     Slug, cioe' il valore di ?page=.
-     * @param callable $callback Chi la disegna.
+     * @param string   $title    Page title.
+     * @param string   $slug     Slug, i.e. the value of ?page=.
+     * @param callable $callback What renders it.
      */
     public static function addHiddenPage( string $title, string $slug, $callback ) : void {
         add_submenu_page( '', $title, $title, 'manage_options', $slug, $callback );
@@ -381,11 +381,11 @@ class Controller {
     }
 
     /**
-     * Da` un titolo alla pagina nascosta che si sta aprendo.
+     * Give the hidden page being opened a title.
      *
-     * Gira su `current_screen`, che WordPress lancia prima di includere
-     * admin-header.php. `get_admin_page_title()` comincia con «se il titolo c'e'
-     * gia', tienilo»: riempirlo qui e' quindi tutto quello che serve.
+     * Runs on `current_screen`, which WordPress fires before including
+     * admin-header.php. `get_admin_page_title()` starts with "if the title is
+     * already set, keep it", so filling it in here is all it takes.
      */
     public static function setHiddenPageTitle() : void {
         $page = filter_input( INPUT_GET, 'page' );
@@ -394,7 +394,7 @@ class Controller {
             return;
         }
 
-        // @phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- è il titolo della nostra pagina.
+        // @phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- this is our own page's title.
         $GLOBALS['title'] = self::$hidden_page_titles[ $page ];
     }
 
@@ -422,13 +422,13 @@ class Controller {
     }
 
     /**
-     * Guardia per gli handler admin_post_*: prima il permesso, poi il nonce,
-     * e comunque prima di qualunque scrittura.
+     * Guard for admin_post_* handlers: capability first, then nonce, and both
+     * before any write.
      *
-     * Il nonce dice da DOVE arriva la richiesta, non CHI la manda: da solo
-     * lascia passare qualunque utente autenticato che sia stato indotto a
-     * caricare la pagina delle opzioni. Su un multisite, un amministratore di
-     * sotto-sito supera il primo controllo e non il secondo.
+     * A nonce says WHERE a request came from, not WHO sent it: on its own it
+     * lets through any authenticated user who was tricked into loading the
+     * options page. On multisite, a sub-site administrator passes the first
+     * check and not the second.
      */
     public static function authorize( string $nonce_action ) : void {
         if ( ! current_user_can( 'manage_options' ) ) {
@@ -446,7 +446,7 @@ class Controller {
     }
 
     /**
-     * Come authorize(), per gli endpoint AJAX.
+     * Like authorize(), for the AJAX endpoints.
      */
     public static function authorizeAjax( string $nonce_action ) : void {
         check_ajax_referer( $nonce_action, 'security' );
@@ -898,19 +898,19 @@ class Controller {
     }
 
     /**
-     * Lancia il deploy.
+     * Fire the deploy.
      *
-     * L'unico punto da cui parte: prima lo stesso blocco era ripetuto tre
-     * volte, due qui e una in CLI.
+     * The only place it starts from: the same block used to be repeated three
+     * times, twice here and once in the CLI.
      *
-     * Il rapporto su cosa cambiera' non si stampa qui, e non e' una svista.
-     * `DeployCache::plan()` vuole sapere in quale spazio dei nomi il deployer
-     * ha registrato quello che ha gia' pubblicato, e quel nome lo conosce il
-     * deployer, non il core: stamparlo da qui vorrebbe dire indovinarlo, e un
-     * numero indovinato in un rapporto e' peggio di nessun rapporto. Chi
-     * deploya lo chiede e lo scrive — vedi l'addon directory-deployment.
+     * The report on what is about to change is deliberately not printed here.
+     * `DeployCache::plan()` needs to know which namespace the deployer
+     * registered what it has already published under, and only the deployer
+     * knows that name, not the core: printing it from here would mean guessing
+     * it, and a guessed number in a report is worse than no report. The
+     * deployer asks for it and writes it — see the directory-deployment add-on.
      *
-     * @param string $deployer Slug dell'addon che deploya.
+     * @param string $deployer Slug of the add-on doing the deploying.
      */
     public static function deploy( string $deployer ) : void {
         WsLog::l( 'Starting deployment' );
@@ -985,11 +985,11 @@ class Controller {
         $http_method = CoreOptions::getValue( 'completionWebhookMethod' );
 
         /*
-         * Questo NON passa da __(). Il messaggio dell'email lo legge una
-         * persona, quindi va nella lingua del sito; questo lo legge un
-         * programma dall'altra parte del webhook, che si aspetta la stringa che
-         * ha visto durante la configurazione. Tradurlo trasformerebbe un cambio
-         * di lingua del sito in un guasto silenzioso di un'integrazione.
+         * This does NOT go through __(). A person reads the email message, so
+         * it belongs in the site's language; a program on the other end of the
+         * webhook reads this one, and expects the string it saw during setup.
+         * Translating it would turn a change of site language into a silent
+         * broken integration.
          */
         $message = 'VibeStatic deployment complete!';
 
@@ -1040,13 +1040,13 @@ class Controller {
     public static function wp2staticPollLog() : void {
         self::authorizeAjax( 'wp2static-run-page' );
 
-        // Prima era `echo $logs;` — testo arbitrario (URL crawlati, messaggi
-        // d'errore di terzi) stampato grezzo in risposta a una richiesta AJAX.
-        // Oggi finisce nel .val() di una textarea e non viene interpretato,
-        // ma il giorno che qualcuno passa a .html() diventa una XSS, e nel
-        // frattempo il sniff di escaping non ha modo di distinguere i due casi.
-        // wp_send_json_success() codifica in JSON, che è il contratto AJAX
-        // previsto da WordPress e che non altera il testo del log.
+        // This used to be `echo $logs;` — arbitrary text (crawled URLs,
+        // third-party error messages) printed raw in response to an AJAX
+        // request. Today it lands in a textarea's .val() and is not
+        // interpreted, but the day somebody switches to .html() it becomes an
+        // XSS, and in the meantime the escaping sniff has no way to tell the
+        // two cases apart. wp_send_json_success() encodes as JSON, which is
+        // the AJAX contract WordPress expects and does not alter the log text.
         wp_send_json_success( [ 'log' => WsLog::poll() ] );
     }
 }

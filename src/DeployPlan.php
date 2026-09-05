@@ -1,15 +1,15 @@
 <?php
 /**
- * Cosa cambierebbe un deploy, prima di farlo.
+ * What a deploy would change, before doing it.
  *
- * Tre liste e un conteggio: i file da caricare, quelli da rimuovere a
- * destinazione perche' non esistono piu', e quanti sono rimasti identici.
+ * Three lists and a count: the files to upload, the ones to remove at the
+ * destination because they no longer exist, and how many were identical.
  *
- * Serve a due cose. La prima e' il rapporto onesto: senza un numero prima del
- * deploy non c'e' modo di fidarsi di un deploy incrementale, e la sfiducia
- * porta a premere «ricarica tutto», che annulla la funzionalita'. La seconda e'
- * la cancellazione: nessun deployer sapeva quali file fossero spariti, quindi o
- * si svuotava la destinazione ogni volta o gli URL morti restavano online.
+ * It serves two purposes. The first is the honest report: without a number
+ * before the deploy there is no way to trust an incremental deploy, and
+ * distrust leads to pressing "upload everything", which cancels the feature
+ * out. The second is deletion: no deployer knew which files had gone, so either
+ * the destination was emptied every time or dead URLs stayed online.
  *
  * @package WP2Static
  */
@@ -34,9 +34,9 @@ class DeployPlan {
     private $unchanged;
 
     /**
-     * @param string[] $to_deploy Percorsi nuovi o cambiati.
-     * @param string[] $to_delete Percorsi spariti dal sito processato.
-     * @param int      $unchanged Quanti file non sono cambiati.
+     * @param string[] $to_deploy Paths that are new or changed.
+     * @param string[] $to_delete Paths gone from the processed site.
+     * @param int      $unchanged How many files did not change.
      */
     public function __construct( array $to_deploy, array $to_delete, int $unchanged ) {
         $this->to_deploy = $to_deploy;
@@ -63,14 +63,14 @@ class DeployPlan {
     }
 
     /**
-     * Vero quando non c'e' niente da fare.
+     * True when there is nothing to do.
      */
     public function isEmpty() : bool {
         return ! $this->to_deploy && ! $this->to_delete;
     }
 
     /**
-     * Una riga per il log, nella stessa forma di quella del crawl.
+     * One line for the log, in the same shape as the crawl's.
      */
     public function summary() : string {
         return sprintf(

@@ -13,11 +13,11 @@ final class DetectPostsPaginationURLsTest extends TestCase {
     }
 
     public function tearDown() : void {
-        // Senza queste due, le aspettative registrate con WP_Mock::userFunction
-        // non venivano mai verificate: restavano nel contenitore globale di
-        // Mockery e le controllava, per caso, il primo test successivo che
-        // chiamasse Mockery::close(). Cioe' i `'times' => 1` scritti qui dentro
-        // non asserivano niente.
+        // Without these two, the expectations registered with
+        // WP_Mock::userFunction were never checked: they stayed in Mockery's
+        // global container and were checked, by accident, by the first later
+        // test that called Mockery::close(). That is, the `'times' => 1`
+        // written in here asserted nothing.
         \WP_Mock::tearDown();
         \Mockery::close();
     }
@@ -306,8 +306,8 @@ final class DetectPostsPaginationURLsTest extends TestCase {
         \WP_Mock::userFunction(
             'get_option',
             [
-                // Una volta, non cinque: il 5 era il numero di pagine di
-                // paginazione, perche' l'opzione veniva riletta a ogni giro.
+                // Once, not five: the 5 was the number of pagination pages,
+                // because the option was re-read on every iteration.
                 'times' => 1,
                 'args' => 'page_for_posts',
                 'return' => '10',
@@ -317,7 +317,7 @@ final class DetectPostsPaginationURLsTest extends TestCase {
         \WP_Mock::userFunction(
             'get_post_type_archive_link',
             [
-                // Una volta, non cinque: vedi page_for_posts qui sopra.
+                // Once, not five: see page_for_posts above.
                 'times' => 1,
                 'args' => 'post',
                 'return' => $site_url . 'blog',

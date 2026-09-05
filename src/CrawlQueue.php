@@ -1,6 +1,6 @@
 <?php
 /**
- * Facciata statica della coda di crawl.
+ * Static facade over the crawl queue.
  *
  * Le query stanno in CrawlQueueRepository. Qui restano i nomi pubblici e i
  * messaggi di log.
@@ -18,14 +18,14 @@ class CrawlQueue {
     private static $repository = null;
 
     /**
-     * @param CrawlQueueRepository|null $repository Null per tornare al default.
+     * @param CrawlQueueRepository|null $repository Null to fall back to the default.
      */
     public static function setRepository( ?CrawlQueueRepository $repository ) : void {
         self::$repository = $repository;
     }
 
     /**
-     * @return CrawlQueueRepository Costruito su `global $wpdb` se non iniettato.
+     * @return CrawlQueueRepository Built on `global $wpdb` when not injected.
      */
     public static function repository() : CrawlQueueRepository {
         if ( ! self::$repository ) {
@@ -39,7 +39,7 @@ class CrawlQueue {
     }
 
     /**
-     * Crea la tabella della coda.
+     * Create the queue table.
      */
     public static function createTable() : void {
         self::repository()->createTable();
@@ -57,8 +57,8 @@ class CrawlQueue {
     /**
      *  Get all crawlable URLs
      *
-     *  La chiave e' l'id della riga, non un indice: serve a chi deve poi
-     *  togliere proprio quelle righe senza ripassare dall'URL.
+     *  The key is the row id, not an index: it is what lets a caller remove
+     *  exactly those rows later without going back through the URL.
      *
      *  @return array<int, string> All crawlable URLs, keyed by row id
      */
@@ -77,7 +77,7 @@ class CrawlQueue {
     }
 
     /**
-     * @param string $url URL da togliere dalla coda.
+     * @param string $url URL to remove from the queue.
      */
     public static function rmUrl( string $url ) : void {
         self::repository()->rmUrl( $url );
@@ -86,8 +86,8 @@ class CrawlQueue {
     /**
      *  Get total crawlable URLs
      *
-     *  Stessa query di getTotal(): sono due nomi per la stessa domanda, ed
-     *  esistono entrambi da prima. Restano tutti e due perche' sono API.
+     *  Same query as getTotal(): two names for the same question, both of
+     *  which predate this fork. Both stay, because both are API.
      *
      *  @return int Total crawlable URLs
      */

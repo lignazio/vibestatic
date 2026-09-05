@@ -49,19 +49,19 @@ class ProcessedSite {
     }
 
     /**
-     * Toglie dal sito processato i file che il post-processing non ha riscritto.
+     * Remove from the processed site the files post-processing did not rewrite.
      *
-     * L'elenco e` quello dei file appena copiati dal sito crawlato, quindi
-     * dopo questa chiamata le due cartelle contengono le stesse cose — che e`
-     * il presupposto su cui `DeployCache::plan()` decide cosa spubblicare.
+     * The list is the files just copied from the crawled site, so after this
+     * call the two directories hold the same things — which is the assumption
+     * `DeployCache::plan()` relies on when deciding what to unpublish.
      *
-     * Il filtro protegge quello che nella cartella ci arriva da fuori: un
-     * addon che agganci `wp2static_post_process_complete` per aggiungere un
-     * `CNAME` o un `_headers` lo riscrive a ogni giro e non ha bisogno di
-     * niente, ma chi lo scrive una volta sola s'infila qui.
+     * The filter protects whatever arrives in the directory from outside: an
+     * add-on hooking `wp2static_post_process_complete` to add a `CNAME` or a
+     * `_headers` rewrites it on every run and needs nothing, but one that
+     * writes it once belongs here.
      *
-     * @param string[] $expected_paths Percorsi che devono restare.
-     * @return string[] Percorsi rimossi.
+     * @param string[] $expected_paths Paths that must stay.
+     * @return string[] Paths removed.
      */
     public static function prune( array $expected_paths ) : array {
         /** @var string[] $expected_paths */

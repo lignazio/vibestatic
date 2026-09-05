@@ -9,10 +9,10 @@ use WP_Mock;
 final class JobQueueRepositoryTest extends TestCase {
 
     public function setUp() : void {
-        // Serve anche senza usare WP_Mock direttamente: Mockery::close() chiude
-        // il contenitore globale, che e' lo stesso di WP_Mock. Senza aprirlo e
-        // chiuderlo qui, questo test si trova a verificare le aspettative
-        // lasciate indietro da un altro file.
+        // Needed even without using WP_Mock directly: Mockery::close() closes
+        // the global container, which is the same one WP_Mock uses. Without
+        // opening and closing it here, this test ends up checking expectations
+        // another file left behind.
         WP_Mock::setUp();
     }
 
@@ -45,7 +45,7 @@ final class JobQueueRepositoryTest extends TestCase {
     public function testSquashKeepsTheMostRecentAndSkipsTheRest() : void {
         $wpdb = $this->db();
 
-        // Tre 'crawl' in attesa, niente per gli altri tre tipi.
+        // Three 'crawl' jobs waiting, nothing for the other three types.
         $wpdb->shouldReceive( 'get_results' )->andReturnUsing(
             function ( $sql ) {
                 if ( false === strpos( $sql, "'crawl'" ) ) {
@@ -68,7 +68,7 @@ final class JobQueueRepositoryTest extends TestCase {
         $squashed = ( new JobQueueRepository( $wpdb ) )->squashQueue();
 
         $this->assertSame( 2, $squashed );
-        // Il 9 e' il piu' recente e sopravvive.
+        // 9 is the most recent and survives.
         $this->assertSame(
             [
                 [ 5, 'skipped' ],
@@ -84,9 +84,10 @@ final class JobQueueRepositoryTest extends TestCase {
         $wpdb->shouldReceive( 'get_results' )->andReturn( [ $this->job( 1 ) ] );
 
         /*
-         * E' il test che avrebbe colto il difetto: la guardia diceva
-         * `if ( $waiting_jobs < 2 )` su un array, e in PHP un array confrontato
-         * con un intero risulta sempre maggiore. Non ha mai fermato niente.
+         * This is the test that would have caught the defect: the guard read
+         * `if ( $waiting_jobs < 2 )` on an array, and in PHP an array compared
+         * against an integer always comes out greater. It never stopped
+         * anything.
          */
         $wpdb->shouldNotReceive( 'update' );
 
@@ -105,8 +106,9 @@ final class JobQueueRepositoryTest extends TestCase {
     public function testSquashSurvivesANullResult() : void {
         $wpdb = $this->db();
 
-        // get_results() torna null quando la query fallisce: prima ci si faceva
-        // sopra count() e array_shift(), che in PHP 8 sono due TypeError.
+        // get_results() returns null when the query fails: count() and
+        // array_shift() used to be called on it, which in PHP 8 are two
+        // TypeErrors.
         $wpdb->shouldReceive( 'get_results' )->andReturn( null );
         $wpdb->shouldNotReceive( 'update' );
 
@@ -126,9 +128,9 @@ final class JobQueueRepositoryTest extends TestCase {
 
         ( new JobQueueRepository( $wpdb ) )->squashQueue();
 
-        // Prima la stessa SELECT veniva eseguita due volte per tipo: otto
-        // interrogazioni al posto di quattro, e la seconda serviva solo perche'
-        // la guardia in mezzo non funzionava.
+        // The same SELECT used to run twice per type: eight queries instead of
+        // four, and the second was only needed because the guard between them
+        // did not work.
         $this->assertSame( 4, $queries );
     }
 
@@ -156,10 +158,10 @@ final class JobQueueRepositoryTest extends TestCase {
             $marked
         );
 
-        // Una sola COMMIT, e in fondo. Prima stava dentro il ciclo: dopo il
-        // primo tipo la transazione era gia' chiusa e le tre UPDATE successive
-        // giravano fuori, con un ROLLBACK che non aveva piu' niente da
-        // annullare.
+        // One COMMIT, at the end. It used to sit inside the loop: after the
+        // first type the transaction was already closed and the three following
+        // UPDATEs ran outside it, with a ROLLBACK that had nothing left to
+        // undo.
         $this->assertSame( 'START TRANSACTION', $statements[0] );
         $this->assertSame( 'COMMIT', end( $statements ) );
         $this->assertSame( 1, count( array_keys( $statements, 'COMMIT', true ) ) );
@@ -168,8 +170,8 @@ final class JobQueueRepositoryTest extends TestCase {
     public function testMarkFailedJobsSkipsTypesWhoseLockIsHeld() : void {
         $wpdb = $this->db();
 
-        // Lock occupato = c'e' un processo vivo che ci sta lavorando: quei
-        // lavori non sono falliti, sono in corso.
+        // Lock held = there is a live process working on it: those jobs have
+        // not failed, they are running.
         $wpdb->shouldReceive( 'get_row' )->andReturn( (object) [ 'free' => 0 ] );
         $wpdb->shouldReceive( 'query' )->andReturn( 1 );
 
@@ -182,8 +184,8 @@ final class JobQueueRepositoryTest extends TestCase {
         $wpdb->shouldReceive( 'get_row' )->andReturn( null );
         $wpdb->shouldReceive( 'query' )->andReturn( 1 );
 
-        // Prima si leggeva `->free` sul risultato senza controllarlo: un fatal
-        // error dentro un processo di sfondo, quindi invisibile.
+        // `->free` used to be read off the result without checking it: a fatal
+        // error inside a background process, and so invisible.
         $this->assertSame( [], ( new JobQueueRepository( $wpdb ) )->markFailedJobs() );
     }
 

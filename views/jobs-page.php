@@ -22,7 +22,7 @@ $options = $view['jobOptions'];
 $nonce_action = $view['nonce_action'];
 
 /**
- * @param string $name Nome dell'opzione.
+ * @param string $name Option name.
  * @return array<string, ?string>
  */
 $spec = function ( string $name ) use ( $options ) : array {

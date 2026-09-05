@@ -1,16 +1,16 @@
 <?php
 /**
- * Autoloader dell'addon.
+ * The add-on's autoloader.
  *
- * L'originale richiedeva `vendor/autoload.php`, cioe' un `composer install`
- * dentro la cartella dell'addon per mappare un namespace solo verso una
- * cartella sola. Non ha dipendenze di terze parti: quindici righe fanno la
- * stessa cosa senza chiedere un passo di build a chi lo installa.
+ * The original required `vendor/autoload.php`, that is, a `composer install`
+ * inside the add-on's directory to map one namespace onto one directory. It has
+ * no third-party dependencies: fifteen lines do the same thing without asking
+ * whoever installs it to run a build step.
  *
  * @package WP2StaticDirectoryDeployer
  */
 
-// Le funzioni non si autocaricano per nome: questo file si include sempre.
+// Functions are not autoloaded by name: this file is always included.
 require_once __DIR__ . '/src/functions.php';
 
 spl_autoload_register(

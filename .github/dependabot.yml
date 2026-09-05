@@ -1,7 +1,7 @@
-# Perche' il progetto non si ritrovi fra tre anni nella condizione da cui e'
-# partito: WP2Static distribuiva un fork di Guzzle fermo al 2020, senza le patch
-# di sicurezza pubblicate dopo quella data, e nessuno se n'e' accorto perche'
-# nessuno guardava.
+# So that in three years this project does not find itself back where it
+# started: WP2Static shipped a fork of Guzzle frozen at 2020, without the
+# security patches published after that date, and nobody noticed because nobody
+# was looking.
 version: 2
 
 updates:
@@ -10,9 +10,9 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
-    # Le dipendenze di sviluppo si muovono spesso e da sole non arrivano a
-    # nessun utente: raggrupparle tiene separata la PR che conta — quella su
-    # Guzzle, che e' l'unica dipendenza di produzione — dal rumore.
+    # Dev dependencies move often and on their own reach no user: grouping them
+    # keeps the PR that matters — the one on Guzzle, the only production
+    # dependency — separate from the noise.
     groups:
       dev-dependencies:
         dependency-type: development

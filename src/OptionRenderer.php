@@ -1,18 +1,18 @@
 <?php
 /**
- * Costruisce il markup dei campi della pagina delle opzioni.
+ * Builds the markup for the fields on the options pages.
  *
- * Queste funzioni restituiscono HTML gia' pronto: chi le chiama deve stamparlo
- * cosi' com'e', non passarlo da esc_html(). L'escaping si fa qui, valore per
- * valore, perche' qui si sa quale contesto e' quale — un id e un name vanno in
- * esc_attr(), il contenuto di una textarea in esc_textarea(), un'etichetta in
- * esc_html().
+ * These functions return ready-made HTML: callers must print it as it is, not
+ * pass it through esc_html(). The escaping happens here, value by value,
+ * because this is where it is known which context is which — an id and a name
+ * go through esc_attr(), a textarea's content through esc_textarea(), a label
+ * through esc_html().
  *
- * Prima meta' dei valori non era escapata affatto, e nelle view il ritorno di
- * queste funzioni finiva dentro esc_html(): il risultato era che gli utenti
- * leggevano `<input class="widefat" ...>` scritto in chiaro al posto dei campi.
- * Le due cose insieme facevano l'unica combinazione peggiore di entrambe: la
- * pagina inutilizzabile e i valori comunque non protetti.
+ * Half the values used not to be escaped at all, and in the views the return of
+ * these functions ended up inside esc_html(): the result was that users read
+ * `<input class="widefat" ...>` in plain text where the fields should have
+ * been. The two together made the one combination worse than either: the page
+ * unusable and the values unprotected anyway.
  *
  * @package WP2Static
  */
@@ -30,12 +30,12 @@ class OptionRenderer {
     ];
 
     /**
-     * I valori arrivano da un array<string, mixed> letto dal database, quindi
-     * sono `mixed`. strval() su mixed non e' lecito — un array o un oggetto
-     * senza __toString ci moriscono sopra — e le regole strict di PHPStan lo
-     * segnalano a ragione. Qui un valore non scalare diventa stringa vuota:
-     * un campo vuoto e' un problema visibile, un fatal error in mezzo alla
-     * pagina delle opzioni no.
+     * The values come from an array<string, mixed> read out of the database, so
+     * they are `mixed`. strval() on mixed is not legitimate — an array, or an
+     * object without __toString, dies on it — and PHPStan's strict rules flag
+     * that rightly. Here a non-scalar value becomes an empty string: an empty
+     * field is a visible problem, a fatal error in the middle of the options
+     * page is not.
      *
      * @param mixed $value
      */
@@ -108,12 +108,12 @@ class OptionRenderer {
     }
 
     /**
-     * I tre input di testo differivano per il solo attributo type, e ognuno
-     * aveva la sua copia della concatenazione: tre posti in cui sbagliare
-     * l'escaping invece di uno.
+     * The three text inputs differed only by their type attribute, and each had
+     * its own copy of the concatenation: three places to get the escaping wrong
+     * instead of one.
      *
      * @param array<string, mixed> $option
-     * @return string HTML gia' escapato
+     * @return string Already-escaped HTML.
      */
     private static function textLikeInput( array $option, string $type ) : string {
         $name = esc_attr( self::str( $option['name'] ) );

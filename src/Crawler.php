@@ -72,9 +72,9 @@ class Crawler {
         }
 
         /*
-         * apply_filters() restituisce quello che il filtro decide, e un addon
-         * che tornasse un array o un intero passerebbe a Guzzle un header non
-         * valido. Il valore di partenza fa da rete.
+         * apply_filters() returns whatever the filter decides, and an add-on
+         * returning an array or an integer would hand Guzzle an invalid header.
+         * The default value is the safety net.
          */
         $user_agent = apply_filters( 'wp2static_curl_user_agent', 'VibeStatic' );
 
@@ -155,9 +155,9 @@ class Crawler {
         }
 
         /*
-         * $urls arriva per closure e non come parametro: passato come
-         * parametro senza tipo era `mixed`, e ogni elemento con lui, quindi
-         * l'URL che finisce nella Request non era piu' verificabile.
+         * $urls comes in through the closure rather than as a parameter: passed
+         * as an untyped parameter it was `mixed`, and so was every element,
+         * which made the URL that ends up in the Request uncheckable.
          */
         $requests = function () use ( $urls ) : \Generator {
             foreach ( $urls as $url ) {
@@ -261,12 +261,11 @@ class Crawler {
                     }
                 },
                 /*
-                 * Il tipo era RequestException, che e' sbagliato: una
-                 * connessione rifiutata produce una ConnectException, che
-                 * discende da TransferException e NON da RequestException.
-                 * Cioe' proprio il caso in cui questa callback serve — il
-                 * server che non risponde — la faceva finire in un TypeError
-                 * dentro una promise, che nessuno vede.
+                 * The type used to be RequestException, which is wrong: a
+                 * refused connection produces a ConnectException, which extends
+                 * TransferException and NOT RequestException. So the very case
+                 * this callback exists for — a server that does not answer —
+                 * ended in a TypeError inside a promise, where nobody sees it.
                  */
                 'rejected' => function ( $reason, $index ) use ( $urls ) {
                     $root_relative_path = $urls[ $index ]['path'];
@@ -297,23 +296,23 @@ class Crawler {
     }
 
     /**
-     * Toglie dal sito crawlato quello che non ha piu` un URL in coda.
+     * Remove from the crawled site whatever no longer has a URL in the queue.
      *
-     * **Sta qui per una ragione sola:** questa riga la si raggiunge solo se il
-     * pool ha finito. Un crawl interrotto — timeout, fatal, processo ucciso —
-     * non ci arriva, e quindi non cancella niente. E` la differenza fra «questi
-     * sono tutti gli URL che ci sono» e «questi sono quelli che ho fatto in
-     * tempo a vedere», e su quella differenza c'e` un sito pubblicato.
+     * **It sits here for one reason:** this line is only reached if the pool
+     * finished. An interrupted crawl — timeout, fatal, killed process — never
+     * gets here, and so deletes nothing. It is the difference between "these
+     * are all the URLs there are" and "these are the ones I got round to
+     * seeing", and on that difference sits a published site.
      *
-     * **Il confronto e` con la coda, non con quello che il crawl ha scaricato
-     * adesso.** Un URL che ha dato errore di rete resta in coda, quindi il suo
-     * file resta al suo posto: un sito irraggiungibile non si spubblica da se`.
-     * Vale anche per i cache hit, che un file non lo riscrivono.
+     * **The comparison is against the queue, not against what this crawl just
+     * downloaded.** A URL that hit a network error stays in the queue, so its
+     * file stays where it is: an unreachable site does not unpublish itself.
+     * The same holds for cache hits, which do not rewrite a file either.
      *
-     * **Una coda vuota non cancella niente.** Vuota vuol dire che la
-     * rilevazione non e` mai girata o e` stata svuotata a mano, non che il
-     * sito non esiste piu`; `removePathsNotIn()` si ferma da sola su un elenco
-     * vuoto, e questo commento e` il motivo per cui si ferma.
+     * **An empty queue deletes nothing.** Empty means detection never ran or
+     * was cleared by hand, not that the site no longer exists;
+     * `removePathsNotIn()` stops on an empty list by itself, and this comment
+     * is the reason it stops.
      */
     private function pruneStaticSite() : void {
         if ( ! FilesHelper::pruningEnabled() ) {
@@ -328,8 +327,8 @@ class Crawler {
         $removed = StaticSite::prune( $expected );
 
         if ( $removed ) {
-            // Stessa lingua e stesso registro delle altre righe del crawl: i
-            // messaggi di WsLog non passano da gettext, in nessun file.
+            // Same register as the other crawl lines: WsLog messages do not
+            // go through gettext, in any file.
             WsLog::l(
                 sprintf(
                     'Pruned crawled site: %d file(s) no longer in the Crawl Queue.',

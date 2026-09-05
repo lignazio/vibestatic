@@ -1,13 +1,13 @@
 <?php
 /**
- * Pagina di configurazione dell'addon.
+ * The add-on's settings page.
  *
- * Riscritta. Quella di prima si chiamava `copy-page.php` mentre il Controller
- * ne richiedeva un'altra, quindi la pagina non si e' mai aperta: dava un fatal
- * error. Dentro, tre nomi di opzione che non esistono piu' — `copyTargetFolder`
- * al posto di `directoryDeploymentTargetDirectory` — e un'azione di form
- * altrettanto vecchia, `wp2static_copy_save_options`, che nessuno ascolta. Sono
- * gli ultimi residui del rinominamento lasciato a meta` nel 2021.
+ * Rewritten. The previous one was named `copy-page.php` while the Controller
+ * required a different filename, so the page never opened at all: it gave a
+ * fatal error. Inside it were three option names that no longer exist —
+ * `copyTargetFolder` instead of `directoryDeploymentTargetDirectory` — and an
+ * equally stale form action, `wp2static_copy_save_options`, that nothing
+ * listens for. They were the last leftovers of the half-finished 2021 rename.
  *
  * @package WP2StaticDirectoryDeployer
 
@@ -25,12 +25,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 $options = $view['options'];
 
 /*
- * Le etichette stanno qui, non nella colonna `label` della tabella dell'addon.
- * Quella colonna e' scritta da `seedOptions()` alla prima apertura della pagina:
- * tradurla vorrebbe dire congelare nel database la lingua attiva in quel
- * momento, e chi cambiasse lingua al sito si ritroverebbe l'interfaccia meta' e
- * meta'. Il core ha gia' fatto la stessa scelta e le due colonne le ha proprio
- * lasciate cadere.
+ * The labels live here, not in the add-on table's `label` column. That column
+ * was written by `seedOptions()` the first time the page was opened: translating
+ * it would mean freezing whichever language was active at that moment into the
+ * database, and anyone changing the site language would end up with a half-and-
+ * half interface. The core made the same decision and dropped both columns
+ * outright.
  */
 $labels = [
     'directoryDeploymentTargetDirectory' => __( 'Target directory (absolute path)', 'vibestatic-directory-deployment' ),
@@ -39,10 +39,10 @@ $labels = [
 ];
 
 /**
- * Stampa una riga della tabella per un'opzione di testo.
+ * Print a table row for a text option.
  *
- * @param object $option Opzione da rendere.
- * @param string $label  Etichetta gia' tradotta.
+ * @param object $option The option to render.
+ * @param string $label  Already-translated label.
  */
 $text_row = function ( $option, string $label ) : void {
     ?>

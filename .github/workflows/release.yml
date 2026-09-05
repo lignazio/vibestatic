@@ -1,14 +1,14 @@
 name: release
 
-# Su tag. Lo zip che finisce allegato alla release e` costruito QUI, dallo
-# stesso `tools/build_release.sh` che si usa in locale: uno zip caricato a mano
-# e` uno zip che nessuno ha verificato, e la differenza fra i due si scopre solo
-# quando qualcuno lo installa.
+# On a tag. The zip attached to the release is built HERE, by the same
+# `tools/build_release.sh` used locally: a zip uploaded by hand is a zip nobody
+# verified, and the difference between the two only shows up when somebody
+# installs it.
 #
-# Non si ricade sullo zipball che GitHub genera da se`: quello si scompatta in
-# una cartella `lignazio-vibestatic-<sha>`, quindi WordPress installerebbe il
-# plugin li` dentro invece che in `vibestatic/`. E` la ragione per cui
-# src/Updater.php cerca un asset e non usa `zipball_url`.
+# There is no falling back on the zipball GitHub generates itself: that unpacks
+# into a `lignazio-vibestatic-<sha>` directory, so WordPress would install the
+# plugin in there rather than in `vibestatic/`. It is why src/Updater.php looks
+# for an asset and does not use `zipball_url`.
 
 on:
   push:
@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag da pubblicare (es. v8.0.0)'
+        description: 'Tag to publish (e.g. v8.0.0)'
         required: true
 
 permissions:
@@ -25,7 +25,7 @@ permissions:
 
 jobs:
   release:
-    name: Costruisci e pubblica
+    name: Build and publish
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -43,18 +43,18 @@ jobs:
       - name: Install dependencies
         uses: ramsey/composer-install@v3
 
-      # Il tag e` la cosa che la gente installa: se non corrisponde alla
-      # versione dichiarata nel plugin, chi scarica `v8.1.0` si ritrova un
-      # plugin che dice 8.0.0, e l'updater non offrira` mai l'aggiornamento
-      # successivo perche` il confronto fra versioni parte dall'header.
-      # build_release.sh gia` verifica che header e costante coincidano; qui si
-      # aggiunge il terzo, che e` il tag.
-      # Il valore passa da `env:` e non interpolato dentro lo script: un
-      # `${{ }}` in mezzo al bash viene sostituito PRIMA che la shell parta,
-      # quindi il contenuto diventa codice invece che dato. Qui l'input lo puo'
-      # scrivere solo chi ha accesso in scrittura, ma la regola non ha eccezioni
-      # utili da ricordare.
-      - name: Il tag corrisponde alla versione del plugin
+      # The tag is what people install: if it does not match the version
+      # declared in the plugin, whoever downloads `v8.1.0` ends up with a plugin
+      # that says 8.0.0, and the updater will never offer the next update
+      # because the version comparison starts from the header. build_release.sh
+      # already checks that header and constant agree; this adds the third one,
+      # the tag.
+      # The value goes through `env:` rather than being interpolated inside the
+      # script: a `${{ }}` in the middle of bash is substituted BEFORE the shell
+      # starts, so its content becomes code rather than data. Here only someone
+      # with write access can set the input, but the rule has no exceptions
+      # worth remembering.
+      - name: Tag matches the plugin version
         env:
           TAG: ${{ github.event.inputs.tag || github.ref_name }}
         run: |
@@ -66,25 +66,25 @@ jobs:
           fi
           echo "version=$VERSION" >> "$GITHUB_ENV"
 
-      # Prima di pubblicare, non dopo. Una release e` immutabile per chi l'ha
-      # gia` scaricata.
+      # Before publishing, not after. A release is immutable for anyone who has
+      # already downloaded it.
       - name: Test
         run: composer run-script test
 
-      - name: Costruisci lo zip
+      - name: Build the zip
         run: composer run-script build
 
-      # `gh` e` preinstallato sui runner: nessuna action di terzi da fidarsi e
-      # da tenere pinnata a un SHA, che e` la stessa scelta gia` fatta per
-      # shellcheck in quality.yml.
-      - name: Pubblica la release
+      # `gh` is preinstalled on the runners: no third-party action to trust and
+      # keep pinned to a SHA, the same choice already made for shellcheck in
+      # quality.yml.
+      - name: Publish the release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ github.event.inputs.tag || github.ref_name }}
         run: |
-          # Un prerelease non viene servito da `releases/latest`, quindi
-          # l'updater non lo propone ai siti in produzione: e' il comportamento
-          # che si vuole per una -alpha, -beta, -rc o -dev.
+          # A prerelease is not served by `releases/latest`, so the updater
+          # does not offer it to production sites: the behaviour wanted for an
+          # -alpha, -beta, -rc or -dev.
           case "$version" in
             *-*) PRERELEASE=--prerelease ;;
             *)   PRERELEASE= ;;

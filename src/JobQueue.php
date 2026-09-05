@@ -1,9 +1,9 @@
 <?php
 /**
- * Facciata statica della coda dei lavori.
+ * Static facade over the job queue.
  *
- * Le query stanno in JobQueueRepository. Qui restano i nomi pubblici e i
- * messaggi di log, che sono quello che l'utente legge nella pagina Logs.
+ * The queries live in JobQueueRepository. What stays here are the public names
+ * and the log messages, which are what the user reads on the Logs page.
  *
  * @package WP2Static
  */
@@ -18,14 +18,14 @@ class JobQueue {
     private static $repository = null;
 
     /**
-     * @param JobQueueRepository|null $repository Null per tornare al default.
+     * @param JobQueueRepository|null $repository Null to fall back to the default.
      */
     public static function setRepository( ?JobQueueRepository $repository ) : void {
         self::$repository = $repository;
     }
 
     /**
-     * @return JobQueueRepository Costruito su `global $wpdb` se non iniettato.
+     * @return JobQueueRepository Built on `global $wpdb` when not injected.
      */
     public static function repository() : JobQueueRepository {
         if ( ! self::$repository ) {
@@ -39,7 +39,7 @@ class JobQueue {
     }
 
     /**
-     * Crea la tabella dei lavori.
+     * Create the jobs table.
      */
     public static function createTable() : void {
         self::repository()->createTable();
@@ -126,7 +126,7 @@ class JobQueue {
     /**
      *  Get count of waiting jobs
      *
-     *  Alias storico di getWaitingJobsCount(): resta perche' e' API.
+     *  Historical alias of getWaitingJobsCount(): it stays because it is API.
      *
      *  @return int Waiting jobs
      */
@@ -159,7 +159,7 @@ class JobQueue {
     /**
      *  Detect any 'processing' jobs that are not running and change status to 'failed'.
      *
-     *  @throws \Throwable Se una delle UPDATE fallisce.
+     *  @throws \Throwable If one of the UPDATEs fails.
      */
     public static function markFailedJobs() : void {
         foreach ( self::repository()->markFailedJobs() as $type => $count ) {

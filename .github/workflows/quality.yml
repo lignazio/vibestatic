@@ -1,10 +1,10 @@
 name: quality
 
-# Sostituisce codequality.yml, che non partiva più: usava actions/checkout@v2 e
-# actions/cache@v1, entrambe disattivate da GitHub, quindi ogni job falliva al
-# primo passo. Usava anche due action puntate a un branch mutabile
-# (ludeeus/action-shellcheck@master, john-shaffer/cache@sudo-tar), cioè codice
-# di terzi che poteva cambiare sotto i piedi fra un run e l'altro.
+# Replaces codequality.yml, which no longer started: it used actions/checkout@v2
+# and actions/cache@v1, both disabled by GitHub, so every job failed at its
+# first step. It also used two actions pointed at a mutable branch
+# (ludeeus/action-shellcheck@master, john-shaffer/cache@sudo-tar) — third-party
+# code that could change underfoot between one run and the next.
 
 on:
   push:
@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   static:
-    name: Analisi statica
+    name: Static analysis
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -29,9 +29,10 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          # L'analisi statica gira su una versione sola: PHPStan legge il codice,
-          # non lo esegue, e `phpVersion` nel suo config dice già quale target
-          # considerare. Ripeterla sulla matrice sarebbe tre volte lo stesso lavoro.
+          # Static analysis runs on one version only: PHPStan reads the code
+          # rather than running it, and `phpVersion` in its config already says
+          # which target to consider. Repeating it across the matrix would be
+          # the same work three times.
           php-version: '8.2'
           extensions: dom, libxml, mbstring, simplexml
           coverage: none
@@ -43,37 +44,37 @@ jobs:
       - name: Validate composer.json
         run: composer validate --strict
 
-      # Bloccante. Sono i cinque sniff che la configurazione originale
-      # escludeva — SQL preparato, nonce, escaping, input sanificato — cioè
-      # esattamente quelli che avrebbero trovato ogni difetto dell'audit. Sono
-      # a zero dalla fine della fase 3 e devono restarci: se questo passo
-      # diventa rosso, è una regressione di sicurezza, non un debito di stile.
-      - name: Sicurezza (bloccante)
+      # Blocking. These are the five sniffs the original configuration
+      # excluded — prepared SQL, nonces, escaping, sanitised input — that is,
+      # exactly the ones that would have found every defect in the audit. They
+      # have been at zero since the security pass and must stay there: if this
+      # step goes red it is a security regression, not style debt.
+      - name: Security (blocking)
         run: composer run-script phpcs-security
 
-      # Non bloccante, e senza scadenza dichiarata: sono 422 violazioni di
-      # documentazione e stile, che si smaltiscono nel refactoring della fase 5
-      # invece che in un passaggio a parte. Sta dopo quello di sicurezza e in un
-      # passo suo di proposito: un unico phpcs rosso per la documentazione
-      # mancante renderebbe invisibile una SQLi nuova nello stesso output.
-      - name: Stile e documentazione (non bloccante)
+      # Non-blocking, and with no declared deadline: these are 422 style and
+      # documentation violations, cleared as the files get rewritten rather than
+      # in a pass of their own. It sits after the security step and in a step of
+      # its own deliberately: one phpcs going red over missing documentation
+      # would make a new SQLi invisible in the same output.
+      - name: Style and documentation (non-blocking)
         continue-on-error: true
         run: composer run-script phpcs
 
-      # Bloccante come quello di sicurezza, e per una ragione simile: una
-      # stringa avvolta col dominio sbagliato non si vede finché qualcuno non
-      # installa una traduzione, cioè mai durante lo sviluppo in inglese.
-      - name: i18n (bloccante)
+      # Blocking like the security step, and for a similar reason: a string
+      # wrapped with the wrong domain does not show until somebody installs a
+      # translation, that is, never during development in English.
+      - name: i18n (blocking)
         run: composer run-script phpcs-i18n
 
-      - name: Compatibilità PHP 8.2+
+      - name: PHP 8.2+ compatibility
         run: composer run-script phpcompat
 
       - name: PHPStan
         run: composer run-script phpstan
 
   tests:
-    name: Test PHP ${{ matrix.php }}
+    name: Tests, PHP ${{ matrix.php }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -96,8 +97,9 @@ jobs:
       - name: Lint
         run: composer run-script lint
 
-      # Solo la suite `unit`. Quella `external` scarica sitemap da siti di
-      # terzi: in CI fallirebbe per ragioni che non riguardano questo codice.
+      # The `unit` suite only. The `external` one downloads sitemaps from
+      # third-party sites: in CI it would fail for reasons unrelated to this
+      # code.
       - name: Test
         run: composer run-script phpunit
 
@@ -107,12 +109,12 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Shellcheck
-        # Preinstallato sui runner Ubuntu: una dipendenza esterna in meno, e
-        # nessuna action di terzi puntata a un branch mutabile.
+        # Preinstalled on the Ubuntu runners: one external dependency fewer,
+        # and no third-party action pointed at a mutable branch.
         run: shellcheck tools/*.sh
 
   pot:
-    name: Il .pot è aggiornato
+    name: The .pot is up to date
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -125,35 +127,35 @@ jobs:
           coverage: none
           tools: composer:v2, wp-cli
 
-      # Il .pot sta nel repository perché è il file che un traduttore apre.
-      # Il rovescio è che può restare indietro rispetto al codice senza che
-      # niente lo segnali: una stringa nuova semplicemente non arriva a chi
-      # traduce. Qui si rigenera e si confronta.
+      # The .pot lives in the repository because it is the file a translator
+      # opens. The flip side is that it can fall behind the code with nothing
+      # to flag it: a new string simply never reaches whoever translates. Here
+      # it is regenerated and compared.
       #
-      # `POT-Creation-Date` cambia a ogni esecuzione per costruzione, quindi
-      # va tolta da entrambi i lati prima del diff: altrimenti questo passo
-      # sarebbe rosso sempre, e diventerebbe rumore da ignorare.
-      - name: Rigenera e confronta
+      # `POT-Creation-Date` changes on every run by construction, so it is
+      # stripped from both sides before the diff: otherwise this step would be
+      # red always, and would become noise to ignore.
+      - name: Regenerate and compare
         run: |
-          cp languages/vibestatic.pot /tmp/atteso.pot
+          cp languages/vibestatic.pot /tmp/expected.pot
           cp addons/directory-deployment/languages/vibestatic-directory-deployment.pot \
-             /tmp/atteso-addon.pot
+             /tmp/expected-addon.pot
 
           composer run-script i18n
 
-          senza_data() { grep -v '^"POT-Creation-Date:' "$1"; }
+          without_date() { grep -v '^"POT-Creation-Date:' "$1"; }
 
-          fallito=0
-          for coppia in \
-            "/tmp/atteso.pot:languages/vibestatic.pot" \
-            "/tmp/atteso-addon.pot:addons/directory-deployment/languages/vibestatic-directory-deployment.pot"
+          failed=0
+          for pair in \
+            "/tmp/expected.pot:languages/vibestatic.pot" \
+            "/tmp/expected-addon.pot:addons/directory-deployment/languages/vibestatic-directory-deployment.pot"
           do
-            vecchio="${coppia%%:*}"
-            nuovo="${coppia##*:}"
-            if ! diff -u <(senza_data "$vecchio") <(senza_data "$nuovo"); then
-              echo "::error file=$nuovo::Il .pot non corrisponde al codice. Lancia 'composer i18n' e committa."
-              fallito=1
+            before="${pair%%:*}"
+            after="${pair##*:}"
+            if ! diff -u <(without_date "$before") <(without_date "$after"); then
+              echo "::error file=$after::The .pot does not match the code. Run 'composer i18n' and commit."
+              failed=1
             fi
           done
-          exit $fallito
+          exit $failed
         shell: bash

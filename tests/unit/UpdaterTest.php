@@ -24,7 +24,7 @@ final class UpdaterTest extends TestCase {
     }
 
     /**
-     * @param array<string, mixed> $release Il corpo che GitHub restituirebbe.
+     * @param array<string, mixed> $release The body GitHub would return.
      */
     private function githubReturns( array $release ) : void {
         WP_Mock::userFunction( 'get_transient', [ 'return' => false ] );
@@ -68,10 +68,10 @@ final class UpdaterTest extends TestCase {
     }
 
     /**
-     * Il guardiano che conta: il nome del filtro contiene solo l'host, quindi
-     * `update_plugins_github.com` e' condiviso da OGNI plugin installato che
-     * abbia un Update URI su GitHub. Rispondere a tutti dirotterebbe i loro
-     * aggiornamenti verso le nostre release.
+     * The guard that matters: the filter name contains only the host, so
+     * `update_plugins_github.com` is shared by EVERY installed plugin with an
+     * Update URI on GitHub. Answering for all of them would redirect their
+     * updates to our releases.
      */
     public function testDoesNotAnswerForSomebodyElsesPlugin() : void {
         WP_Mock::userFunction( 'untrailingslashit', [
@@ -118,8 +118,8 @@ final class UpdaterTest extends TestCase {
         );
 
         $this->assertIsArray( $update );
-        // La `v` del tag non fa parte della versione: WordPress confronta
-        // questo valore con l'header `Version:`, che la `v` non ce l'ha.
+        // The tag's `v` is not part of the version: WordPress compares this
+        // value with the `Version:` header, which has no `v`.
         $this->assertSame( '8.1.0', $update['version'] );
         $this->assertSame( self::URI, $update['id'] );
         $this->assertSame( 'vibestatic/vibestatic.php', $update['plugin'] );
@@ -127,9 +127,9 @@ final class UpdaterTest extends TestCase {
     }
 
     /**
-     * Senza asset non si ripiega sullo zipball generato da GitHub: quello si
-     * scompatta in `lignazio-vibestatic-<sha>`, quindi l'installer creerebbe
-     * una seconda copia del plugin accanto alla prima invece di aggiornarla.
+     * With no asset there is no falling back on GitHub's generated zipball: that
+     * unpacks into `lignazio-vibestatic-<sha>`, so the installer would create a
+     * second copy of the plugin next to the first rather than updating it.
      */
     public function testAReleaseWithoutAZipIsNotAnUpdate() : void {
         $release = $this->releaseWithZip();
@@ -164,9 +164,9 @@ final class UpdaterTest extends TestCase {
     }
 
     /**
-     * Anche il fallimento si ricorda: senza, un repository che non c'e' o il
-     * rate limit di GitHub — sessanta richieste all'ora per IP — farebbero
-     * ripartire la chiamata a ogni controllo degli aggiornamenti.
+     * Failure is remembered too: without that, a repository that is not there,
+     * or GitHub's rate limit — sixty requests an hour per IP — would restart
+     * the call on every update check.
      */
     public function testARememberedFailureDoesNotCallGithubAgain() : void {
         WP_Mock::userFunction( 'get_transient', [ 'return' => 'none' ] );

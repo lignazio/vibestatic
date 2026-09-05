@@ -63,8 +63,12 @@
         }
     },
     "scripts": {
-        "post-install-cmd": [ "@prefix" ],
-        "post-update-cmd": [ "@prefix" ],
+        "post-install-cmd": [
+            "@prefix"
+        ],
+        "post-update-cmd": [
+            "@prefix"
+        ],
         "prefix": "@php tools/prefix_dependencies.php",
         "lint": "parallel-lint --exclude integration-tests --exclude vendor .",
         "phpcs": "phpcs -s",
@@ -93,16 +97,17 @@
         "build": "/bin/sh tools/build_release.sh"
     },
     "scripts-descriptions": {
-        "prefix": "Riscrive le dipendenze di terze parti in vendor-prefixed/ sotto WP2Static\\Vendor\\. Gira da solo dopo ogni install e ogni update: non serve lanciarlo a mano.",
-        "lint": "Parsa ogni file PHP con l'interprete corrente. Comprende vendor-prefixed/, ed è voluto: è il controllo che la riscrittura dei namespace fatta da Strauss non abbia prodotto codice che non compila.",
-        "phpcs": "WordPress coding standards, per intero. Ha ancora 422 violazioni: sono documentazione e stile, ed e\u0300 la ragione per cui non sta in `test`.",
-        "phpcs-security": "I soli cinque sniff di sicurezza \u2014 SQL preparato, nonce, escaping, input sanificato. Questo e\u0300 a zero, e ci deve restare.",
-        "phpcs-i18n": "Il solo sniff di internazionalizzazione: stringa avvolta, dominio giusto, segnaposto numerati dove sono pi\u00f9 di uno, commento per i traduttori dove serve. A zero, e ci deve restare: una stringa non avvolta non si vede finch\u00e9 qualcuno non installa una traduzione.",
-        "i18n": "Rigenera languages/vibestatic.pot. Da lanciare a ogni cambio di stringa; il .pot sta nel repository perch\u00e9 \u00e8 quello che i traduttori aprono.",
+        "prefix": "Rewrites third-party dependencies into vendor-prefixed/ under WP2Static\\Vendor\\. Runs by itself after every install and update: there is no need to call it by hand.",
+        "lint": "Parses every PHP file with the current interpreter. It includes vendor-prefixed/, deliberately: it is the check that the namespace rewriting Strauss performed did not produce code that fails to compile.",
+        "phpcs": "WordPress coding standards, in full. Still has 422 violations: documentation and style, which is why it is not in `test`.",
+        "phpcs-security": "The five security sniffs only — prepared SQL, nonces, escaping, sanitised input. This one is at zero, and has to stay there.",
+        "phpcs-i18n": "The internationalisation sniff only: string wrapped, right text domain, numbered placeholders where there is more than one, translator comment where needed. At zero, and has to stay there: a string left unwrapped does not show until somebody installs a translation.",
+        "i18n": "Regenerates languages/vibestatic.pot and the add-on's. Run it whenever a string changes; the .pot lives in the repository because it is the file translators open.",
         "phpcompat": "PHP cross-version compatibility, 8.2 and up.",
         "phpstan": "Static analysis at level max, with the accepted debt in the baseline.",
         "phpunit": "Unit tests. Excludes the suite that makes real network requests.",
-        "test": "Tutto quello che gira in CI ed è bloccante, phpcs escluso: quello è un passo a parte perché il debito di stile non deve poter nascondere una regressione di sicurezza. Quando le 422 violazioni residue arrivano a zero, `@phpcs` torna qui e `@phpcs-security` diventa ridondante."
+        "test": "Everything that runs in CI and blocks, phpcs excluded: that is a step of its own so style debt cannot hide a security regression. When the remaining style violations reach zero, `@phpcs` comes back here and `@phpcs-security` becomes redundant.",
+        "build": "Builds the distributable zip into dist/, from the version declared in the plugin header."
     },
     "extra": {
         "strauss": {

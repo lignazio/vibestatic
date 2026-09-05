@@ -52,9 +52,9 @@ final class CoreOptionsRepositoryTest extends TestCase {
         $wpdb = $this->db();
         $wpdb->shouldReceive( 'get_var' )->once()->andReturn( null );
 
-        // Null e non stringa vuota: chi legge deve poter distinguere «non c'e'»
-        // da «c'e' e vale vuoto», perche' nel primo caso vale il valore di
-        // partenza della specifica.
+        // Null and not an empty string: the caller has to be able to tell "not
+        // there" from "there and empty", because in the first case the spec's
+        // default applies.
         $this->assertNull( ( new CoreOptionsRepository( $wpdb ) )->getValue( 'boh' ) );
     }
 
@@ -110,9 +110,9 @@ final class CoreOptionsRepositoryTest extends TestCase {
             ]
         );
 
-        // INSERT IGNORE, non INSERT: seedOptions() gira a ogni attivazione, e
-        // sovrascrivere qui vorrebbe dire azzerare le impostazioni dell'utente
-        // ogni volta che il plugin si riattiva.
+        // INSERT IGNORE, not INSERT: seedOptions() runs on every activation,
+        // and overwriting here would mean resetting the user's settings every
+        // time the plugin is reactivated.
         $this->assertCount( 1, $queries );
         $this->assertStringContainsString( 'INSERT IGNORE INTO', $queries[0] );
         $this->assertStringContainsString( "'uno'", $queries[0] );

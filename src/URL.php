@@ -2,24 +2,23 @@
 /*
     URL object
 
-    Costruisce e valida un URL assoluto, e lo restituisce come stringa.
+    Builds and validates an absolute URL, and returns it as a string.
 
-    Prima passava da wa72/url, una libreria ferma al 2018 e senza manutenzione.
-    Il piano prevedeva di sostituirla con league/uri; misurandola si e' visto
-    che non serve nessuna delle due, perche' Guzzle porta gia' con se' una
-    implementazione di PSR-7 che fa la stessa cosa e qualcosa in piu'.
+    This used to go through wa72/url, a library frozen since 2018 and
+    unmaintained. The plan was to replace it with league/uri; measuring showed
+    neither is needed, because Guzzle already ships a PSR-7 implementation that
+    does the same thing and a little more.
 
-    Confronto su 1828 URL reali del sito di sviluppo: wa72 non ne cambiava
-    nemmeno uno. Sui casi limite le due si comportano allo stesso modo — host
-    in minuscolo, porta di default rimossa — tranne in due punti, e sono
-    entrambi a favore di Psr7\Uri:
+    Compared across 1828 real URLs from the development site: wa72 changed not
+    one of them. On the edge cases the two behave identically — lowercased host,
+    default port removed — except in two places, and both favour Psr7\Uri:
 
-      http://esempio.it/a b      wa72 lo lascia com'e', Psr7 lo codifica in %20
-      http://esempio.it/caffe'   wa72 lo lascia com'e', Psr7 lo codifica in UTF-8
+      http://example.com/a b     wa72 leaves it as is, Psr7 encodes it as %20
+      http://example.com/caffe'  wa72 leaves it as is, Psr7 encodes it as UTF-8
 
-    Nel verso opposto, wa72 collassava i segmenti «..» (/a/../b -> /b) e Psr7
-    no. In un permalink WordPress non compaiono, e lasciarli e' semantica piu'
-    fedele: a risolverli e' il server.
+    In the other direction, wa72 collapsed ".." segments (/a/../b -> /b) and
+    Psr7 does not. They do not appear in a WordPress permalink, and leaving them
+    is the more faithful semantics: resolving them is the server's job.
 */
 
 namespace WP2Static;
@@ -77,10 +76,10 @@ class URL {
         $destination = new Uri( $destination_url );
 
         /*
-         * Gli URI di PSR-7 sono immutabili: withHost() e withScheme()
-         * restituiscono una copia, non modificano l'oggetto. Il nome del metodo
-         * dice ancora «in place» ed e' vero dal di fuori — cambia la proprieta'
-         * dell'oggetto URL, non l'URI sottostante.
+         * PSR-7 URIs are immutable: withHost() and withScheme() return a copy
+         * rather than modifying the object. The method name still says "in
+         * place", and from the outside that is true — it changes the URL
+         * object's property, not the underlying URI.
          */
         $this->url = $this->url
             ->withHost( $destination->getHost() )

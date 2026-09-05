@@ -12,10 +12,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 $run_nonce = wp_create_nonce( 'wp2static-run-page' );
 
 /*
- * Le stringhe che il JS mostra passano da wp_json_encode(): produce un
- * letterale JavaScript gia' quotato e con le virgolette interne sfuggite,
- * quindi una traduzione che contenga un apostrofo — in italiano, in francese,
- * praticamente ovunque — non spezza lo script.
+ * The strings the JS displays go through wp_json_encode(): it produces an
+ * already-quoted JavaScript literal with inner quotes escaped, so a translation
+ * containing an apostrophe — in Italian, in French, in most languages — does
+ * not break the script.
  */
 $run_strings = [
     'httpError' => sprintf(

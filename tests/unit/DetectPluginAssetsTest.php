@@ -22,12 +22,12 @@ final class DetectPluginAssetsTest extends TestCase {
         WP_Mock::setUp();
 
         /*
-         * La cartella radice si chiama come il plugin attivo, ed è
-         * deliberato: è la condizione che fa emergere il difetto. Su un sito
-         * vero è il caso di chi ha l'installazione sotto un percorso che
-         * contiene per caso il nome di un plugin — qui la cartella di lavoro si
-         * chiamava `wp2static` e il plugin attivo pure, ed è così che i
-         * quattordici file di Akismet, plugin spento, finivano in ogni deploy.
+         * The root directory is named after the active plugin, deliberately: it
+         * is the condition that surfaces the defect. On a real site it is the
+         * case of an installation living under a path that happens to contain a
+         * plugin's name — here the working directory was called `wp2static` and
+         * so was the active plugin, and that is how Akismet's fourteen files,
+         * from a switched-off plugin, ended up in every deploy.
          */
         $fs = vfsStream::setup( 'attivo' );
 
@@ -98,16 +98,16 @@ final class DetectPluginAssetsTest extends TestCase {
 
     public function testADeactivatedPluginIsNeverPublished() : void {
         /*
-         * Il confronto era `str_replace( $dirs_attivi, '', $percorso ) !==
-         * $percorso`, cioe' «il nome di un plugin attivo compare da qualche
-         * parte nel percorso assoluto» — non «questo file sta dentro la
-         * cartella di un plugin attivo». Con la radice chiamata `attivo`, come
-         * qui, la vecchia condizione e' vera per ogni file di ogni plugin, e il
-         * css del plugin spento passa.
+         * The comparison used to be `str_replace( $active_dirs, '', $path ) !==
+         * $path`, that is, "the name of an active plugin appears somewhere in
+         * the absolute path" — not "this file is inside an active plugin's
+         * directory". With the root named after an active plugin, as here, the
+         * old condition is true for every file of every plugin, and the
+         * switched-off plugin's css gets through.
          *
-         * Che passi non e' un dettaglio estetico: un plugin disattivato e'
-         * codice che il proprietario del sito ha deciso di non far girare, e
-         * pubblicarlo lo mette a disposizione di chiunque.
+         * That it gets through is not a cosmetic detail: a deactivated plugin is
+         * code the site owner decided not to run, and publishing it makes it
+         * available to anyone.
          */
         foreach ( DetectPluginAssets::detect() as $url ) {
             $this->assertStringNotContainsString( 'spento', $url );

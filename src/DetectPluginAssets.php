@@ -51,8 +51,8 @@ class DetectPluginAssets {
                 $active_plugins
             );
 
-            // Normalizzato una volta sola, con le stesse regole applicate ai
-            // percorsi dei file poco piu' sotto (Windows).
+            // Normalised once, with the same rules applied to the file paths
+            // a little further down (Windows).
             $plugins_prefix = rtrim( str_replace( '\\', '/', $plugins_path ), '/' ) . '/';
 
             foreach ( $iterator as $filename => $file_object ) {
@@ -71,23 +71,23 @@ class DetectPluginAssets {
                 $filename = str_replace( '\\', '/', $filename );
 
                 /*
-                 * Il confronto era
+                 * The comparison used to be
                  * `str_replace( $active_plugin_dirs, '', $filename ) !== $filename`,
-                 * cioe' «il nome di un plugin attivo compare da qualche parte
-                 * nel percorso ASSOLUTO». Non e' la stessa domanda di «questo
-                 * file sta dentro la cartella di un plugin attivo», e la
-                 * differenza si vede appena il percorso del sito contiene per
-                 * caso il nome di un plugin attivo: da li' in poi passa
-                 * qualunque file di qualunque plugin, compresi quelli
-                 * disattivati — cioe' codice che il proprietario del sito ha
-                 * deliberatamente spento e che finisce comunque pubblicato.
+                 * that is, "the name of an active plugin appears somewhere in
+                 * the ABSOLUTE path". That is not the same question as "this
+                 * file is inside an active plugin's directory", and the
+                 * difference shows the moment the site's path happens to
+                 * contain the name of an active plugin: from then on any file
+                 * of any plugin passes, deactivated ones included — code the
+                 * site owner deliberately switched off, published anyway.
                  *
-                 * Misurato qui: la cartella di lavoro si chiama `wp2static`,
-                 * quindi ogni percorso assoluto conteneva quella stringa, e i
-                 * quattordici file di Akismet — plugin non attivo — venivano
-                 * esportati a ogni deploy.
+                 * Measured here: the working directory was named `wp2static`,
+                 * so every absolute path contained that string, and Akismet's
+                 * fourteen files — an inactive plugin — were exported on every
+                 * deploy.
                  *
-                 * La domanda giusta e' sul primo segmento dopo `plugins/`.
+                 * The right question is about the first segment after
+                 * `plugins/`.
                  */
                 if ( 0 !== strpos( $filename, $plugins_prefix ) ) {
                     continue;

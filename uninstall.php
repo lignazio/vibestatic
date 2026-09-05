@@ -1,9 +1,9 @@
 <?php
 /**
- * Disinstallazione: toglie tutto quello che il plugin ha messo.
+ * Uninstall: remove everything the plugin put in place.
  *
- * Gira senza l'autoloader del plugin, quindi qui non si possono usare le sue
- * classi: i percorsi si ricostruiscono con le funzioni di WordPress.
+ * This runs without the plugin's autoloader, so its classes are not available
+ * here: the paths are rebuilt with WordPress functions.
  *
  * @package WP2Static
  */
@@ -23,12 +23,12 @@ $tables_to_drop = [
     'wp2static_jobs',
     'wp2static_log',
     'wp2static_urls',
-    // Mancava, ed e' una tabella del core: dopo la disinstallazione restava
-    // l'elenco degli addon registrati, con i loro stati di abilitazione.
+    // This was missing, and it is a core table: after uninstalling, the list
+    // of registered add-ons and their enabled states stayed behind.
     'wp2static_addons',
-    // Non viene più creata: era la tabella che teneva quali annunci Strattic
-    // l'utente aveva chiuso. Resta nell'elenco perché va rimossa dalle
-    // installazioni che l'hanno già.
+    // No longer created: this held which Strattic notices the user had
+    // dismissed. It stays in the list because it has to be removed from
+    // installations that already have it.
     'wp2static_notices',
 ];
 
@@ -41,28 +41,27 @@ foreach ( $tables_to_drop as $table ) {
 delete_option( 'vibestatic_schema_version' );
 
 /*
- * Le cartelle sotto uploads. Erano il «TODO: delete crawl_cache,
- * processed_site and zip if exist» lasciato dagli autori: senza questo, di un
- * sito da millecinquecento pagine restavano due copie complete su disco dopo
- * aver disinstallato il plugin che le aveva scritte.
+ * The directories under uploads. This was the "TODO: delete crawl_cache,
+ * processed_site and zip if exist" the original authors left: without it, a
+ * fifteen-hundred-page site left two complete copies on disk after uninstalling
+ * the plugin that wrote them.
  *
- * I nomi sono quelli prodotti da StaticSite e ProcessedSite. Si cancella solo
- * quello che riconosciamo, per nome esatto e sotto uploads: una cancellazione
- * ricorsiva in fase di disinstallazione e' il posto peggiore in cui essere
- * generosi con i percorsi.
+ * The names are the ones StaticSite and ProcessedSite produce. Only what we
+ * recognise is deleted, by exact name and under uploads: a recursive delete at
+ * uninstall time is the worst possible place to be generous with paths.
  */
 $uploads = wp_upload_dir();
 $uploads_path = trailingslashit( $uploads['basedir'] );
 
 /**
- * Cancella ricorsivamente una cartella.
+ * Recursively delete a directory.
  *
- * Il plugin ne ha gia' una, `FilesHelper::deleteDirWithFiles()`, e non si usa
- * qui di proposito: scrive nel log — cioe' in una tabella che tre righe piu'
- * sopra e' stata cancellata — e solleva un'eccezione se la cartella non c'e'.
- * Durante una disinstallazione servono entrambe le cose al contrario.
+ * The plugin already has one, `FilesHelper::deleteDirWithFiles()`, and it is
+ * deliberately not used here: it writes to the log — that is, to a table
+ * dropped three lines above — and throws if the directory is not there. During
+ * an uninstall both of those need to behave the other way round.
  *
- * @param string $path Percorso assoluto.
+ * @param string $path Absolute path.
  */
 function wp2static_uninstall_rmdir( string $path ) : void {
     if ( ! is_dir( $path ) ) {

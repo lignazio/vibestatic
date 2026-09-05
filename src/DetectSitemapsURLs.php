@@ -150,8 +150,8 @@ class DetectSitemapsURLs {
             }
         } catch ( WP2StaticException $e ) {
             WsLog::l( $e->getMessage() );
-            // Il sniff segnala $e, che è il terzo argomento del costruttore:
-            // l'eccezione precedente, non un messaggio da stampare.
+            // The sniff flags $e, which is the constructor's third argument:
+            // the previous exception, not a message to print.
             // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
             throw new WP2StaticException( esc_html( $e->getMessage() ), 0, $e );
         }

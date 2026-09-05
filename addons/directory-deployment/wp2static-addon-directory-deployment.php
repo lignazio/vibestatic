@@ -10,15 +10,22 @@
  * Author URI:        https://lucenti.studio
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain:       vibestatic-directory-deployment
+ * Domain Path:       /languages
  *
- * Adottato nel fork. L'originale e` di Adam Twardoch, rilasciato nel pubblico
- * dominio (Unlicense); il suo ultimo commit, «wip further renaming» del 29
- * agosto 2021, aveva lasciato un rinominamento a meta` con tre guasti
- * indipendenti — l'addon non si attivava, e se si attivava non deployava.
+ * Its own text domain, not the core's: this is a plugin in its own right, with
+ * its own header and its own directory, and whoever translates it does not
+ * necessarily translate VibeStatic too.
  *
- * Lo slug resta `wp2static-addon-directory-deployment`: e` la chiave con cui
- * l'addon e` registrato nella tabella degli addon e con cui sono salvate le sue
- * opzioni. Cambiarlo orfanerebbe la configurazione di chi lo usa gia`.
+ * Adopted into the fork. The original is by Adam Twardoch, released into the
+ * public domain (Unlicense); its last commit, "wip further renaming" of 29
+ * August 2021, left a half-finished rename with three independent faults — the
+ * add-on would not activate, and if it did it would not deploy.
+ *
+ * The slug stays `wp2static-addon-directory-deployment`: it is the key the
+ * add-on is registered under in the add-ons table and the key its options are
+ * saved under. Changing it would orphan the configuration of anyone already
+ * using it.
  */
 
 if ( ! defined( 'WPINC' ) ) {
@@ -31,10 +38,10 @@ define( 'WP2STATIC_DIRECTORY_DEPLOYMENT_VERSION', '2.0.0-dev' );
 require_once WP2STATIC_DIRECTORY_DEPLOYMENT_PATH . 'autoload.php';
 
 /**
- * Carica le traduzioni dell'addon.
+ * Load the add-on's translations.
  *
- * Su `init`, come nel core: da WordPress 6.7 chiedere una traduzione prima di
- * `after_setup_theme` fa scattare un `_doing_it_wrong`.
+ * On `init`, as in the core: since WordPress 6.7, asking for a translation
+ * before `after_setup_theme` triggers a `_doing_it_wrong`.
  */
 function vibestatic_directory_deployment_load_textdomain() : void {
     load_plugin_textdomain(

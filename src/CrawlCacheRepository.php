@@ -1,15 +1,15 @@
 <?php
 /**
- * Accesso alla tabella wp_wp2static_crawl_cache.
+ * Access to the wp_wp2static_crawl_cache table.
  *
- * Le stesse query che stavano nei metodi statici di CrawlCache, con una
- * differenza sola ma decisiva: la connessione arriva dal costruttore invece che
- * da `global $wpdb`. Da qui la classe si puo' istanziare in un test con una
- * connessione finta, che e' il motivo per cui questa tabella non aveva un test
- * solo pur essendo il cuore del riconoscimento delle pagine cambiate.
+ * The same queries that used to live in CrawlCache's static methods, with one
+ * difference that decides everything: the connection arrives through the
+ * constructor instead of from `global $wpdb`. That is what lets a test
+ * instantiate the class with a fake connection, and it is why this table did
+ * not have a single test despite being the heart of recognising changed pages.
  *
- * CrawlCache resta la facciata pubblica e non cambia di una virgola: e' API che
- * ventuno addon chiamano staticamente.
+ * CrawlCache stays the public facade and does not change by a comma: it is API
+ * that twenty-one add-ons call statically.
  *
  * @package WP2Static
  */
@@ -19,8 +19,8 @@ namespace WP2Static;
 class CrawlCacheRepository {
 
     /**
-     * Quanti URL entrano in una singola query. Stesso numero e stessa ragione
-     * di CrawlQueueRepository::CHUNK_SIZE: le liste in gioco sono le stesse.
+     * How many URLs go into a single query. Same number and same reason as
+     * CrawlQueueRepository::CHUNK_SIZE: the lists involved are the same ones.
      */
     const CHUNK_SIZE = 100;
 
@@ -88,9 +88,9 @@ class CrawlCacheRepository {
             $this->db->prepare( 'SELECT hashed_url FROM %i', $this->table )
         );
 
-        // get_col() e' dichiarata come lista di string|null. La colonna e'
-        // NOT NULL, quindi non si scarta niente: si dice a chi legge che
-        // quello che esce sono stringhe, invece di far propagare il forse.
+        // get_col() is declared as a list of string|null. The column is NOT
+        // NULL, so nothing is being discarded: this tells the reader that what
+        // comes out are strings, instead of propagating the maybe.
         return array_values( array_filter( $hashes, 'is_string' ) );
     }
 
@@ -174,19 +174,18 @@ class CrawlCacheRepository {
     }
 
     /**
-     * Toglie dalla cache piu` URL in un colpo solo.
+     * Drop several URLs from the cache at once.
      *
-     * Serve a chi dimentica un URL dalla coda: se la riga di cache restasse,
-     * un URL che tornasse con lo stesso contenuto verrebbe riconosciuto come
-     * gia` visto e il suo file non verrebbe riscritto — rilevato, crawlato e
-     * assente dal sito pubblicato.
+     * Needed by whoever forgets a URL from the queue: if the cache row stayed,
+     * a URL coming back with the same content would be recognised as already
+     * seen and its file would not be rewritten — detected, crawled, and absent
+     * from the published site.
      *
-     * A chunk come le INSERT, e per la stessa ragione: gli elenchi in gioco
-     * arrivano a decine di migliaia di righe e una DELETE sola supererebbe
+     * Chunked like the INSERTs, and for the same reason: the lists involved run
+     * to tens of thousands of rows, and a single DELETE would exceed
      * max_allowed_packet.
      *
-     * @param string[] $urls URL da dimenticare, nella forma in cui sono stati
-     *                       messi in cache.
+     * @param string[] $urls URLs to forget, in the form they were cached in.
      */
     public function rmUrls( array $urls ) : void {
         foreach ( array_chunk( $urls, self::CHUNK_SIZE ) as $chunk ) {
@@ -215,8 +214,8 @@ class CrawlCacheRepository {
             return;
         }
 
-        // Un %d per ogni id: la lista è di lunghezza variabile, quindi i
-        // segnaposto si generano, ma restano segnaposto.
+        // One %d per id: the list is of variable length, so the placeholders
+        // are generated — but they stay placeholders.
         $placeholders = implode( ', ', array_fill( 0, count( $ids ), '%d' ) );
 
         // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders

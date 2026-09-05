@@ -2,14 +2,14 @@ includes:
     - vendor/phpstan/phpstan/conf/bleedingEdge.neon
     - vendor/thecodingmachine/phpstan-strict-rules/phpstan-strict-rules.neon
     - vendor/szepeviktor/phpstan-wordpress/extension.neon
-    # Il debito accettato sta qui, non sparso nel file. Prima erano una
-    # quindicina di blocchi `ignoreErrors` con un `count:` esatto, che
-    # rendevano impossibile aggiornare PHPStan: basta che il conteggio si
-    # sposti di uno e l'analisi fallisce, senza dire perché. È il motivo per
-    # cui il progetto è rimasto a PHPStan 1.9 per tre anni.
-    # Si rigenera con `composer phpstan-baseline`, ma solo dopo aver guardato
-    # cosa ci si sta mettendo dentro: la baseline è una lista di cose da
-    # sistemare, non un modo per non vederle.
+    # The accepted debt lives here, not scattered through the file. It used to
+    # be some fifteen `ignoreErrors` blocks each with an exact `count:`, which
+    # made PHPStan impossible to upgrade: the count only has to shift by one and
+    # the analysis fails, without saying why. That is why this project sat on
+    # PHPStan 1.9 for three years.
+    # Regenerate with `composer phpstan-baseline`, but only after looking at
+    # what is going into it: a baseline is a list of things to fix, not a way of
+    # not seeing them.
     - phpstan-baseline.neon
 
 parameters:
@@ -23,19 +23,19 @@ parameters:
         - %currentWorkingDirectory%/vibestatic.php
         - %currentWorkingDirectory%/uninstall.php
 
-    # Le dipendenze di terze parti stanno sotto WP2Static\Vendor\ in
-    # vendor-prefixed/, che ha un autoloader suo: senza registrarlo qui,
-    # ogni riferimento a Guzzle sarebbe una classe sconosciuta.
+    # Third-party dependencies live under WP2Static\Vendor\ in
+    # vendor-prefixed/, which has an autoloader of its own: without registering
+    # it here, every reference to Guzzle would be an unknown class.
     bootstrapFiles:
         - %currentWorkingDirectory%/vendor-prefixed/autoload.php
 
     scanFiles:
         - %currentWorkingDirectory%/tests/phpstan/bootstrap.php
-        # TODO: sostituire con php-stubs/wp-cli-stubs, che è mantenuto.
-        # Questi sono fermi a WP-CLI 2.2.0, del 2019.
+        # TODO: replace with php-stubs/wp-cli-stubs, which is maintained.
+        # These are stuck at WP-CLI 2.2.0, from 2019.
         - %currentWorkingDirectory%/tests/phpstan/wp-cli-stubs-2.2.0.php
 
     ignoreErrors:
-        # WP_CLI::add_command accetta una classe o un array [classe, metodo] e
-        # li richiama internamente; PHPStan vede solo la firma `callable`.
+        # WP_CLI::add_command accepts a class or a [class, method] array and
+        # calls them internally; PHPStan only sees the `callable` signature.
         - '/^Parameter #2 \$callable of static method WP_CLI::add_command\(\) expects callable\(\): mixed, \S+ given\.$/'

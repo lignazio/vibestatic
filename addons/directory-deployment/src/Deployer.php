@@ -1,13 +1,13 @@
 <?php
 /**
- * Copia il sito generato in una cartella della stessa macchina.
+ * Copy the generated site into a directory on the same machine.
  *
- * Riscritto per copiare solo quello che e' cambiato. Prima si svuotava la
- * destinazione e si ricopiava tutto a ogni deploy: milleottocento file per
- * pubblicarne uno modificato, e nel mezzo una finestra in cui il sito
- * pubblicato non esisteva. Adesso il core dice cosa e' cambiato — vedi
- * WP2Static\DeployPlan — e qui si copiano quei file, si cancellano quelli
- * spariti e non si tocca il resto.
+ * Rewritten to copy only what changed. It used to empty the destination and
+ * re-copy everything on every deploy: eighteen hundred files to publish one
+ * modified page, with a window in the middle during which the published site
+ * did not exist. The core now says what changed — see WP2Static\DeployPlan —
+ * and this copies those files, deletes the ones that have gone, and leaves the
+ * rest alone.
  *
  * @package WP2StaticDirectoryDeployer
  */
@@ -20,16 +20,16 @@ use WP2Static\WsLog;
 class Deployer {
 
     /**
-     * Lo spazio dei nomi con cui i file finiscono nella DeployCache del core.
+     * The namespace these files are recorded under in the core's DeployCache.
      *
-     * Non e' `default`: la cache e' condivisa fra i deployer, e due deployer
-     * diversi che pubblicano lo stesso sito in due posti diversi devono poter
-     * dire ciascuno cosa ha gia' messo dove.
+     * Not `default`: the cache is shared between deployers, and two different
+     * deployers publishing the same site to two different places each need to
+     * be able to say what they have already put where.
      */
     const DEFAULT_NAMESPACE = 'wp2static-addon-directory-deployment';
 
     /**
-     * @param string $processed_site_path Cartella del sito processato.
+     * @param string $processed_site_path The processed site's directory.
      */
     public function uploadFiles( string $processed_site_path ) : void {
         if ( ! is_dir( $processed_site_path ) ) {
@@ -58,11 +58,11 @@ class Deployer {
         $target = rtrim( $target, '/' );
 
         /*
-         * Svuotare la destinazione resta possibile, ma non e' piu' la strada
-         * normale: cancella anche i file che non sono cambiati, e nel frattempo
-         * il sito pubblicato non c'e'. Serve solo per ripartire da zero, ed e'
-         * per questo che dopo averlo fatto si svuota anche la cache — altrimenti
-         * il piano direbbe «tutto invariato» su una cartella vuota.
+         * Emptying the destination is still possible, but it is no longer the
+         * normal route: it deletes the unchanged files too, and while it runs
+         * the published site is not there. It is only for starting over, which
+         * is why the cache is emptied afterwards as well — otherwise the plan
+         * would report "all unchanged" for an empty directory.
          */
         if ( 0 !== intval( Controller::getValue( 'directoryDeploymentDeleteBeforeDeployment' ) ) ) {
             WsLog::l( 'Cleaning ' . $target );
@@ -89,8 +89,8 @@ class Deployer {
 
         $removed = $this->removeFiles( $plan->toDelete(), $target );
 
-        // La cache si aggiorna DOPO: se il deploy si ferma a meta', quello che
-        // non e' stato copiato deve restare da copiare al giro successivo.
+        // The cache is updated AFTER: if the deploy stops halfway, what was
+        // not copied has to still be pending on the next run.
         DeployCache::rmPaths( $plan->toDelete(), self::DEFAULT_NAMESPACE );
 
         WsLog::l( "Directory deployment complete: $copied copied, $removed removed." );
@@ -99,8 +99,8 @@ class Deployer {
     }
 
     /**
-     * @param string $from Percorso assoluto del file di partenza.
-     * @param string $to   Percorso assoluto di destinazione.
+     * @param string $from Absolute path of the source file.
+     * @param string $to   Absolute destination path.
      */
     private function copyFile( string $from, string $to ) : bool {
         $directory = dirname( $to );
@@ -124,7 +124,7 @@ class Deployer {
      * Cancella i file spariti e le cartelle rimaste vuote.
      *
      * @param string[] $paths  Percorsi relativi da rimuovere.
-     * @param string   $target Radice della destinazione.
+     * @param string   $target Root of the destination.
      * @return int Quanti ne sono stati rimossi davvero.
      */
     private function removeFiles( array $paths, string $target ) : int {
@@ -142,10 +142,10 @@ class Deployer {
         }
 
         /*
-         * Una cartella rimasta vuota e` un residuo visibile: su un server che
-         * elenca le directory diventa una pagina vuota indicizzabile. Si tolgono
-         * dalla piu` profonda alla piu` alta, e solo se vuote — `rmdir` fallisce
-         * da se` sulle altre.
+         * A directory left empty is a visible leftover: on a server with
+         * directory listings enabled it becomes an indexable empty page. They go
+         * deepest first, and only if empty — `rmdir` fails on its own for the
+         * rest.
          */
         krsort( $directories );
 
@@ -159,11 +159,12 @@ class Deployer {
     }
 
     /**
-     * La cartella accessoria: file che non vengono dal sito processato e che
-     * l'utente vuole comunque a destinazione. Non passa dal piano, perche' il
-     * piano descrive il sito generato: qui si copia e basta.
+     * The additional directory: files that do not come from the processed site
+     * but that the user wants at the destination anyway. It does not go through
+     * the plan, because the plan describes the generated site: here it is just
+     * copied.
      *
-     * @param string $target Radice della destinazione.
+     * @param string $target Root of the destination.
      */
     private function copyAdditionalSource( string $target ) : void {
         $extra = (string) Controller::getValue( 'directoryDeploymentAdditionalSourceDirectory' );

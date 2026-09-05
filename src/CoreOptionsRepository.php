@@ -1,10 +1,10 @@
 <?php
 /**
- * Accesso alla tabella wp_wp2static_core_options.
+ * Access to the wp_wp2static_core_options table.
  *
- * Solo lettura e scrittura: la definizione delle opzioni — nomi, tipi, valori
- * di partenza, etichette — resta in CoreOptions, perche' e' dato, non
- * persistenza.
+ * Reading and writing only: the definition of the options — names, types,
+ * defaults, labels — stays in CoreOptions, because that is data, not
+ * persistence.
  *
  * @package WP2Static
  */
@@ -32,7 +32,7 @@ class CoreOptionsRepository {
     }
 
     /**
-     * Crea la tabella e toglie le due colonne che non si usano piu'.
+     * Create the table and drop the two columns no longer in use.
      */
     public function createTable() : void {
         $charset_collate = $this->db->get_charset_collate();
@@ -67,13 +67,13 @@ class CoreOptionsRepository {
     }
 
     /**
-     * I nomi delle colonne esistenti.
+     * The names of the existing columns.
      *
-     * Prima si deducevano dalle chiavi di `SELECT * LIMIT 1`, cioe' dalla forma
-     * di una riga. Se la tabella e' vuota non ci sono righe, quindi non ci sono
-     * chiavi, quindi le colonne obsolete non venivano mai tolte — a tabella
-     * vuota la pulizia semplicemente non avveniva. `SHOW COLUMNS` chiede quello
-     * che si vuole sapere invece di dedurlo dal contenuto.
+     * These used to be inferred from the keys of `SELECT * LIMIT 1`, that is,
+     * from the shape of a row. An empty table has no rows, so no keys, so the
+     * obsolete columns were never dropped — on an empty table the cleanup
+     * simply did not happen. `SHOW COLUMNS` asks for what you want to know
+     * instead of inferring it from the content.
      *
      * @return string[]
      */
@@ -92,9 +92,9 @@ class CoreOptionsRepository {
     }
 
     /**
-     * Inserisce le opzioni che non ci sono ancora, senza toccare quelle presenti.
+     * Insert the options that are not there yet, leaving existing ones alone.
      *
-     * @param array<string, array<string, ?string>> $specs Le definizioni.
+     * @param array<string, array<string, ?string>> $specs The definitions.
      */
     public function seedOptions( array $specs ) : void {
         foreach ( $specs as $os ) {
@@ -111,8 +111,8 @@ class CoreOptionsRepository {
     }
 
     /**
-     * @param string $name Nome dell'opzione.
-     * @return string|null Il valore grezzo, null se la riga non c'e'.
+     * @param string $name Option name.
+     * @return string|null The raw value, null if the row is not there.
      */
     public function getValue( string $name ) : ?string {
         $value = $this->db->get_var(
@@ -127,8 +127,8 @@ class CoreOptionsRepository {
     }
 
     /**
-     * @param string $name Nome dell'opzione.
-     * @return string|null Il blob grezzo, null se la riga non c'e'.
+     * @param string $name Option name.
+     * @return string|null The raw blob, null if the row is not there.
      */
     public function getBlobValue( string $name ) : ?string {
         $value = $this->db->get_var(
@@ -143,8 +143,8 @@ class CoreOptionsRepository {
     }
 
     /**
-     * @param string $name Nome dell'opzione.
-     * @return \stdClass|null La riga, null se non c'e'.
+     * @param string $name Option name.
+     * @return \stdClass|null The row, null if it is not there.
      */
     public function getRow( string $name ) : ?\stdClass {
         $row = $this->db->get_row(
@@ -159,7 +159,7 @@ class CoreOptionsRepository {
     }
 
     /**
-     * Tutte le righe, indicizzate per nome.
+     * Every row, keyed by name.
      *
      * @return array<string, array<string, mixed>>
      */
@@ -183,7 +183,7 @@ class CoreOptionsRepository {
     }
 
     /**
-     * @param string               $name Nome dell'opzione.
+     * @param string               $name Option name.
      * @param array<string, mixed> $data Colonne da aggiornare.
      */
     public function update( string $name, array $data ) : void {

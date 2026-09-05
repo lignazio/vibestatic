@@ -1,10 +1,10 @@
 <?php
 /**
- * Facciata statica della Deploy Cache.
+ * Static facade over the Deploy Cache.
  *
- * Le query e la lettura dei file stanno in DeployCacheRepository. Qui restano
- * i nomi che gli addon chiamano — `fileisCached` con la i minuscola compresa,
- * che e' un refuso ma e' API — e il messaggio di log della truncate.
+ * The queries and the file reading live in DeployCacheRepository. What stays
+ * here are the names add-ons call — `fileisCached` with its lowercase i
+ * included, which is a typo but is API — and the truncate log message.
  *
  * @package WP2Static
  */
@@ -95,13 +95,13 @@ class DeployCache {
     }
 
     /**
-     * Cosa cambierebbe un deploy, prima di farlo.
+     * What a deploy would change, before doing it.
      *
-     * Senza argomenti guarda il sito processato cosi' com'e' adesso.
+     * With no arguments it looks at the processed site as it stands now.
      *
-     * @param string        $namespace     Spazio dei nomi del deployer.
-     * @param string[]|null $current_paths Percorsi da confrontare; null per
-     *                                     leggerli da ProcessedSite.
+     * @param string        $namespace     The deployer's namespace.
+     * @param string[]|null $current_paths Paths to compare; null to read them
+     *                                     from ProcessedSite.
      */
     public static function plan(
         string $namespace = self::DEFAULT_NAMESPACE,
@@ -114,10 +114,11 @@ class DeployCache {
     }
 
     /**
-     * Toglie dalla cache i percorsi indicati, dopo averli rimossi a destinazione.
+     * Drop the given paths from the cache, after removing them at the
+     * destination.
      *
-     * @param string[] $paths     Percorsi da dimenticare.
-     * @param string   $namespace Spazio dei nomi del deployer.
+     * @param string[] $paths     Paths to forget.
+     * @param string   $namespace The deployer's namespace.
      */
     public static function rmPaths(
         array $paths,

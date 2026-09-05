@@ -75,16 +75,16 @@ class WPCron {
     /**
      * Override WP-Cron to use VibeStatic's http basic auth creds if set
      *
-     * Il filtro `cron_request` riceve e deve restituire l'intera richiesta —
-     * `url`, `key` e `args` — perche' WordPress subito dopo fa
-     * `wp_remote_post( $cron_request['url'], $cron_request['args'] )`.
-     * Questa funzione restituiva i soli header: l'URL spariva, gli argomenti
-     * sparivano, e WP-Cron smetteva di partire.
+     * The `cron_request` filter receives, and must return, the whole request —
+     * `url`, `key` and `args` — because immediately afterwards WordPress does
+     * `wp_remote_post( $cron_request['url'], $cron_request['args'] )`. This
+     * function used to return the headers alone: the URL vanished, the
+     * arguments vanished, and WP-Cron stopped firing.
      *
-     * E smetteva **solo** con la basic auth configurata, cioe' esattamente
-     * nella situazione per cui questa funzione esiste: senza credenziali il
-     * primo `return` restituisce la richiesta intatta e tutto va bene. Chi non
-     * ne ha bisogno non se ne accorge mai; chi ne ha bisogno resta senza cron.
+     * And it stopped **only** with basic auth configured, which is exactly the
+     * situation this function exists for: with no credentials the first
+     * `return` hands back the request untouched and everything works. Whoever
+     * does not need it never notices; whoever needs it is left with no cron.
      *
      * @param mixed[] $cron_request WP-Cron request
      * @return mixed[] WP-Cron request
@@ -102,7 +102,7 @@ class WPCron {
 
         $headers['Authorization'] = sprintf(
             'Basic %s',
-            // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- è la codifica che HTTP Basic richiede, non offuscamento.
+            // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- this is the encoding HTTP Basic requires, not obfuscation.
             base64_encode( $auth_user . ':' . $auth_password )
         );
 

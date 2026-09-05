@@ -7,11 +7,11 @@ use WP_Mock;
 use WP_Mock\Tools\TestCase;
 
 /**
- * La coda di crawl e' la definizione di «cosa e' il sito»: quello che non c'e'
- * non viene crawlato, e quello che non viene crawlato finisce spubblicato.
- * Toglierne una riga di troppo e' l'unico modo che questo codice ha di far
- * sparire una pagina viva, quindi le due funzioni che decidono si guardano da
- * sole, senza database intorno.
+ * The crawl queue is the definition of "what the site is": what is not in it is
+ * not crawled, and what is not crawled ends up unpublished. Removing one row
+ * too many is this code's only way of making a live page disappear, so the two
+ * functions that decide are examined on their own, with no database around
+ * them.
  *
  * @runTestsInSeparateProcesses
  * @preserveGlobalState disabled
@@ -37,17 +37,17 @@ final class URLDetectorPruneTest extends TestCase {
             [ '/', '/chi-siamo/' ]
         );
 
-        // La chiave e' l'id della riga, perche' e' con quello che si cancella.
+        // The key is the row id, because that is what deletion uses.
         $this->assertSame( [ 13 => '/wp-content/plugins/vibestatic' ], $stale );
     }
 
     public function testAnEncodedDetectedUrlMatchesItsDecodedQueueRow() : void {
         /*
-         * CrawlQueueRepository::addUrls() salva `rawurldecode( $url )` nella
-         * colonna `url`, mentre i rilevatori di file producono URL codificati.
-         * Confrontare le due forme cosi' come sono farebbe leggere come
-         * «sparito» ogni file con uno spazio o un accento nel nome — cioe' una
-         * media library italiana intera, a ogni rilevazione.
+         * CrawlQueueRepository::addUrls() stores `rawurldecode( $url )` in the
+         * `url` column, while the file detectors produce encoded URLs. Comparing
+         * the two forms as they are would read every file with a space or an
+         * accent in its name as "gone" — that is, an entire non-ASCII media
+         * library, on every detection run.
          */
         $stale = URLDetector::staleQueueEntries(
             [ 21 => '/wp-content/uploads/2026/foto d\'estate.jpg' ],

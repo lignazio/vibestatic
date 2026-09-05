@@ -35,23 +35,23 @@ class WordPressAdmin {
         );
 
         /*
-         * L'attivazione non scatta a ogni aggiornamento del plugin, quindi da
-         * sola non basta a portare a destinazione una modifica dello schema.
+         * Activation does not fire on every plugin update, so on its own it is
+         * not enough to land a schema change.
          *
-         * Su `init` e non su `plugins_loaded`, dove stava: l'aggiornamento passa
-         * da `CoreOptions::seedOptions()`, quindi da `optionSpecs()`, dove
-         * adesso le etichette sono avvolte in `__()`. Chiedere una traduzione
-         * prima di `after_setup_theme` fa scattare il `_doing_it_wrong` che
-         * WordPress 6.7 ha aggiunto a `_load_textdomain_just_in_time()`, e lo fa
-         * soltanto dove una traduzione del dominio esiste davvero — cioe' mai
-         * durante lo sviluppo in inglese, e sempre da chi il plugin lo usa
-         * tradotto. La priorita' 5 tiene l'aggiornamento dello schema prima di
-         * qualunque altro gancio su `init` che legga un'opzione.
+         * On `init` and not on `plugins_loaded`, where it used to be: the update
+         * goes through `CoreOptions::seedOptions()`, so through `optionSpecs()`,
+         * where the labels are now wrapped in `__()`. Asking for a translation
+         * before `after_setup_theme` triggers the `_doing_it_wrong` WordPress
+         * 6.7 added to `_load_textdomain_just_in_time()` — and it only triggers
+         * where a translation of the domain actually exists, that is, never
+         * during development in English and always for whoever runs the plugin
+         * translated. Priority 5 keeps the schema update ahead of any other
+         * `init` hook that reads an option.
          */
         add_action( 'init', [ Schema::class, 'updateIfNeeded' ], 5 );
 
-        // Aggiornamenti per chi ha installato da zip. Registra solo dei filtri:
-        // la chiamata a GitHub parte quando WordPress controlla, non adesso.
+        // Updates for anyone who installed from a zip. This registers filters
+        // only: the call to GitHub happens when WordPress checks, not now.
         Updater::registerHooks();
 
         add_filter(
@@ -363,12 +363,12 @@ class WordPressAdmin {
      * Do security checks before calling Controller::wp2staticProcessQueue
      */
     public static function adminPostProcessQueue() : void {
-        // Prima questo metodo rifaceva a mano permesso e nonce, e li faceva
-        // peggio: nessun controllo di capability, REQUEST_METHOD letto con
-        // filter_input( INPUT_SERVER, ... ) che sotto FPM torna null, e un
-        // \RuntimeException lanciato da un handler admin_post_ — cioè una
-        // schermata bianca al posto di un messaggio. Il nome del nonce nel
-        // messaggio d'errore era per giunta scritto male, "wpstatic".
+        // This method used to redo capability and nonce by hand, and did both
+        // worse: no capability check at all, REQUEST_METHOD read through
+        // filter_input( INPUT_SERVER, ... ) which returns null under FPM, and a
+        // \RuntimeException thrown from an admin_post_ handler — that is, a
+        // white screen instead of a message. The nonce name in the error text
+        // was misspelled "wpstatic" on top of that.
         if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || $_SERVER['REQUEST_METHOD'] !== 'POST' ) {
             WsLog::l( 'Non-POST request to admin-post.php (wp2static_process_queue)' );
             wp_die(

@@ -193,17 +193,17 @@ class URLDetector {
     }
 
     /**
-     * Gli URL in coda che la rilevazione non nomina piu`.
+     * The queued URLs that detection no longer names.
      *
-     * Il confronto passa da `rawurldecode()` perche` le due liste non hanno la
-     * stessa forma: `CrawlQueueRepository::addUrls()` salva l'URL decodificato
-     * nella colonna `url`, mentre la rilevazione li produce codificati.
-     * Confrontarli cosi` come sono farebbe leggere come «sparito» ogni URL con
-     * uno spazio o un accento — cioe` ogni file caricato con un nome italiano.
+     * The comparison goes through `rawurldecode()` because the two lists are
+     * not in the same shape: `CrawlQueueRepository::addUrls()` stores the
+     * decoded URL in the `url` column, while detection produces them encoded.
+     * Comparing them as they are would read every URL containing a space or an
+     * accent as "gone" — that is, every file uploaded under a non-ASCII name.
      *
-     * @param array<int,string> $queued   Righe della coda, id => URL.
-     * @param string[]          $detected URL appena rilevati.
-     * @return array<int,string> id => URL da dimenticare.
+     * @param array<int,string> $queued   Queue rows, id => URL.
+     * @param string[]          $detected URLs just detected.
+     * @return array<int,string> id => URL to forget.
      */
     public static function staleQueueEntries( array $queued, array $detected ) : array {
         $known = [];
@@ -224,26 +224,26 @@ class URLDetector {
     }
 
     /**
-     * Allinea la coda a quello che la rilevazione ha appena visto.
+     * Reconcile the queue with what detection has just seen.
      *
-     * Prima la coda era solo additiva — «No longer truncate before adding»,
-     * diceva il commento — e un URL che smetteva di essere rilevato ci restava
-     * per sempre: veniva ricrawlato, riprocessato e ripubblicato a ogni giro,
-     * anche quando la ragione per cui esisteva non c'era piu`. E` questo il
-     * pezzo che mancava perche` un sito possa rimpicciolire.
+     * The queue used to be additive only — "No longer truncate before adding",
+     * said the comment — and a URL that stopped being detected stayed in it
+     * forever: recrawled, reprocessed and republished on every run, long after
+     * the reason it existed had gone. This is the piece that was missing for a
+     * site to be able to shrink.
      *
-     * Additiva pero` non era un capriccio: la coda si svuotava e si riempiva,
-     * e fra i due momenti un crawl avrebbe visto un sito vuoto. Qui non si
-     * svuota niente — si toglie riga per riga, e solo quelle che la rilevazione
-     * non ha nominato.
+     * Additive was not a whim, though: the queue used to be emptied and
+     * refilled, and between those two moments a crawl would have seen an empty
+     * site. Nothing is emptied here — rows are removed one by one, and only the
+     * ones detection did not name.
      *
-     * La riga della CrawlCache se ne va insieme, e non e` un di piu`: se l'URL
-     * tornasse con lo stesso contenuto, l'hash ancora in cache farebbe saltare
-     * la scrittura del file e l'URL resterebbe rilevato, crawlato e assente
-     * dal deploy — un buco peggiore di quello che si sta chiudendo.
+     * The CrawlCache row goes with it, and that is not an extra: if the URL came
+     * back with the same content, the hash still in cache would skip writing the
+     * file, and the URL would stay detected, crawled, and absent from the
+     * deploy — a worse hole than the one being closed.
      *
-     * @param string[] $detected URL appena rilevati.
-     * @return int Quanti URL sono stati dimenticati.
+     * @param string[] $detected URLs just detected.
+     * @return int How many URLs were forgotten.
      */
     public static function pruneCrawlQueue( array $detected ) : int {
         if ( ! FilesHelper::pruningEnabled() ) {
@@ -251,8 +251,8 @@ class URLDetector {
         }
 
         if ( ! $detected ) {
-            // Una rilevazione che non trova niente non e` un sito vuoto: e`
-            // una rilevazione andata male.
+            // A detection run that finds nothing is not an empty site: it is
+            // a detection run that went wrong.
             return 0;
         }
 
@@ -279,11 +279,11 @@ class URLDetector {
         }
 
         /*
-         * Per id, non per URL: `CrawlQueue::rmUrl()` cerca `md5($url)` sulla
-         * colonna `hashed_url`, che pero` contiene l'md5 dell'URL *codificato*
-         * mentre la colonna `url` tiene quello decodificato. Sugli URL con
-         * caratteri da codificare i due non coincidono e la riga non se ne
-         * andrebbe. L'id non ha questo problema.
+         * By id, not by URL: `CrawlQueue::rmUrl()` looks up `md5($url)` against
+         * the `hashed_url` column, which holds the md5 of the *encoded* URL
+         * while the `url` column holds the decoded one. For URLs with characters
+         * that need encoding the two do not match and the row would not go. The
+         * id does not have that problem.
          */
         CrawlQueue::rmUrlsById( array_map( 'strval', array_keys( $stale ) ) );
         CrawlCache::rmUrls( array_values( $stale ) );
@@ -305,9 +305,9 @@ class URLDetector {
         // that is already queued is free and does not error on duplicates.
         CrawlQueue::addUrls( $unique_urls );
 
-        // Toglie quelle che la rilevazione non nomina piu`. Dopo l'aggiunta e
-        // non prima: fra le due la coda non e` mai vuota, quindi un crawl che
-        // partisse in mezzo non vedrebbe mai un sito vuoto.
+        // Remove the ones detection no longer names. After the add and not
+        // before: between the two the queue is never empty, so a crawl starting
+        // in between would never see an empty site.
         static::pruneCrawlQueue( $unique_urls );
 
         return (string) count( $unique_urls );

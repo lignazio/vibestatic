@@ -36,44 +36,43 @@ class FilesHelper {
     }
 
     /**
-     * Quanta parte del sito puo` sparire in un giro solo.
+     * How much of the site may vanish in a single run.
      *
-     * Serve perche` un guasto a monte non si presenta come un errore: si
-     * presenta come un elenco piu` corto. La sitemap che non risponde, il
-     * custom post type non ancora registrato quando il job parte, la cartella
-     * uploads montata in ritardo — nessuno di questi lancia niente, e da valle
-     * non si distinguono da un utente che ha davvero cancellato meta` sito.
-     * Sopra questa quota non si sceglie: non si cancella e si dice perche`,
-     * che e` l'unica risposta che non puo` spubblicare un sito vivo per
-     * sbaglio.
+     * This exists because a failure upstream does not present as an error: it
+     * presents as a shorter list. A sitemap that stops responding, a custom
+     * post type not yet registered when the job starts, an uploads directory
+     * mounted late — none of these throw anything, and from downstream they
+     * are indistinguishable from a user who really did delete half the site.
+     * Above this fraction there is no choosing: nothing is deleted and the
+     * reason is logged, which is the only answer that cannot unpublish a live
+     * site by mistake.
      *
-     * Meta` perche` sotto ci sta ogni fallimento plausibile di un singolo
-     * rilevatore — su WordPress la parte grossa dell'elenco sono gli asset di
-     * `wp-includes` e del tema, che vengono dal filesystem e non da una
-     * richiesta HTTP — e sopra ci sta solo il caso in cui e` sparito un pezzo
-     * intero della catena.
+     * Half, because below it sits every plausible failure of a single detector
+     * — on WordPress the bulk of the list is `wp-includes` and theme assets,
+     * which come from the filesystem and not from an HTTP request — and above
+     * it sits only the case where a whole link of the chain has gone.
      */
     const MAX_SHRINK_FRACTION = 0.5;
 
     /**
-     * Se un sito che si accorcia di tanto sia da credere.
+     * Whether a site shrinking by this much is to be believed.
      *
-     * Una soglia sola per tutti e tre i punti in cui si dimentica qualcosa,
-     * perche` sono la stessa domanda: due soglie separate vorrebbero dire che
-     * alzarne una lascia le altre a bloccare, e il blocco a meta` e` peggio di
-     * entrambe le risposte intere.
+     * One threshold for all three places where something is forgotten, because
+     * they are the same question: two separate thresholds would mean raising
+     * one leaves the others blocking, and blocking halfway is worse than either
+     * whole answer.
      *
-     * Su un totale a zero non c'e` niente di cui dubitare, e la divisione non
-     * si fa.
+     * On a total of zero there is nothing to doubt, and the division is not
+     * performed.
      */
     public static function shrinkIsPlausible( int $going, int $total ) : bool {
         if ( $total < 1 ) {
             return false;
         }
 
-        // Vedi Crawler::__construct(): un filtro restituisce quello che decide
-        // chi lo aggancia, e qui una stringa o un null diventerebbero zero —
-        // cioe' «non togliere mai niente», in silenzio.
+        // See Crawler::__construct(): a filter returns whatever the code
+        // hooking it decides, and here a string or a null would become zero —
+        // that is, "never remove anything", silently.
         $filtered = apply_filters(
             'wp2static_max_stale_fraction',
             self::MAX_SHRINK_FRACTION
@@ -87,40 +86,39 @@ class FilesHelper {
     }
 
     /**
-     * Se il sito pubblicato debba poter rimpicciolire.
+     * Whether the published site is allowed to shrink.
      *
-     * Governa i tre punti in cui qualcosa viene dimenticato — la coda di
-     * crawl, il sito crawlato, il sito processato — perche` sono la stessa
-     * decisione presa tre volte, e spegnerne uno solo lascerebbe le cartelle
-     * disallineate fra loro.
+     * It governs all three places where something is forgotten — the crawl
+     * queue, the crawled site, the processed site — because they are one
+     * decision taken three times, and switching off only one would leave the
+     * directories out of step with each other.
      *
-     * Esiste perche` una potatura sbagliata spubblica un sito vivo, ed e`
-     * l'unica categoria di danno che questo codice puo` fare: chi si trova
-     * nella situazione ha bisogno di fermarla senza dover sapere quali
-     * percorsi salvare uno per uno.
+     * It exists because a wrong prune unpublishes a live site, and that is the
+     * only category of damage this code can do: someone in that situation needs
+     * to stop it without having to know which paths to rescue one by one.
      */
     public static function pruningEnabled() : bool {
         return (bool) apply_filters( 'wp2static_prune_stale_files', true );
     }
 
     /**
-     * Toglie da una cartella i file che non sono nell'elenco, e le cartelle
-     * che restano vuote.
+     * Remove from a directory the files that are not in the list, and the
+     * directories left empty.
      *
-     * I percorsi, sia quelli dell'elenco sia quelli restituiti, sono relativi
-     * alla radice e cominciano con `/`: la stessa forma che scrivono
-     * `StaticSite::add()` e `ProcessedSite::add()` e che legge il piano di
-     * deploy. Il confronto e` sul percorso cosi` come sta su disco, non su
-     * `realpath()`, perche` e` cosi` che il file e` stato scritto.
+     * The paths, both those in the list and those returned, are relative to the
+     * root and start with `/`: the same shape `StaticSite::add()` and
+     * `ProcessedSite::add()` write and the deploy plan reads. The comparison is
+     * on the path as it sits on disk, not on `realpath()`, because that is how
+     * the file was written.
      *
-     * **Un elenco vuoto non cancella niente.** Vuoto vuol dire «non lo so»,
-     * non «il sito e` vuoto», e fra le due letture c'e` un sito pubblicato che
-     * sparisce. Chi vuole davvero svuotare ha `StaticSite::delete()` e
-     * `ProcessedSite::delete()`, che esistono apposta.
+     * **An empty list deletes nothing.** Empty means "I do not know", not "the
+     * site is empty", and between those two readings sits a published site that
+     * disappears. Anyone who really wants to empty it has `StaticSite::delete()`
+     * and `ProcessedSite::delete()`, which exist for that.
      *
-     * @param string   $dir  Radice da ripulire.
-     * @param string[] $keep Percorsi relativi da tenere.
-     * @return string[] Percorsi rimossi.
+     * @param string   $dir  Root to clean up.
+     * @param string[] $keep Relative paths to keep.
+     * @return string[] Paths removed.
      */
     public static function removePathsNotIn( string $dir, array $keep ) : array {
         if ( ! $keep || ! is_dir( $dir ) ) {
@@ -131,9 +129,9 @@ class FilesHelper {
         $keep_index = array_fill_keys( $keep, true );
 
         /*
-         * La scansione si chiude prima di cancellare: cancellare mentre
-         * l'iteratore cammina sulla stessa cartella lascia il suo stato
-         * indietro rispetto al disco, e quello che salta e` una voce a caso.
+         * The scan finishes before anything is deleted: deleting while the
+         * iterator is walking the same directory leaves its state behind the
+         * disk, and what gets skipped is an arbitrary entry.
          */
         $to_remove = [];
         $scanned = 0;
@@ -160,13 +158,13 @@ class FilesHelper {
         }
 
         /*
-         * L'ultima sicura, ed e' su una quantita' diversa da quella che ha
-         * gia' guardato la rilevazione: li' era la coda, qui sono i file. Le
-         * due non coincidono se la coda si e' accorciata per una via che non
-         * passa dal confronto con la rilevazione — svuotata a mano dalla
-         * pagina Caches, per esempio, e poi solo in parte riempita. Questa e'
-         * la funzione che cancella davvero: e' l'ultimo punto in cui ci si puo'
-         * ancora fermare.
+         * The last safety catch, and it is on a different quantity from the one
+         * detection already looked at: there it was the queue, here it is the
+         * files. The two do not match if the queue got shorter by a route that
+         * does not pass through the comparison with detection — emptied by hand
+         * from the Caches page, say, and then only partly refilled. This is the
+         * function that actually deletes: it is the last point at which one can
+         * still stop.
          */
         if ( ! self::shrinkIsPlausible( count( $to_remove ), $scanned ) ) {
             WsLog::l(
@@ -193,11 +191,11 @@ class FilesHelper {
         }
 
         /*
-         * Dalla piu` profonda alla piu` alta, e risalendo finche` `rmdir`
-         * accetta: una cartella puo` restare vuota perche` si e` svuotata la
-         * sola sottocartella che conteneva, e in quel caso il suo nome non e`
-         * mai passato di qui. `rmdir` fallisce da se` su una cartella piena,
-         * quindi non serve controllarlo prima.
+         * Deepest first, walking up for as long as `rmdir` accepts: a directory
+         * can be left empty because the only subdirectory it held was emptied,
+         * and in that case its own name never came through here. `rmdir` fails
+         * on its own for a non-empty directory, so there is no need to check
+         * first.
          */
         krsort( $emptied );
 

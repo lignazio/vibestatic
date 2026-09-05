@@ -20,14 +20,14 @@ class CoreOptions {
     private static $repository = null;
 
     /**
-     * @param CoreOptionsRepository|null $repository Null per tornare al default.
+     * @param CoreOptionsRepository|null $repository Null to fall back to the default.
      */
     public static function setRepository( ?CoreOptionsRepository $repository ) : void {
         self::$repository = $repository;
     }
 
     /**
-     * @return CoreOptionsRepository Costruito su `global $wpdb` se non iniettato.
+     * @return CoreOptionsRepository Built on `global $wpdb` when not injected.
      */
     public static function repository() : CoreOptionsRepository {
         if ( ! self::$repository ) {
@@ -415,15 +415,15 @@ class CoreOptions {
                         'package.json',
                         'pb_backupbuddy',
                         /*
-                         * La cartella del plugin. Erano due nomi vecchi
-                         * — `plugins/wp2static` e `wp2static-addon` — rimasti
-                         * dopo il rinominamento: da allora il plugin non
-                         * escludeva piu' se stesso, e il crawl ha pubblicato
-                         * `wp-content/plugins/vibestatic` (la 404 di WordPress
-                         * per quell'URL, 84 KB) dentro il sito statico. I nomi
-                         * vecchi restano: chi arriva da WP2Static ha ancora
-                         * quelle cartelle sul disco.
-                         */
+                          * The plugin's own directory. These were two stale
+                          * names — `plugins/wp2static` and `wp2static-addon` —
+                          * left over from the rename: since then the plugin
+                          * stopped excluding itself, and the crawl published
+                          * `wp-content/plugins/vibestatic` (WordPress's 404 for
+                          * that URL, 84 KB) into the static site. The old names
+                          * stay: anyone arriving from WP2Static still has those
+                          * directories on disk.
+                          */
                         'plugins/vibestatic',
                         'plugins/wp2static',
                         'previous-export',
@@ -469,7 +469,7 @@ class CoreOptions {
                     'vibestatic'
                 ),
                 __(
-                    // phpcs:ignore Generic.Files.LineLength.TooLong -- gettext vuole un letterale solo: spezzarla con `.` la rende inestraibile.
+                    // phpcs:ignore Generic.Files.LineLength.TooLong -- gettext wants a single literal: splitting it with `.` makes it unextractable.
                     'Do not rewrite any URLs. This may give a slight speed-up when the deployment URL is the same as the WordPress URL.',
                     'vibestatic'
                 )
@@ -483,7 +483,7 @@ class CoreOptions {
                     'vibestatic'
                 ),
                 __(
-                    // phpcs:ignore Generic.Files.LineLength.TooLong -- gettext vuole un letterale solo: spezzarla con `.` la rende inestraibile.
+                    // phpcs:ignore Generic.Files.LineLength.TooLong -- gettext wants a single literal: splitting it with `.` makes it unextractable.
                     'Removes the emoji scripts, the wlwmanifest link and the wp-embed and comment-reply scripts. This changes your LIVE site as well as the exported one, on purpose: a static copy should look like what your visitors actually get.',
                     'vibestatic'
                 )
@@ -513,12 +513,12 @@ class CoreOptions {
      */
     public static function getValue( string $name ) : string {
         /*
-         * `?? null`, non l'accesso diretto. La riga era
-         * `$opt_spec = self::optionSpecs()[ $name ];` seguita da
-         * `if ( ! $opt_spec )`: su un nome sconosciuto PHP emette
-         * «Undefined array key» PRIMA di arrivare alla guardia, quindi il
-         * messaggio che avvisa dell'opzione sconosciuta non e' mai stato
-         * stampato — al suo posto c'era un warning che non nomina l'opzione.
+         * `?? null`, not direct access. The line used to be
+         * `$opt_spec = self::optionSpecs()[ $name ];` followed by
+         * `if ( ! $opt_spec )`: on an unknown name PHP emits "Undefined array
+         * key" BEFORE reaching the guard, so the message written to warn about
+         * an unknown option was never printed — in its place came a warning
+         * that does not name the option.
          */
         $opt_spec = self::optionSpecs()[ $name ] ?? null;
 
@@ -632,10 +632,10 @@ class CoreOptions {
         $option = self::repository()->getRow( $name );
 
         /*
-         * La decifratura stava PRIMA del controllo su $option, e leggeva
-         * `$option->value` su un risultato che puo' essere null: un'opzione di
-         * tipo password non ancora salvata dava un fatal error, non un valore
-         * di partenza. L'ordine giusto e' guardare se la riga c'e'.
+         * Decryption used to sit BEFORE the check on $option, reading
+         * `$option->value` on a result that can be null: a password option that
+         * had never been saved gave a fatal error rather than a default. The
+         * right order is to look whether the row is there first.
          */
         if ( ! $option ) {
             // Make a copy so we don't modify $cached_option_specs
@@ -677,10 +677,10 @@ class CoreOptions {
         $ret = [];
         foreach ( self::optionSpecs() as $opt_spec ) {
             $name = (string) $opt_spec['name'];
-            // `?? null`: un'opzione definita nel codice ma non ancora nella
-            // tabella — cioe' ogni opzione nuova, fra l'aggiornamento del
-            // plugin e la prima seedOptions() — passava di qui con un
-            // «Undefined array key» prima della guardia che la gestisce.
+            // `?? null`: an option defined in code but not yet in the table
+            // — that is, every new option, between the plugin update and the
+            // first seedOptions() — came through here with an "Undefined array
+            // key" before the guard meant to handle it.
             $opt = $options_map[ $name ] ?? null;
             if ( ! $opt ) {
                  // Make a copy so we don't modify $cached_option_specs
@@ -717,13 +717,14 @@ class CoreOptions {
         $encrypt_method = 'AES-256-CBC';
 
         /*
-         * Quando AUTH_KEY o AUTH_SALT mancano, qui c'erano due chiavi scritte
-         * nel codice. Il codice e' pubblico: cifrare la password della basic
-         * auth con una chiave che chiunque puo' leggere su GitHub non e'
-         * cifrarla, e` codificarla — con l'aggravante che sembra cifrata.
+         * When AUTH_KEY or AUTH_SALT are missing, there used to be two keys
+         * written into the source here. The source is public: encrypting the
+         * basic auth password with a key anyone can read on GitHub is not
+         * encrypting it, it is encoding it — with the added harm that it looks
+         * encrypted.
          *
-         * WordPress quelle due costanti le genera in fase di installazione, e
-         * un sito che non le ha e' un sito rotto. Meglio dirlo che ripiegare.
+         * WordPress generates those two constants at install time, and a site
+         * without them is a broken site. Better to say so than to fall back.
          */
         $auth_key = defined( 'AUTH_KEY' ) ? constant( 'AUTH_KEY' ) : '';
         $auth_salt = defined( 'AUTH_SALT' ) ? constant( 'AUTH_SALT' ) : '';
@@ -763,15 +764,14 @@ class CoreOptions {
     /**
      * Save all options POST'ed via UI
      *
-     * Il nonce e la capability li verifica Controller::authorize(), che ogni
-     * handler admin_post_* chiama come prima istruzione — prima di arrivare
-     * qui. phpcs non può seguirlo attraverso il confine fra due classi.
+     * Nonce and capability are checked by Controller::authorize(), which every
+     * admin_post_* handler calls as its first statement — before reaching here.
+     * phpcs cannot follow that across a class boundary.
      *
-     * @todo Fase 5: questo metodo non dovrebbe leggere $_POST da sé. Deve
-     *       ricevere i dati già validati; finché li legge, la verifica del
-     *       nonce e il posto dove si usano i dati restano in due file diversi,
-     *       ed è esattamente la distanza che aveva permesso ai tre handler di
-     *       scrivere prima di controllare.
+     * @todo This method should not read $_POST itself. It should receive
+     *       already-validated data; while it reads them, the nonce check and
+     *       the place the data is used stay in two different files, and that is
+     *       exactly the distance that let three handlers write before checking.
      */
     // phpcs:disable WordPress.Security.NonceVerification
     public static function savePosted( string $screen = 'core' ) : void {
@@ -927,27 +927,27 @@ class CoreOptions {
                 );
 
                 /*
-                 * `isset()` prima di scrivere, e non e' pignoleria.
+                 * `isset()` before writing, and this is not pedantry.
                  *
-                 * `filter_input( INPUT_POST, 'filenamesToIgnore' )` torna null
-                 * sia quando il campo e' stato svuotato di proposito sia quando
-                 * non e' stato inviato affatto, e `strval( null )` fa diventare
-                 * i due casi la stessa cosa: stringa vuota, scritta sopra al
-                 * valore buono. Una richiesta che non porti quel campo — un
-                 * form a cui manchi il controllo, un POST costruito a mano —
-                 * cancellava cosi' un elenco di quaranta righe curato a mano,
-                 * senza dire niente e senza modo di tornare indietro.
+                 * `filter_input( INPUT_POST, 'filenamesToIgnore' )` returns
+                 * null both when the field was deliberately emptied and when it
+                 * was not submitted at all, and `strval( null )` collapses the
+                 * two cases into one: an empty string, written over the good
+                 * value. A request that does not carry that field — a form
+                 * missing the control, a hand-built POST — would wipe a
+                 * forty-line hand-curated list, silently and irreversibly.
                  *
-                 * E' successo davvero, su questa installazione: nella finestra
-                 * in cui `OptionRenderer` restituiva markup escapato, la pagina
-                 * Advanced mostrava del testo al posto dei campi, quindi un
-                 * salvataggio non inviava nessuna textarea — e le due liste di
-                 * esclusione sono rimaste vuote. Con `filenamesToIgnore` vuota
-                 * il crawl non esclude piu' niente: `.git`, `node_modules`,
-                 * `composer.lock` diventano candidati all'esportazione.
+                 * It actually happened on this installation: during the window
+                 * when `OptionRenderer` returned escaped markup, the Advanced
+                 * page showed text instead of fields, so a save submitted no
+                 * textarea at all — and the two exclusion lists were left
+                 * empty. With `filenamesToIgnore` empty the crawl excludes
+                 * nothing: `.git`, `node_modules` and `composer.lock` all
+                 * become candidates for export.
                  *
-                 * Assente vuol dire «lascia stare». Svuotare l'elenco resta
-                 * possibile, ma va chiesto mandando il campo vuoto.
+                 * Absent means "leave it alone". Emptying a list is still
+                 * possible, but it has to be asked for by sending the field
+                 * empty.
                  */
                 foreach (
                     [
@@ -956,19 +956,19 @@ class CoreOptions {
                         'hostsToRewrite',
                     ] as $blob_option
                 ) {
-                    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- il nonce lo verifica Controller::authorize(), che e' l'unica strada per arrivare qui.
+                    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- the nonce is checked by Controller::authorize(), the only route to get here.
                     if ( ! isset( $_POST[ $blob_option ] ) ) {
                         continue;
                     }
 
-                    // Un elenco arriva come una textarea, cioe' come stringa.
-                    // Se e' un array la richiesta non viene dal nostro form.
-                    // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanificato due righe sotto; qui si guarda solo il tipo.
+                    // A list arrives from a textarea, so as a string. If it
+                    // is an array, the request did not come from our form.
+                    // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitised two lines below; this only inspects the type.
                     if ( ! is_string( $_POST[ $blob_option ] ) ) {
                         continue;
                     }
 
-                    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- vedi sopra.
+                    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- see above.
                     $posted_list = sanitize_textarea_field( wp_unslash( $_POST[ $blob_option ] ) );
 
                     self::repository()->update(

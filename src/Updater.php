@@ -1,19 +1,19 @@
 <?php
 /**
- * Aggiornamenti per chi installa il plugin da zip.
+ * Updates for anyone who installs the plugin from a zip.
  *
- * Senza questo, chi non usa Composer non riceve nemmeno una patch di sicurezza:
- * l'header `Update URI` dice a WordPress di NON cercare aggiornamenti su
- * wordpress.org — cosa giusta, perche' li' lo slug `vibestatic` non e' nostro —
- * ma non gliene indica altri. Il plugin resterebbe fermo alla versione con cui
- * e' stato scaricato, per sempre e senza dirlo.
+ * Without this, whoever does not use Composer receives not even a security
+ * patch: the `Update URI` header tells WordPress NOT to look for updates on
+ * wordpress.org — rightly, because the `vibestatic` slug is not ours over there
+ * — but points it at nothing else. The plugin would stay on the version it was
+ * downloaded as, forever, and say nothing about it.
  *
- * Non c'e' una libreria. Da WordPress 5.8 il filtro `update_plugins_<hostname>`
- * fa esattamente questo, ed e' il meccanismo nativo: `plugin-update-checker`
- * risolverebbe lo stesso problema portandosi dietro una dipendenza di
- * produzione, che oggi e' una sola (Guzzle) ed e' un numero che vale la pena
- * difendere. Il confronto fra le versioni lo fa WordPress da se`: qui si
- * restituisce sempre l'ultima release, non «l'aggiornamento se serve».
+ * There is no library here. Since WordPress 5.8 the `update_plugins_<hostname>`
+ * filter does exactly this, and it is the native mechanism:
+ * `plugin-update-checker` would solve the same problem while adding a
+ * production dependency, and there is currently exactly one (Guzzle) — a number
+ * worth defending. WordPress compares the versions itself: this class always
+ * returns the latest release, not "the update if one is needed".
  *
  * @package WP2Static
  */
@@ -23,22 +23,22 @@ namespace WP2Static;
 class Updater {
 
     /**
-     * @var string Dove si ricorda la risposta di GitHub.
+     * @var string Where GitHub's answer is remembered.
      */
     const TRANSIENT = 'vibestatic_latest_release';
 
     /**
-     * @var int Quanto si tiene una risposta buona.
+     * @var int How long a good answer is kept.
      */
     const TTL_OK = 12 * HOUR_IN_SECONDS;
 
     /**
-     * @var int Quanto si tiene un buco nell'acqua.
+     * @var int How long a miss is kept.
      *
-     * Anche il fallimento si ricorda, ed e' la meta' del lavoro: senza,
-     * un repository che non c'e' o un rate limit di GitHub — sessanta
-     * richieste all'ora per indirizzo IP, senza autenticazione — fanno
-     * ripartire la chiamata a ogni controllo degli aggiornamenti.
+     * Failure is remembered too, and that is half the work: without it, a
+     * repository that is not there, or GitHub's rate limit — sixty requests an
+     * hour per IP address, unauthenticated — would restart the call on every
+     * update check.
      */
     const TTL_FAIL = HOUR_IN_SECONDS;
 
@@ -54,8 +54,8 @@ class Updater {
     }
 
     /**
-     * L'URI dichiarato nell'header del plugin, che e' anche l'`id`
-     * dell'aggiornamento per WordPress.
+     * The URI declared in the plugin header, which is also the update's `id` as
+     * far as WordPress is concerned.
      */
     private static function updateUri() : string {
         return 'https://github.com/lignazio/vibestatic';
@@ -66,18 +66,18 @@ class Updater {
     }
 
     /**
-     * Risponde a WordPress per il NOSTRO plugin e per nessun altro.
+     * Answer WordPress for OUR plugin and for nobody else's.
      *
-     * Il nome del filtro contiene solo il nome dell'host, quindi
-     * `update_plugins_github.com` e' condiviso da ogni plugin installato che
-     * abbia un `Update URI` su GitHub. Un callback che rispondesse a tutti
-     * dirotterebbe gli aggiornamenti altrui verso le nostre release. Da qui il
-     * confronto sull'`UpdateURI` dichiarato, e il `$update` restituito intatto
-     * quando non e' affare nostro.
+     * The filter name contains only the host name, so
+     * `update_plugins_github.com` is shared by every installed plugin with an
+     * `Update URI` on GitHub. A callback that answered for all of them would
+     * redirect other people's updates to our releases. Hence the comparison
+     * against the declared `UpdateURI`, and `$update` returned untouched when
+     * it is none of our business.
      *
-     * @param array<string, mixed>|false $update      Quello che ha detto chi viene prima.
-     * @param array<string, string>      $plugin_data Header del plugin interrogato.
-     * @param string                     $plugin_file Il suo file principale.
+     * @param array<string, mixed>|false $update      Whatever came before us.
+     * @param array<string, string>      $plugin_data Headers of the plugin being asked about.
+     * @param string                     $plugin_file Its main file.
      * @return array<string, mixed>|false
      */
     public static function checkForUpdate( $update, array $plugin_data, string $plugin_file ) {
@@ -106,15 +106,15 @@ class Updater {
     }
 
     /**
-     * Riempie la finestra «Visualizza i dettagli della versione».
+     * Fill in the "View version details" panel.
      *
-     * Senza, quel link apre una modale che interroga wordpress.org per uno slug
-     * che li' non esiste, e mostra un errore: l'aggiornamento funzionerebbe, ma
-     * l'unica cosa che l'utente puo' cliccare prima di installarlo no.
+     * Without it, that link opens a modal which asks wordpress.org about a slug
+     * that does not exist there, and shows an error: the update itself would
+     * work, but the one thing the user can click before installing it would not.
      *
-     * @param object|array<string,mixed>|false $result Quello che ha detto chi viene prima.
-     * @param string                           $action Cosa sta chiedendo WordPress.
-     * @param object                           $args   Argomenti, fra cui lo slug.
+     * @param object|array<string,mixed>|false $result Whatever came before us.
+     * @param string                           $action What WordPress is asking for.
+     * @param object                           $args   Arguments, including the slug.
      * @return object|array<string,mixed>|false
      */
     public static function pluginInformation( $result, string $action, $args ) {
@@ -149,7 +149,7 @@ class Updater {
     }
 
     /**
-     * L'ultima release pubblicata, o null.
+     * The latest published release, or null.
      *
      * @return array{version: string, url: string, package: string, tested: string, notes: string}|null
      */
@@ -207,13 +207,13 @@ class Updater {
         $package = self::zipAssetUrl( $body );
 
         /*
-         * Nessun asset, nessun aggiornamento — e non si ripiega sullo zipball
-         * che GitHub genera da se`. Quello si scompatta in una cartella che si
-         * chiama `lignazio-vibestatic-<sha>`: WordPress installerebbe il plugin
-         * li' dentro, accanto a quello vero, e l'utente si ritroverebbe due
-         * copie e nessun aggiornamento. Lo zip costruito da
-         * `tools/build_release.sh` ha invece `vibestatic/` in cima, ed e'
-         * l'unica cosa che si puo' consegnare all'installer.
+         * No asset, no update — and no falling back on the zipball GitHub
+         * generates itself. That one unpacks into a directory named
+         * `lignazio-vibestatic-<sha>`: WordPress would install the plugin in
+         * there, next to the real one, leaving the user with two copies and no
+         * update. The zip built by `tools/build_release.sh` has `vibestatic/`
+         * at the top instead, and is the only thing that can be handed to the
+         * installer.
          */
         if ( ! $package ) {
             return null;
@@ -233,13 +233,13 @@ class Updater {
     }
 
     /**
-     * L'URL dello zip allegato alla release.
+     * The URL of the zip attached to the release.
      *
-     * Le chiavi sono `mixed` e non `string` perche' e' quello che
-     * `json_decode( …, true )` promette; il metodo ne legge una sola e non ha
-     * bisogno di sapere altro.
+     * The keys are `mixed` rather than `string` because that is what
+     * `json_decode( …, true )` promises; this method reads exactly one of them
+     * and needs to know nothing more.
      *
-     * @param array<mixed, mixed> $release La release come l'ha data GitHub.
+     * @param array<mixed, mixed> $release The release as GitHub returned it.
      */
     private static function zipAssetUrl( array $release ) : ?string {
         if ( ! isset( $release['assets'] ) || ! is_array( $release['assets'] ) ) {
@@ -263,8 +263,9 @@ class Updater {
     }
 
     /**
-     * `Tested up to` letto da readme.txt, che e' dove si aggiorna gia' a ogni
-     * release: ripeterlo qui vorrebbe dire tenerne allineati due.
+     * `Tested up to`, read from readme.txt, which is where it is already
+     * updated on every release: repeating it here would mean keeping two in
+     * step.
      */
     private static function testedUpTo() : string {
         if ( ! defined( 'VIBESTATIC_PATH' ) ) {

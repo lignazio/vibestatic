@@ -13,11 +13,11 @@ final class DetectCategoryURLsTest extends TestCase {
     }
 
     public function tearDown() : void {
-        // Senza queste due, le aspettative registrate con WP_Mock::userFunction
-        // non venivano mai verificate: restavano nel contenitore globale di
-        // Mockery e le controllava, per caso, il primo test successivo che
-        // chiamasse Mockery::close(). Cioe' i `'times' => 1` scritti qui dentro
-        // non asserivano niente.
+        // Without these two, the expectations registered with
+        // WP_Mock::userFunction were never checked: they stayed in Mockery's
+        // global container and were checked, by accident, by the first later
+        // test that called Mockery::close(). That is, the `'times' => 1`
+        // written in here asserted nothing.
         \WP_Mock::tearDown();
         \Mockery::close();
     }
@@ -59,10 +59,10 @@ final class DetectCategoryURLsTest extends TestCase {
         ];
 
         // Set pagination to 3 posts per page
-        // Qui non c'era posto per `get_option( 'posts_per_page' )`:
-        // DetectCategoryURLs non la chiama affatto — la paginazione la calcola
-        // DetectCategoryPaginationURLs, che e' un'altra classe. L'aspettativa
-        // c'era e diceva «una volta», ma nessuno la verificava.
+        // There was no place here for `get_option( 'posts_per_page' )`:
+        // DetectCategoryURLs never calls it — pagination is computed by
+        // DetectCategoryPaginationURLs, a different class. The expectation was
+        // there and said "once", but nobody was checking it.
 
         // Set up our custom taxonomies
         \WP_Mock::userFunction(

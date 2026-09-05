@@ -8,11 +8,11 @@ use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 
 /**
- * La Deploy Cache risponde a una domanda sola — «questo file e' gia' quello
- * che sta a destinazione?» — ed e' la domanda su cui poggia il deploy
- * incrementale. Prima non era verificabile perche' il percorso della cartella
- * post-processata arrivava da una chiamata statica dentro il metodo; ora entra
- * dal costruttore, e qui e' un filesystem virtuale.
+ * The Deploy Cache answers one question — "is this file already the one at the
+ * destination?" — and that is the question the incremental deploy rests on. It
+ * used to be untestable because the path to the post-processed directory came
+ * from a static call inside the method; it now arrives through the constructor,
+ * and here it is a virtual filesystem.
  */
 final class DeployCacheRepositoryTest extends TestCase {
 
@@ -64,9 +64,9 @@ final class DeployCacheRepositoryTest extends TestCase {
     }
 
     public function testPathHashUsesTheAbsolutePath() : void {
-        // Non e' un dettaglio: la stessa tabella la scrivono gli addon, e
-        // passare all'md5 del percorso relativo invaliderebbe in silenzio ogni
-        // cache esistente — cioe' un deploy completo al primo aggiornamento.
+        // Not a detail: add-ons write to the same table, and switching to the
+        // md5 of the relative path would silently invalidate every existing
+        // cache — that is, a full deploy on the first update.
         $this->assertSame(
             md5( $this->processed_path . 'about/index.html' ),
             $this->repo( $this->db() )->pathHash( 'about/index.html' )
@@ -111,8 +111,8 @@ final class DeployCacheRepositoryTest extends TestCase {
     public function testMissingFileIsNeverCachedAndCostsNoQuery() : void {
         $wpdb = $this->db();
 
-        // Se il file non c'e' non c'e' niente da confrontare: interrogare il
-        // database sarebbe una domanda senza risposta possibile.
+        // If the file is not there, there is nothing to compare: querying the
+        // database would be a question with no possible answer.
         $wpdb->shouldNotReceive( 'get_var' );
 
         $this->assertFalse( $this->repo( $wpdb )->isFileCached( 'mai-esistito.html' ) );
@@ -151,8 +151,8 @@ final class DeployCacheRepositoryTest extends TestCase {
     }
 
     public function testAnExplicitHashSkipsReadingTheFile() : void {
-        // Chi ha gia' il contenuto in memoria non deve rileggerlo dal disco:
-        // e' il caso del deployer, che lo ha appena caricato per spedirlo.
+        // A caller that already has the content in memory should not re-read
+        // it from disk: that is the deployer, which just loaded it to send.
         $wpdb = $this->db();
         $captured = null;
 
@@ -185,8 +185,8 @@ final class DeployCacheRepositoryTest extends TestCase {
 
         $this->repo( $wpdb )->truncate( 's3' );
 
-        // Un TRUNCATE TABLE qui butterebbe via anche le cache degli altri
-        // deployer configurati sullo stesso sito.
+        // A TRUNCATE TABLE here would throw away the caches of every other
+        // deployer configured on the same site as well.
         $this->assertSame(
             "DELETE FROM `wp_wp2static_deploy_cache` WHERE namespace = 's3'",
             $captured
@@ -205,8 +205,8 @@ final class DeployCacheRepositoryTest extends TestCase {
 
         $wpdb = $this->db();
 
-        // Cosa risulta gia' pubblicato: uno invariato, uno con l'hash vecchio,
-        // e uno che nel sito processato non c'e' piu'.
+        // What already counts as published: one unchanged, one with a stale
+        // hash, and one that is no longer in the processed site.
         $wpdb->shouldReceive( 'get_results' )->once()->andReturn(
             [
                 (object) [
@@ -261,10 +261,10 @@ final class DeployCacheRepositoryTest extends TestCase {
                 return [];
             }
         );
-        // Se il piano chiedesse al database un file per volta, `isFileCached()`
-        // farebbe cinquanta get_var. Su un sito vero sono milleottocento
-        // interrogazioni, cioe' il modo piu' rapido di rendere il deploy
-        // incrementale piu' lento di quello completo.
+        // If the plan asked the database one file at a time, `isFileCached()`
+        // would do fifty get_vars. On a real site that is eighteen hundred
+        // queries — the quickest way to make the incremental deploy slower than
+        // a full one.
         $wpdb->shouldNotReceive( 'get_var' );
 
         $plan = $this->repo( $wpdb )->plan( $paths );
@@ -299,8 +299,8 @@ final class DeployCacheRepositoryTest extends TestCase {
         $wpdb = $this->db();
         $wpdb->shouldReceive( 'get_results' )->once()->andReturn( [] );
 
-        // Dirlo «invariato» sarebbe una bugia, e metterlo fra quelli da
-        // caricare farebbe fallire il deploy su un file che non si puo' leggere.
+        // Calling it "unchanged" would be a lie, and putting it among the
+        // uploads would fail the deploy on a file that cannot be read.
         $plan = $this->repo( $wpdb )->plan( [ '/mai-esistito.html' ] );
 
         $this->assertSame( [], $plan->toDeploy() );
@@ -344,10 +344,9 @@ final class DeployCacheRepositoryTest extends TestCase {
 
         $this->repo( $wpdb )->truncateAll();
 
-        // Nessun WHERE: e' l'unico modo perche' un pulsante che dice «cancella
-        // la Deploy Cache» cancelli davvero la Deploy Cache. Prima chiamava la
-        // truncate con lo spazio dei nomi di default, e le cache degli altri
-        // deployer restavano in piedi.
+        // No WHERE: the only way a button that says "delete the Deploy Cache"
+        // actually deletes the Deploy Cache. It used to call truncate with the
+        // default namespace, leaving every other deployer's cache standing.
         $this->assertSame( 'TRUNCATE TABLE `wp_wp2static_deploy_cache`', $captured );
     }
 

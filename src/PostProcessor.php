@@ -19,22 +19,22 @@ class PostProcessor {
     }
 
     /**
-     * Toglie dal sito processato quello che il sito crawlato non ha piu`.
+     * Remove from the processed site whatever the crawled site no longer has.
      *
-     * Il ciclo qui sopra non cancella mai: copia e riscrive, quindi un file
-     * uscito dal sito crawlato restava nel processato per sempre, e
-     * `DeployCache::plan()` lo vedeva «invariato» e lo ripubblicava a ogni
-     * giro. Era il pezzo mancante fra un crawl che gia` sapeva dimenticare e
-     * un deploy che gia` sapeva rimuovere.
+     * The loop above never deletes: it copies and rewrites, so a file that left
+     * the crawled site stayed in the processed one forever, and
+     * `DeployCache::plan()` saw it as "unchanged" and republished it on every
+     * run. It was the missing piece between a crawl that already knew how to
+     * forget and a deploy that already knew how to remove.
      *
-     * Come nel Crawler, la garanzia e` che ci si arriva solo a giro finito:
-     * l'elenco e` quello che l'iteratore ha visto per intero. Un
-     * post-processing interrotto non arriva qui.
+     * As in the Crawler, the guarantee is that this is only reached once the
+     * run has finished: the list is what the iterator saw in full. An
+     * interrupted post-processing run never gets here.
      *
-     * E come nel Crawler, un elenco vuoto non cancella niente — un sito
-     * crawlato vuoto e` un crawl mai fatto, non un sito che non esiste piu`.
+     * And as in the Crawler, an empty list deletes nothing — an empty crawled
+     * site is a crawl that never ran, not a site that no longer exists.
      *
-     * @param string[] $processed_paths Percorsi appena scritti.
+     * @param string[] $processed_paths Paths just written.
      */
     private function pruneProcessedSite( array $processed_paths ) : void {
         if ( ! FilesHelper::pruningEnabled() ) {
@@ -101,11 +101,11 @@ class PostProcessor {
             $file_processor->processFile( ProcessedSite::getPath() . $save_path );
 
             /*
-             * `ProcessedSite::add()` scrive in `getPath() . "/$save_path"` e
-             * $save_path comincia gia' con la barra: il file finisce al
-             * percorso con una barra sola, ma la stringa ne ha due. Qui serve
-             * la forma normalizzata, che e' quella che rilegge chi scandisce
-             * la cartella.
+             * `ProcessedSite::add()` writes to `getPath() . "/$save_path"` and
+             * $save_path already starts with a slash: the file lands at the
+             * path with a single slash, but the string carries two. What is
+             * needed here is the normalised form, which is what anyone scanning
+             * the directory reads back.
              */
             $processed_paths[] = '/' . ltrim( $save_path, '/' );
         }

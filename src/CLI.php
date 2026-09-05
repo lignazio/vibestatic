@@ -490,10 +490,10 @@ class CLI {
         if ( ! $deployer ) {
             WP_CLI::line( 'No deployment add-ons are enabled, skipping deployment.' );
         } else {
-            // Era la terza copia dello stesso blocco — le altre due stanno in
-            // Controller — e la sola a non passare per il rapporto di deploy:
-            // chi lanciava il deploy da riga di comando non vedeva quanti file
-            // sarebbero stati toccati.
+            // This was the third copy of the same block — the other two are in
+            // Controller — and the only one that did not go through the deploy
+            // report: running a deploy from the command line showed no count of
+            // how many files would be touched.
             Controller::deploy( $deployer );
         }
         WsLog::l( 'Starting post-deployment actions' );

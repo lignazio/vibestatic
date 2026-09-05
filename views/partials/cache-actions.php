@@ -1,12 +1,12 @@
 <?php
 /**
- * Il form «mostra oppure cancella» della pagina Caches, ripetuto per ogni cache.
+ * The "show or delete" form on the Caches page, repeated for every cache.
  *
- * E' un file e non una closure dentro la view perche' le variabili di una
- * closure in un template restano `mixed` per l'analisi statica, e ogni valore
- * stampato diventa un cast da mixed che le regole strict vietano. Un `@var` in
- * cima a un file, invece, PHPStan lo legge — e' lo stesso motivo per cui il
- * paginatore e' un partial.
+ * It is a file rather than a closure inside the view because a closure's
+ * variables in a template stay `mixed` to static analysis, and every printed
+ * value then becomes a cast from mixed that the strict rules forbid. A `@var`
+ * at the top of a file, on the other hand, PHPStan reads — the same reason the
+ * paginator is a partial.
  *
  * @package WP2Static
  */
@@ -19,8 +19,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /** @var string $nonce_action */
 /** @var string $form_name */
-/** @var array<string, string> $form_actions Valore dell'azione => etichetta. */
-/** @var array<string, string> $form_hidden Campi nascosti in piu'. */
+/** @var array<string, string> $form_actions Action value => label. */
+/** @var array<string, string> $form_hidden Extra hidden fields. */
 
 $form_hidden = isset( $form_hidden ) ? $form_hidden : [];
 
@@ -51,8 +51,8 @@ $form_hidden = isset( $form_hidden ) ? $form_hidden : [];
 
 <?php
 /*
- * `$form_hidden` non deve sopravvivere alla require: la view include questo
- * file cinque volte di seguito nello stesso scope, e un campo nascosto lasciato
- * indietro finirebbe nel form successivo che non lo vuole.
+ * `$form_hidden` must not survive the require: the view includes this file five
+ * times in a row in the same scope, and a hidden field left behind would end up
+ * in the next form, which does not want it.
  */
 unset( $form_hidden );

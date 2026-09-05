@@ -13,11 +13,11 @@ final class DetectAuthorPaginationURLsTest extends TestCase {
     }
 
     public function tearDown() : void {
-        // Senza queste due, le aspettative registrate con WP_Mock::userFunction
-        // non venivano mai verificate: restavano nel contenitore globale di
-        // Mockery e le controllava, per caso, il primo test successivo che
-        // chiamasse Mockery::close(). Cioe' i `'times' => 1` scritti qui dentro
-        // non asserivano niente.
+        // Without these two, the expectations registered with
+        // WP_Mock::userFunction were never checked: they stayed in Mockery's
+        // global container and were checked, by accident, by the first later
+        // test that called Mockery::close(). That is, the `'times' => 1`
+        // written in here asserted nothing.
         \WP_Mock::tearDown();
         \Mockery::close();
     }
@@ -78,10 +78,10 @@ final class DetectAuthorPaginationURLsTest extends TestCase {
             ]
         );
         /*
-         * Nessun count_user_posts per l'utente 4: senza URL d'autore il codice
-         * passa oltre prima di contargli i post, ed e' proprio la cosa che
-         * questo caso verifica. L'aspettativa c'era, diceva «una volta», e non
-         * e' mai stata soddisfatta — semplicemente nessuno la controllava.
+         * No count_user_posts for user 4: with no author URL the code moves on
+         * before counting their posts, and that is exactly what this case
+         * verifies. The expectation was there, said "once", and was never met —
+         * nobody was simply checking it.
          */
 
         \WP_Mock::userFunction(

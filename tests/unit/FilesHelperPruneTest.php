@@ -8,9 +8,9 @@ use WP_Mock;
 use WP_Mock\Tools\TestCase;
 
 /**
- * La potatura e' l'unica cosa in questo plugin che cancella file di un sito
- * pubblicato. Ogni test qui sotto descrive un modo di sbagliarla, e il modo
- * peggiore non e' tenere un file di troppo: e' cancellarne uno che serviva.
+ * Pruning is the only thing in this plugin that deletes files from a published
+ * site. Every test below describes a way of getting it wrong, and the worst way
+ * is not keeping one file too many: it is deleting one that was needed.
  *
  * @runTestsInSeparateProcesses
  * @preserveGlobalState disabled
@@ -31,10 +31,10 @@ final class FilesHelperPruneTest extends TestCase {
     }
 
     /**
-     * Tredici file, perche' la sicura sulla quota si misura su quanti ce ne
-     * sono: con un albero piccolo ogni cancellazione legittima varrebbe da
-     * sola piu' di meta' della cartella, e ogni test finirebbe per esercitare
-     * il rifiuto invece di quello che vuole misurare.
+     * Thirteen files, because the fraction safety catch is measured against how
+     * many there are: with a small tree every legitimate deletion would on its
+     * own be worth more than half the directory, and every test would end up
+     * exercising the refusal instead of what it means to measure.
      */
     private function tree() : string {
         $vfs = vfsStream::setup( 'root' );
@@ -60,10 +60,10 @@ final class FilesHelperPruneTest extends TestCase {
     }
 
     /**
-     * Tutti i percorsi dell'albero, per costruire un elenco «tieni tutto
-     * tranne questi» senza riscriverlo a mano a ogni test.
+     * Every path in the tree, to build a "keep everything except these" list
+     * without rewriting it by hand in every test.
      *
-     * @param string[] $without Percorsi da togliere dall'elenco.
+     * @param string[] $without Paths to drop from the list.
      * @return string[]
      */
     private function allPathsExcept( array $without ) : array {
@@ -99,10 +99,10 @@ final class FilesHelperPruneTest extends TestCase {
         $dir = $this->tree();
 
         /*
-         * E' la sicura piu' importante di tutte. Un elenco vuoto arriva da una
-         * coda mai riempita o da un crawl mai fatto — «non lo so» — e leggerlo
-         * come «il sito e' vuoto» cancellerebbe tutto. Chi vuole davvero
-         * svuotare ha StaticSite::delete().
+         * The most important safety catch of them all. An empty list comes from
+         * a queue never filled or a crawl never run — "I do not know" — and
+         * reading it as "the site is empty" would delete everything. Anyone who
+         * really wants to empty it has StaticSite::delete().
          */
         $this->assertSame( [], FilesHelper::removePathsNotIn( $dir, [] ) );
         $this->assertFileExists( $dir . '/index.html' );
@@ -113,11 +113,11 @@ final class FilesHelperPruneTest extends TestCase {
         $dir = $this->tree();
 
         /*
-         * Dodici file su tredici. La rilevazione ha gia' una sicura sulla coda,
-         * ma la coda puo' accorciarsi anche per vie che non passano di li' —
-         * svuotata a mano dalla pagina Caches e poi riempita solo in parte.
-         * Questa e' la funzione che cancella davvero, ed e' l'ultimo punto in
-         * cui ci si puo' ancora fermare.
+         * Twelve files out of thirteen. Detection already has a safety catch on
+         * the queue, but the queue can also get shorter by routes that do not
+         * pass through it — emptied by hand from the Caches page and then only
+         * partly refilled. This is the function that actually deletes, and the
+         * last point at which one can still stop.
          */
         $removed = FilesHelper::removePathsNotIn( $dir, [ '/index.html' ] );
 
@@ -142,12 +142,12 @@ final class FilesHelperPruneTest extends TestCase {
             )
         );
 
-        // Una cartella vuota rimasta in giro diventa, su un server che elenca
-        // le directory, una pagina vuota indicizzabile.
+        // An empty directory left lying around becomes, on a server with
+        // directory listings, an indexable empty page.
         $this->assertDirectoryDoesNotExist( $dir . '/chi-siamo' );
         $this->assertDirectoryDoesNotExist( $dir . '/lavori/progetto-1' );
 
-        // Ma non quella che ha ancora qualcosa dentro.
+        // But not the one that still has something in it.
         $this->assertDirectoryExists( $dir . '/lavori' );
         $this->assertFileExists( $dir . '/lavori/progetto-4/index.html' );
     }
@@ -156,10 +156,10 @@ final class FilesHelperPruneTest extends TestCase {
         $dir = $this->tree();
 
         /*
-         * Un file solo, in fondo a tre cartelle annidate. Fra i genitori
-         * diretti del file cancellato c'e' solo `gennaio`: `2019` e `archivio`
-         * si svuotano perche' si e' svuotato quello che contenevano, e vanno
-         * raggiunti risalendo.
+         * A single file at the bottom of three nested directories. The deleted
+         * file's only direct parent is `gennaio`: `2019` and `archivio` become
+         * empty because what they held became empty, and are reached by walking
+         * up.
          */
         FilesHelper::removePathsNotIn(
             $dir,
@@ -170,7 +170,7 @@ final class FilesHelperPruneTest extends TestCase {
         $this->assertDirectoryDoesNotExist( $dir . '/archivio/2019' );
         $this->assertDirectoryDoesNotExist( $dir . '/archivio' );
 
-        // La radice no: quella e' la cartella, non il suo contenuto.
+        // Not the root: that is the directory, not its contents.
         $this->assertDirectoryExists( $dir );
     }
 
@@ -187,9 +187,9 @@ final class FilesHelperPruneTest extends TestCase {
     public function testATrailingSlashOnTheRootDoesNotShiftEveryPath() : void {
         $dir = $this->tree();
 
-        // Chi chiama passa il valore di getPath(), che un filtro puo' aver
-        // restituito con la barra finale: senza rtrim, ogni percorso letto
-        // perderebbe la prima lettera e nessuno corrisponderebbe piu'.
+        // The caller passes getPath()'s value, which a filter may have
+        // returned with a trailing slash: without rtrim, every path read would
+        // lose its first character and nothing would match any more.
         $removed = FilesHelper::removePathsNotIn( $dir . '/', $this->allPathsExcept( [] ) );
 
         $this->assertSame( [], $removed );
@@ -213,8 +213,8 @@ final class FilesHelperPruneTest extends TestCase {
     public function testHalfIsStillBelieved() : void {
         WP_Mock::onFilter( 'wp2static_max_stale_fraction' )->with( 0.5 )->reply( 0.5 );
 
-        // La soglia e' inclusiva: meta' esatta e' ancora un sito che si e'
-        // dimezzato, non necessariamente un passo rotto.
+        // The threshold is inclusive: exactly half is still a site that halved,
+        // not necessarily a broken step.
         $this->assertTrue( FilesHelper::shrinkIsPlausible( 50, 100 ) );
     }
 
@@ -222,10 +222,10 @@ final class FilesHelperPruneTest extends TestCase {
         WP_Mock::onFilter( 'wp2static_max_stale_fraction' )->with( 0.5 )->reply( 0.5 );
 
         /*
-         * E' la forma che ha un guasto a monte: la sitemap che non risponde, il
-         * post type non ancora registrato quando il job parte. Da qui non si
-         * distingue da un sito davvero svuotato, quindi non si sceglie — e non
-         * scegliere vuol dire non cancellare.
+         * This is the shape a failure upstream takes: a sitemap that stops
+         * responding, a post type not yet registered when the job starts. From
+         * here it is indistinguishable from a site that really was emptied, so
+         * no choice is made — and not choosing means not deleting.
          */
         $this->assertFalse( FilesHelper::shrinkIsPlausible( 1800, 1813 ) );
     }
@@ -233,22 +233,22 @@ final class FilesHelperPruneTest extends TestCase {
     public function testNothingIsNeverPlausible() : void {
         WP_Mock::onFilter( 'wp2static_max_stale_fraction' )->with( 0.5 )->reply( 0.5 );
 
-        // Nessuna divisione per zero, e nessuna decisione presa su niente.
+        // No division by zero, and no decision taken about nothing.
         $this->assertFalse( FilesHelper::shrinkIsPlausible( 0, 0 ) );
     }
 
     public function testTheThresholdCanBeRaisedByFilter() : void {
-        // Chi sa cosa sta facendo — una migrazione, un sito che si e' davvero
-        // svuotato — puo' portarla a 1 e togliere la sicura del tutto.
+        // Anyone who knows what they are doing — a migration, a site that
+        // really was emptied — can raise it to 1 and remove the catch entirely.
         WP_Mock::onFilter( 'wp2static_max_stale_fraction' )->with( 0.5 )->reply( 1.0 );
 
         $this->assertTrue( FilesHelper::shrinkIsPlausible( 1800, 1813 ) );
     }
 
     public function testAFilterThatReturnsNonsenseFallsBackToTheDefault() : void {
-        // apply_filters() restituisce quello che decide chi lo aggancia: una
-        // stringa castata a float darebbe 0.0, cioe' «non togliere mai
-        // niente», e lo farebbe senza dirlo.
+        // apply_filters() returns whatever the code hooking it decides: a
+        // string cast to float would give 0.0 — that is, "never remove
+        // anything" — and would do so without saying.
         WP_Mock::onFilter( 'wp2static_max_stale_fraction' )->with( 0.5 )->reply( 'meta' );
 
         $this->assertTrue( FilesHelper::shrinkIsPlausible( 18, 1813 ) );

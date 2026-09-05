@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Prima questo file era di 102 byte e dichiarava solo il bootstrap: il percorso
-  dei test arrivava a mano dallo script composer, e la separazione fra test
-  offline e test che fanno rete reale era un «exclude-group ExternalRequests»
-  ripetuto in ogni comando, che chi lanciava phpunit a mano si perdeva.
-  Ora sono due suite in due cartelle, e la seconda non gira se non la si chiede.
+  This file used to be 102 bytes and declared only the bootstrap: the path to
+  the tests came by hand from the composer script, and the separation between
+  offline tests and tests that make real network requests was an
+  "exclude-group ExternalRequests" repeated in every command, which anyone
+  running phpunit by hand simply missed. It is now two suites in two
+  directories, and the second does not run unless asked for.
 
-  Le conversioni qui sotto sono tutte accese, deprecation comprese. Regge
-  perché nessuna dipendenza scrive niente al caricamento dell'autoloader: il
-  fork di Guzzle del 2020 ne emetteva sei, e per i test marcati
-  @runTestsInSeparateProcesses quelle righe finivano dentro il canale con cui
-  PHPUnit parla al processo figlio, facendo fallire tutti e 32 i test isolati
-  con un errore vuoto, senza mai nominare la causa. Serviva una patch per
-  zittirle; con Guzzle upstream il problema non esiste più alla radice.
-  Se un giorno tornano a fallire senza messaggio, la prima cosa da guardare è
-  di nuovo l'output al caricamento dell'autoloader.
+  The conversions below are all on, deprecations included. That holds because no
+  dependency writes anything while the autoloader loads: the 2020 Guzzle fork
+  emitted six such lines, and for tests marked @runTestsInSeparateProcesses
+  those lines landed in the channel PHPUnit uses to talk to the child process,
+  failing all 32 isolated tests with an empty error that never named the cause.
+  A patch was needed to silence them; with upstream Guzzle the problem does not
+  exist at the root any more. If they ever start failing without a message
+  again, the first thing to look at is the autoloader's output once more.
 -->
 <phpunit
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -30,18 +30,19 @@
 >
     <testsuites>
         <!--
-          I test che girano senza rete. È questa la suite che deve restare
-          verde, ed è l'unica che esegue la CI.
+          The tests that run without a network. This is the suite that has to
+          stay green, and the only one CI runs.
         -->
         <testsuite name="unit">
             <directory>tests/unit</directory>
         </testsuite>
 
         <!--
-          Questi scaricano sitemap da host reali di terzi. Sono utili, ma non
-          sono unit test: falliscono quando la rete non c'è o quando cambia il
-          sito di qualcun altro, e in nessuno dei due casi dicono qualcosa sul
-          nostro codice. Si lanciano a parte, con `composer phpunit-external`.
+          These download sitemaps from real third-party hosts. They are useful,
+          but they are not unit tests: they fail when the network is down or
+          when somebody else's site changes, and in neither case do they say
+          anything about our code. Run them separately, with
+          `composer phpunit-external`.
         -->
         <testsuite name="external">
             <directory>tests/external</directory>

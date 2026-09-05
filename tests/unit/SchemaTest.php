@@ -37,10 +37,10 @@ final class SchemaTest extends TestCase {
         WP_Mock::userFunction( 'get_option', [ 'return' => (string) ( Schema::VERSION - 1 ) ] );
 
         /*
-         * E' il caso che prima non esisteva: le tabelle si creavano solo dentro
-         * register_activation_hook, che aggiornando il plugin non scatta. Una
-         * colonna aggiunta in una versione nuova non sarebbe mai arrivata sui
-         * siti gia' installati.
+         * This is the case that did not exist before: tables were created only
+         * inside register_activation_hook, which does not fire when the plugin
+         * is updated. A column added in a new version would never have reached
+         * sites that already had it installed.
          */
         $this->assertTrue( Schema::needsUpdate() );
     }
@@ -48,9 +48,9 @@ final class SchemaTest extends TestCase {
     public function testNothingHappensOnAFrontEndRequest() : void {
         WP_Mock::userFunction( 'is_admin', [ 'return' => false ] );
 
-        // Il confronto costa una lettura di un'opzione autoloaded; dbDelta no.
-        // Farlo partire dalla richiesta di un visitatore vuol dire fargli
-        // pagare l'aggiornamento.
+        // The comparison costs one read of an autoloaded option; dbDelta does
+        // not. Letting a visitor's request trigger it means making that visitor
+        // pay for the upgrade.
         WP_Mock::userFunction( 'get_option', [ 'times' => 0 ] );
 
         Schema::updateIfNeeded();

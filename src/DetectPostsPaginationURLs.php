@@ -74,13 +74,12 @@ class DetectPostsPaginationURLs {
             $total_pages = ceil( $post_type_total / $default_posts_per_page );
 
             /*
-             * Fuori dal ciclo delle pagine. La pagina degli articoli si legge
-             * dalle impostazioni e non puo' cambiare mentre si generano gli
-             * URL: qui dentro erano due letture per ogni pagina di
-             * paginazione, cioe' centinaia su un sito vero, tutte con la
-             * stessa risposta. E' anche la ragione per cui il test che
-             * dichiarava «una volta sola» non e' mai stato verificato: nessuno
-             * verificava le aspettative di quel file.
+             * Outside the page loop. The posts page is read from the settings
+             * and cannot change while the URLs are being generated: in here it
+             * was two reads per pagination page, hundreds on a real site, all
+             * with the same answer. It is also why the test that claimed "once
+             * only" was never verified: nobody was checking that file's
+             * expectations.
              */
             $post_archive_slug = '';
 

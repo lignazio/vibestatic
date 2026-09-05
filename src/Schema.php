@@ -1,19 +1,18 @@
 <?php
 /**
- * Creazione e aggiornamento delle tabelle.
+ * Creating and updating the tables.
  *
- * Prima le tabelle si creavano solo dentro `register_activation_hook`, che
- * scatta all'attivazione e mai piu'. Aggiornando il plugin — dal pannello di
- * WordPress, da Composer, sostituendo i file — quel gancio non scatta: una
- * colonna aggiunta in una versione nuova non sarebbe mai arrivata sui siti
- * gia' installati, e il codice nuovo avrebbe interrogato una tabella vecchia.
- * E' anche il motivo per cui dentro le createTable() ci sono i rattoppi che
- * tolgono colonne obsolete e ricreano indici: erano l'unico posto in cui
- * potevano girare.
+ * Tables used to be created only inside `register_activation_hook`, which fires
+ * on activation and never again. Updating the plugin — from the WordPress
+ * dashboard, from Composer, by replacing the files — does not fire that hook: a
+ * column added in a new version would never reach sites that already had the
+ * plugin, and the new code would query an old table. It is also why the
+ * createTable() methods carry the patches that drop obsolete columns and
+ * recreate indexes: that was the only place they could ever run.
  *
- * Adesso c'e' un numero di versione. Quando cambia, le tabelle si rifanno —
- * dbDelta e' idempotente, quindi rifarle su uno schema gia' aggiornato non
- * costa niente e non tocca i dati.
+ * Now there is a version number. When it changes, the tables are rebuilt —
+ * dbDelta is idempotent, so rebuilding an already-current schema costs nothing
+ * and does not touch the data.
  *
  * @package WP2Static
  */
@@ -23,23 +22,23 @@ namespace WP2Static;
 class Schema {
 
     /**
-     * Da alzare di uno ogni volta che cambia la definizione di una tabella.
+     * Bump this by one whenever a table definition changes.
      *
-     * Se non la si alza, la modifica arriva solo sulle installazioni nuove, e
-     * il difetto si vede molto dopo e altrove.
+     * Forget to, and the change only reaches fresh installations, so the defect
+     * shows up much later and somewhere else.
      *
-     * 2 — opzione `removeWordPressCruft`. Non e' una colonna nuova: e' una riga
-     *     che `seedOptions()` deve inserire anche dove il plugin c'e' gia'.
+     * 2 — the `removeWordPressCruft` option. Not a new column: a row that
+     *     `seedOptions()` has to insert on sites that already have the plugin.
      */
     const VERSION = 2;
 
     /**
-     * @var string Dove si ricorda la versione applicata.
+     * @var string Where the applied version is remembered.
      */
     const OPTION = 'vibestatic_schema_version';
 
     /**
-     * Crea o aggiorna tutte le tabelle, e registra la versione.
+     * Create or update every table, and record the version.
      */
     public static function install() : void {
         WsLog::createTable();
@@ -54,19 +53,19 @@ class Schema {
     }
 
     /**
-     * Vero quando lo schema sul posto non e' quello che questo codice si aspetta.
+     * True when the schema in place is not the one this code expects.
      */
     public static function needsUpdate() : bool {
         return get_option( self::OPTION ) !== (string) self::VERSION;
     }
 
     /**
-     * Aggiorna lo schema se serve.
+     * Update the schema if it needs it.
      *
-     * Gira su `plugins_loaded`, ma solo in admin e da riga di comando: il
-     * confronto costa una lettura di un'opzione autoloaded, cioe' niente, ma
-     * dbDelta no — e farlo partire dalla richiesta di un visitatore qualunque
-     * vuol dire far pagare a lui l'aggiornamento.
+     * Runs on `init`, but only in the admin and from the command line: the
+     * comparison costs one read of an autoloaded option, which is nothing, but
+     * dbDelta is not — and letting a random visitor's request trigger it means
+     * making that visitor pay for the upgrade.
      */
     public static function updateIfNeeded() : void {
         if ( ! is_admin() && ! ( defined( 'WP_CLI' ) && constant( 'WP_CLI' ) ) ) {

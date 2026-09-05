@@ -236,11 +236,11 @@ class SitemapParser {
 
         try {
             /*
-              * La validazione veniva DOPO la scrittura: le due righe che
-              * mettono lo User-Agent scrivevano dentro $this->config['guzzle']
-              * e solo allora si controllava che fosse un array. Se non lo era,
-              * l'errore arrivava dalla scrittura, non dal controllo, e il
-              * messaggio che spiega il problema non veniva mai stampato.
+              * Validation used to come AFTER the write: the two lines that set
+              * the User-Agent wrote into $this->config['guzzle'] and only then
+              * was it checked to be an array. If it was not, the error came from
+              * the write rather than the check, and the message explaining the
+              * problem was never printed.
               */
             $guzzle_config = $this->config['guzzle'] ?? [];
 
@@ -258,10 +258,10 @@ class SitemapParser {
             $client = new GuzzleHttp\Client( [ 'verify' => false ] );
 
             /*
-             * Guzzle 8 dichiara la forma esatta dell'array di opzioni, ma
-             * questo arriva dal costruttore: e' configurazione di chi usa la
-             * classe, e la sua forma non e' dimostrabile staticamente. Il
-             * controllo qui sopra e' quanto si puo' verificare.
+             * Guzzle 8 declares the exact shape of the options array, but this
+             * one arrives through the constructor: it is the caller's
+             * configuration, and its shape cannot be proven statically. The
+             * check above is as much as can be verified.
              *
              * @phpstan-ignore argument.type
              */
@@ -276,7 +276,7 @@ class SitemapParser {
                 return null;
             }
         } catch ( GuzzleHttp\Exception\TransferException $e ) {
-            // Messaggio letterale; $e è l'eccezione precedente, non output.
+            // Literal message; $e is the previous exception, not output.
             // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
             throw new WP2StaticException( 'Unable to fetch URL contents', 0, $e );
         } catch ( GuzzleHttp\Exception\GuzzleException $e ) {

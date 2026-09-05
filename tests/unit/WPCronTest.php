@@ -63,11 +63,12 @@ final class WPCronTest extends TestCase {
         $request = WPCron::wp2static_cron_with_http_basic_auth( $this->cronRequest() );
 
         /*
-         * E' il difetto: la funzione restituiva i soli header. WordPress subito
-         * dopo fa `wp_remote_post( $cron_request['url'], $cron_request['args'] )`,
-         * quindi senza `url` e senza `args` WP-Cron non parte — e non parte
-         * solo con la basic auth configurata, cioe' esattamente nel caso per
-         * cui questa funzione esiste.
+         * This is the defect: the function returned the headers alone. Right
+         * afterwards WordPress does
+         * `wp_remote_post( $cron_request['url'], $cron_request['args'] )`, so
+         * with no `url` and no `args` WP-Cron does not fire — and it fails to
+         * fire only with basic auth configured, which is exactly the case this
+         * function exists for.
          */
         $this->assertSame(
             'https://esempio.it/wp-cron.php?doing_wp_cron=1',
@@ -91,8 +92,8 @@ final class WPCronTest extends TestCase {
 
         $request = WPCron::wp2static_cron_with_http_basic_auth( $original );
 
-        // Un altro plugin puo' essersi agganciato allo stesso filtro prima di
-        // noi: sovrascrivere i suoi header sarebbe romperlo.
+        // Another plugin may have hooked the same filter before us:
+        // overwriting its headers would break it.
         $this->assertSame( 'si', $request['args']['headers']['X-Da-Un-Addon'] );
         $this->assertArrayHasKey( 'Authorization', $request['args']['headers'] );
     }
@@ -113,8 +114,9 @@ final class WPCronTest extends TestCase {
 
         $original = $this->cronRequest();
 
-        // Mandare un header Basic con la password vuota non autentica e basta:
-        // fa fallire la richiesta con un 401 invece che senza header.
+        // Sending a Basic header with an empty password does not merely fail to
+        // authenticate: it fails the request with a 401 instead of going
+        // without the header at all.
         $this->assertSame(
             $original,
             WPCron::wp2static_cron_with_http_basic_auth( $original )

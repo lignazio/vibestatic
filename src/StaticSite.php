@@ -55,19 +55,19 @@ class StaticSite {
     }
 
     /**
-     * Toglie dal sito crawlato i file che non hanno piu` un URL che li spieghi.
+     * Remove from the crawled site the files that no longer have a URL to
+     * explain them.
      *
-     * L'elenco arriva da chi chiama e non se lo costruisce da se`: e` il
-     * Crawler a sapere quando la domanda «sono questi tutti gli URL che ci
-     * sono?» ha una risposta, e questa classe resta il salvataggio su file che
-     * e` sempre stata.
+     * The list comes from the caller and is not built here: it is the Crawler
+     * that knows when the question "are these all the URLs there are?" has an
+     * answer, and this class stays the file-saving layer it has always been.
      *
-     * Il filtro serve a chi scrive nella cartella senza passare dalla coda —
-     * un addon che ci deposita un file suo dopo il crawl. Senza, quel file
-     * sarebbe un orfano e sparirebbe al giro dopo.
+     * The filter is for anyone writing into the directory without going through
+     * the queue — an add-on dropping a file of its own there after the crawl.
+     * Without it, that file would be an orphan and would vanish on the next run.
      *
-     * @param string[] $expected_paths Percorsi che devono restare.
-     * @return string[] Percorsi rimossi.
+     * @param string[] $expected_paths Paths that must stay.
+     * @return string[] Paths removed.
      */
     public static function prune( array $expected_paths ) : array {
         /** @var string[] $expected_paths */

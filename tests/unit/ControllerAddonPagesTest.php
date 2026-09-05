@@ -7,9 +7,9 @@ use WP_Mock;
 use WP_Mock\Tools\TestCase;
 
 /**
- * Sta al posto del Controller di un addon: `is_callable()` su
- * `[ 'Classe', 'metodo' ]` e' vero solo se la classe esiste davvero, ed e'
- * proprio il controllo che si vuole verificare.
+ * Stands in for an add-on's Controller: `is_callable()` on
+ * `[ 'Class', 'method' ]` is only true if the class really exists, and that is
+ * precisely the check being verified.
  */
 class FixtureAddonController {
 
@@ -21,16 +21,16 @@ class FixtureAddonController {
 }
 
 /**
- * Le pagine che gli addon chiedono di aggiungere.
+ * The pages add-ons ask to have registered.
  *
- * `wp2static_add_menu_items` e' morto nel core il 9 maggio 2020 (commit
- * 0b1db4e3) e nessuno l'ha piu' lanciato, mentre sftp, s3 e netlify hanno
- * continuato a registrarcisi: quei tre addon si installano, si attivano, si
- * agganciano al deploy e non hanno nessun posto dove mettere le credenziali.
+ * `wp2static_add_menu_items` died in the core on 9 May 2020 (commit 0b1db4e3)
+ * and nothing fired it again, while sftp, s3 and netlify kept registering on
+ * it: those three add-ons install, activate, hook into the deploy, and have
+ * nowhere to put their credentials.
  *
- * Quello che torna dal filtro lo decide un addon di terzi, quindi puo' essere
- * qualunque cosa: questi test coprono i casi in cui non e' quello che il
- * contratto prometteva.
+ * What comes back from the filter is decided by a third-party add-on, so it can
+ * be anything: these tests cover the cases where it is not what the contract
+ * promised.
  *
  * @runTestsInSeparateProcesses
  * @preserveGlobalState disabled
@@ -47,8 +47,8 @@ final class ControllerAddonPagesTest extends TestCase {
     }
 
     /**
-     * @param mixed $filter_result Quello che restituiscono gli addon.
-     * @return list<array<int, mixed>> Le chiamate ad add_submenu_page().
+     * @param mixed $filter_result What the add-ons return.
+     * @return list<array<int, mixed>> The calls made to add_submenu_page().
      */
     private function pagesRegisteredWhenAddonsReturn( $filter_result ) : array {
         WP_Mock::onFilter( 'wp2static_add_menu_items' )
@@ -78,8 +78,8 @@ final class ControllerAddonPagesTest extends TestCase {
         );
 
         $this->assertCount( 1, $pages );
-        // Lo slug è `wp2static-<chiave>`: è il contratto di allora, e quello
-        // che gli addon si aspettano ancora.
+        // The slug is `wp2static-<key>`: the contract from back then, and what
+        // add-ons still expect.
         $this->assertSame( 'wp2static-sftp', $pages[0][4] );
         $this->assertSame( 'wp2static', $pages[0][0] );
         $this->assertSame( 'manage_options', $pages[0][3] );
@@ -100,8 +100,8 @@ final class ControllerAddonPagesTest extends TestCase {
     }
 
     /**
-     * Un addon che restituisce qualcosa che non è un array non deve poter
-     * spegnere il menu di tutto il plugin.
+     * An add-on returning something that is not an array must not be able to
+     * take down the whole plugin's menu.
      */
     public function testSomethingThatIsNotAnArrayIsIgnored() : void {
         $this->assertSame( [], $this->pagesRegisteredWhenAddonsReturn( 'niente' ) );

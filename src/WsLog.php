@@ -78,8 +78,9 @@ class WsLog {
 
         $current_time = current_time( 'mysql' );
 
-        // Un '(%s)' per riga di log: la stringa si compone perché il numero di
-        // righe varia, ma è fatta di soli segnaposto e ogni riga passa da prepare().
+        // One '(%s)' per log row: the string is assembled because the number
+        // of rows varies, but it is made of placeholders only and every row
+        // goes through prepare().
         $query = 'INSERT INTO %i (log) VALUES ' .
             implode(
                 ',',
