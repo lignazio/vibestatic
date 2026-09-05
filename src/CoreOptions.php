@@ -414,6 +414,17 @@ class CoreOptions {
                         'node_modules',
                         'package.json',
                         'pb_backupbuddy',
+                        /*
+                         * La cartella del plugin. Erano due nomi vecchi
+                         * — `plugins/wp2static` e `wp2static-addon` — rimasti
+                         * dopo il rinominamento: da allora il plugin non
+                         * escludeva piu' se stesso, e il crawl ha pubblicato
+                         * `wp-content/plugins/vibestatic` (la 404 di WordPress
+                         * per quell'URL, 84 KB) dentro il sito statico. I nomi
+                         * vecchi restano: chi arriva da WP2Static ha ancora
+                         * quelle cartelle sul disco.
+                         */
+                        'plugins/vibestatic',
                         'plugins/wp2static',
                         'previous-export',
                         'README',
@@ -425,6 +436,7 @@ class CoreOptions {
                         'wpallexport',
                         'wpallimport',
                         'wp-static-html-output', // exclude earlier version exports
+                        'vibestatic-addon',
                         'wp2static-addon',
                         'wp2static-crawled-site',
                         'wp2static-processed-site',
@@ -914,35 +926,56 @@ class CoreOptions {
                     [ 'value' => $crawl_concurrency < 1 ? 1 : $crawl_concurrency ]
                 );
 
-                $file_extensions_to_ignore = preg_replace(
-                    '/^\s+|\s+$/m',
-                    '',
-                    strval( filter_input( INPUT_POST, 'fileExtensionsToIgnore' ) )
-                );
-                self::repository()->update(
-                    'fileExtensionsToIgnore',
-                    [ 'blob_value' => $file_extensions_to_ignore ]
-                );
+                /*
+                 * `isset()` prima di scrivere, e non e' pignoleria.
+                 *
+                 * `filter_input( INPUT_POST, 'filenamesToIgnore' )` torna null
+                 * sia quando il campo e' stato svuotato di proposito sia quando
+                 * non e' stato inviato affatto, e `strval( null )` fa diventare
+                 * i due casi la stessa cosa: stringa vuota, scritta sopra al
+                 * valore buono. Una richiesta che non porti quel campo — un
+                 * form a cui manchi il controllo, un POST costruito a mano —
+                 * cancellava cosi' un elenco di quaranta righe curato a mano,
+                 * senza dire niente e senza modo di tornare indietro.
+                 *
+                 * E' successo davvero, su questa installazione: nella finestra
+                 * in cui `OptionRenderer` restituiva markup escapato, la pagina
+                 * Advanced mostrava del testo al posto dei campi, quindi un
+                 * salvataggio non inviava nessuna textarea — e le due liste di
+                 * esclusione sono rimaste vuote. Con `filenamesToIgnore` vuota
+                 * il crawl non esclude piu' niente: `.git`, `node_modules`,
+                 * `composer.lock` diventano candidati all'esportazione.
+                 *
+                 * Assente vuol dire «lascia stare». Svuotare l'elenco resta
+                 * possibile, ma va chiesto mandando il campo vuoto.
+                 */
+                foreach (
+                    [
+                        'fileExtensionsToIgnore',
+                        'filenamesToIgnore',
+                        'hostsToRewrite',
+                    ] as $blob_option
+                ) {
+                    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- il nonce lo verifica Controller::authorize(), che e' l'unica strada per arrivare qui.
+                    if ( ! isset( $_POST[ $blob_option ] ) ) {
+                        continue;
+                    }
 
-                $filenames_to_ignore = preg_replace(
-                    '/^\s+|\s+$/m',
-                    '',
-                    strval( filter_input( INPUT_POST, 'filenamesToIgnore' ) )
-                );
-                self::repository()->update(
-                    'filenamesToIgnore',
-                    [ 'blob_value' => $filenames_to_ignore ]
-                );
+                    // Un elenco arriva come una textarea, cioe' come stringa.
+                    // Se e' un array la richiesta non viene dal nostro form.
+                    // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanificato due righe sotto; qui si guarda solo il tipo.
+                    if ( ! is_string( $_POST[ $blob_option ] ) ) {
+                        continue;
+                    }
 
-                $hosts_to_rewrite = preg_replace(
-                    '/^\s+|\s+$/m',
-                    '',
-                    strval( filter_input( INPUT_POST, 'hostsToRewrite' ) )
-                );
-                self::repository()->update(
-                    'hostsToRewrite',
-                    [ 'blob_value' => $hosts_to_rewrite ]
-                );
+                    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- vedi sopra.
+                    $posted_list = sanitize_textarea_field( wp_unslash( $_POST[ $blob_option ] ) );
+
+                    self::repository()->update(
+                        $blob_option,
+                        [ 'blob_value' => preg_replace( '/^\s+|\s+$/m', '', $posted_list ) ]
+                    );
+                }
 
                 self::repository()->update(
                     'skipURLRewrite',

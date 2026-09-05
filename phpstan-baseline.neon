@@ -117,7 +117,7 @@ parameters:
 		-
 			rawMessage: 'In method "WP2Static\CoreOptions::savePosted", you should not use the $_POST superglobal.'
 			identifier: thecodingmachine.superglobalUsed
-			count: 18
+			count: 21
 			path: src/CoreOptions.php
 
 		-
