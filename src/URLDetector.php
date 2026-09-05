@@ -192,14 +192,123 @@ class URLDetector {
         return $unique_urls;
     }
 
+    /**
+     * Gli URL in coda che la rilevazione non nomina piu`.
+     *
+     * Il confronto passa da `rawurldecode()` perche` le due liste non hanno la
+     * stessa forma: `CrawlQueueRepository::addUrls()` salva l'URL decodificato
+     * nella colonna `url`, mentre la rilevazione li produce codificati.
+     * Confrontarli cosi` come sono farebbe leggere come «sparito» ogni URL con
+     * uno spazio o un accento — cioe` ogni file caricato con un nome italiano.
+     *
+     * @param array<int,string> $queued   Righe della coda, id => URL.
+     * @param string[]          $detected URL appena rilevati.
+     * @return array<int,string> id => URL da dimenticare.
+     */
+    public static function staleQueueEntries( array $queued, array $detected ) : array {
+        $known = [];
+
+        foreach ( $detected as $url ) {
+            $known[ rawurldecode( $url ) ] = true;
+        }
+
+        $stale = [];
+
+        foreach ( $queued as $id => $url ) {
+            if ( ! isset( $known[ $url ] ) ) {
+                $stale[ $id ] = $url;
+            }
+        }
+
+        return $stale;
+    }
+
+    /**
+     * Allinea la coda a quello che la rilevazione ha appena visto.
+     *
+     * Prima la coda era solo additiva — «No longer truncate before adding»,
+     * diceva il commento — e un URL che smetteva di essere rilevato ci restava
+     * per sempre: veniva ricrawlato, riprocessato e ripubblicato a ogni giro,
+     * anche quando la ragione per cui esisteva non c'era piu`. E` questo il
+     * pezzo che mancava perche` un sito possa rimpicciolire.
+     *
+     * Additiva pero` non era un capriccio: la coda si svuotava e si riempiva,
+     * e fra i due momenti un crawl avrebbe visto un sito vuoto. Qui non si
+     * svuota niente — si toglie riga per riga, e solo quelle che la rilevazione
+     * non ha nominato.
+     *
+     * La riga della CrawlCache se ne va insieme, e non e` un di piu`: se l'URL
+     * tornasse con lo stesso contenuto, l'hash ancora in cache farebbe saltare
+     * la scrittura del file e l'URL resterebbe rilevato, crawlato e assente
+     * dal deploy — un buco peggiore di quello che si sta chiudendo.
+     *
+     * @param string[] $detected URL appena rilevati.
+     * @return int Quanti URL sono stati dimenticati.
+     */
+    public static function pruneCrawlQueue( array $detected ) : int {
+        if ( ! FilesHelper::pruningEnabled() ) {
+            return 0;
+        }
+
+        if ( ! $detected ) {
+            // Una rilevazione che non trova niente non e` un sito vuoto: e`
+            // una rilevazione andata male.
+            return 0;
+        }
+
+        $queued = CrawlQueue::getCrawlablePaths();
+        $stale = self::staleQueueEntries( $queued, $detected );
+
+        if ( ! $stale ) {
+            return 0;
+        }
+
+        if ( ! FilesHelper::shrinkIsPlausible( count( $stale ), count( $queued ) ) ) {
+            WsLog::l(
+                sprintf(
+                    'Detection claims %d of %d queued URLs are gone. That is more than ' .
+                    'this step will remove on its own, so nothing was removed: it looks ' .
+                    'more like a failed detector than a smaller site. If the site really ' .
+                    'did shrink that much, use Delete All Caches and run a full workflow.',
+                    count( $stale ),
+                    count( $queued )
+                )
+            );
+
+            return 0;
+        }
+
+        /*
+         * Per id, non per URL: `CrawlQueue::rmUrl()` cerca `md5($url)` sulla
+         * colonna `hashed_url`, che pero` contiene l'md5 dell'URL *codificato*
+         * mentre la colonna `url` tiene quello decodificato. Sugli URL con
+         * caratteri da codificare i due non coincidono e la riga non se ne
+         * andrebbe. L'id non ha questo problema.
+         */
+        CrawlQueue::rmUrlsById( array_map( 'strval', array_keys( $stale ) ) );
+        CrawlCache::rmUrls( array_values( $stale ) );
+
+        WsLog::l(
+            sprintf(
+                'Pruned Crawl Queue: %d URL(s) no longer detected.',
+                count( $stale )
+            )
+        );
+
+        return count( $stale );
+    }
+
     public static function enqueueURLs() : string {
         $unique_urls = static::detectURLs();
 
-        // No longer truncate before adding
-        // addUrls is now doing INSERT IGNORE based on URL hash to be
-        // additive and not error on duplicate
-
+        // addUrls does an INSERT IGNORE on the URL hash, so re-adding a URL
+        // that is already queued is free and does not error on duplicates.
         CrawlQueue::addUrls( $unique_urls );
+
+        // Toglie quelle che la rilevazione non nomina piu`. Dopo l'aggiunta e
+        // non prima: fra le due la coda non e` mai vuota, quindi un crawl che
+        // partisse in mezzo non vedrebbe mai un sito vuoto.
+        static::pruneCrawlQueue( $unique_urls );
 
         return (string) count( $unique_urls );
     }

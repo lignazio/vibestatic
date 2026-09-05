@@ -6,6 +6,8 @@ use Mockery;
 use WP2Static\Vendor\GuzzleHttp\Client;
 use WP2Static\Vendor\GuzzleHttp\Handler\MockHandler;
 use WP2Static\Vendor\GuzzleHttp\HandlerStack;
+use WP2Static\Vendor\GuzzleHttp\Exception\ConnectException;
+use WP2Static\Vendor\GuzzleHttp\Psr7\Request;
 use WP2Static\Vendor\GuzzleHttp\Psr7\Response;
 use WP_Mock;
 use WP_Mock\Tools\TestCase;
@@ -32,11 +34,19 @@ final class CrawlerTest extends TestCase {
      */
     private $cached = [];
 
+    /**
+     * @var string[]|null L'elenco dei percorsi che devono restare, come e'
+     *                    arrivato a StaticSite::prune(). Null se prune() non
+     *                    e' stata chiamata affatto.
+     */
+    private $pruned_against = null;
+
     public function setUp() : void {
         WP_Mock::setUp();
 
         $this->written = [];
         $this->cached = [];
+        $this->pruned_against = null;
 
         Mockery::mock( 'overload:\WP2Static\WsLog' )
             ->shouldReceive( 'l' )->andReturnNull()
@@ -48,12 +58,22 @@ final class CrawlerTest extends TestCase {
                     $this->written[ $path ] = $contents;
                 }
             )
+            ->shouldReceive( 'prune' )->andReturnUsing(
+                function ( $expected ) {
+                    $this->pruned_against = $expected;
+
+                    return [];
+                }
+            )
             ->shouldReceive( 'getPath' )->andReturn( '/percorso/che-non-esiste/' );
 
         Mockery::mock( 'overload:\WP2Static\ProcessedSite' )
             ->shouldReceive( 'getPath' )->andReturn( '/percorso/che-non-esiste/' );
 
         WP_Mock::userFunction( 'trailingslashit', [ 'return' => fn( $s ) => rtrim( $s, '/' ) . '/' ] );
+
+        Mockery::mock( 'overload:\WP2Static\FilesHelper' )
+            ->shouldReceive( 'pruningEnabled' )->andReturn( true );
     }
 
     public function tearDown() : void {
@@ -196,5 +216,50 @@ final class CrawlerTest extends TestCase {
         // L'hash di un redirect e' fatto di stato e destinazione, non del
         // corpo: e' cosi' che si accorge se la destinazione cambia.
         $this->assertSame( md5( '301/nuovo/' ), $this->cached[0]['hash'] );
+    }
+
+    public function testAFinishedCrawlPrunesTheStaticSiteAgainstTheQueue() : void {
+        $this->mockOptionsAndQueue( [ '/chi-siamo/', '/logo.svg' ], false );
+        $this->mockCrawlCache( [] );
+
+        $this->crawler(
+            [
+                new Response( 200, [], 'chi siamo' ),
+                new Response( 200, [], '<svg/>' ),
+            ]
+        )->crawlSite( '/statico' );
+
+        /*
+         * L'elenco di cosa tenere e' la coda passata per transformPath, non
+         * quello che il crawl ha appena scritto: un cache hit non riscrive il
+         * file, e confrontarsi con le scritture cancellerebbe tutto il sito al
+         * primo crawl a freddo.
+         */
+        $this->assertSame(
+            [ '/chi-siamo/index.html', '/logo.svg' ],
+            $this->pruned_against
+        );
+    }
+
+    public function testACrawlWhoseRequestsAllFailStillKeepsTheQueuedPaths() : void {
+        $this->mockOptionsAndQueue( [ '/chi-siamo/' ], false );
+        $this->mockCrawlCache( [] );
+
+        // Il server non risponde: la richiesta viene rifiutata, non serviamo
+        // nessuna Response.
+        $stack = HandlerStack::create(
+            new MockHandler( [ new ConnectException( 'niente rete', new Request( 'GET', '/' ) ) ] )
+        );
+
+        ( new Crawler( new Client( [ 'handler' => $stack ] ), 'https://esempio.it' ) )
+            ->crawlSite( '/statico' );
+
+        /*
+         * Un sito irraggiungibile non si spubblica da se': l'URL e' ancora in
+         * coda, quindi il suo file va tenuto anche se stavolta non e' arrivato
+         * niente.
+         */
+        $this->assertSame( [], $this->written );
+        $this->assertSame( [ '/chi-siamo/index.html' ], $this->pruned_against );
     }
 }

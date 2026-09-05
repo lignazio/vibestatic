@@ -139,6 +139,29 @@ final class CrawlQueueRepositoryTest extends TestCase {
         );
     }
 
+    public function testRmUrlsByIdSplitsALongListIntoChunks() : void {
+        $wpdb = $this->db();
+        $queries = [];
+
+        $wpdb->shouldReceive( 'query' )->andReturnUsing(
+            function ( $sql ) use ( &$queries ) {
+                $queries[] = $sql;
+                return 1;
+            }
+        );
+
+        // Da quando la rilevazione allinea la coda, qui puo' arrivare tutta la
+        // parte di sito sparita in un colpo solo: una DELETE con 250 %d
+        // supererebbe max_allowed_packet su installazioni strette.
+        ( new CrawlQueueRepository( $wpdb ) )->rmUrlsById(
+            array_map( 'strval', range( 1, 250 ) )
+        );
+
+        $this->assertCount( 3, $queries );
+        $this->assertSame( 100, substr_count( $queries[0], ',' ) + 1 );
+        $this->assertSame( 50, substr_count( $queries[2], ',' ) + 1 );
+    }
+
     public function testRmUrlsByIdWithNoIdsRunsNoQuery() : void {
         $wpdb = $this->db();
         $wpdb->shouldNotReceive( 'query' );

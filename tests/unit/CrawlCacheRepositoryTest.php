@@ -242,4 +242,61 @@ final class CrawlCacheRepositoryTest extends TestCase {
 
         $this->assertSame( [ 7, 9 ], array_keys( $urls ) );
     }
+
+    public function testRmUrlsDeletesByTheHashOfEachUrl() : void {
+        $wpdb = $this->db();
+        $captured = null;
+
+        $wpdb->shouldReceive( 'query' )->once()->andReturnUsing(
+            function ( $sql ) use ( &$captured ) {
+                $captured = $sql;
+                return 2;
+            }
+        );
+
+        ( new CrawlCacheRepository( $wpdb ) )->rmUrls( [ '/chi-siamo/', '/logo.svg' ] );
+
+        /*
+         * Le righe se ne vanno insieme a quelle della coda. Se restassero, un
+         * URL che tornasse con lo stesso contenuto verrebbe riconosciuto come
+         * gia' visto, il suo file non verrebbe riscritto, e resterebbe
+         * rilevato, crawlato e assente dal sito pubblicato: un buco peggiore
+         * di quello che la potatura chiude.
+         */
+        $this->assertSame(
+            sprintf(
+                "DELETE FROM `wp_wp2static_crawl_cache` WHERE hashed_url IN ( '%s', '%s' )",
+                md5( '/chi-siamo/' ),
+                md5( '/logo.svg' )
+            ),
+            $captured
+        );
+    }
+
+    public function testRmUrlsSplitsALongListIntoChunks() : void {
+        $wpdb = $this->db();
+        $queries = [];
+
+        $wpdb->shouldReceive( 'query' )->andReturnUsing(
+            function ( $sql ) use ( &$queries ) {
+                $queries[] = $sql;
+                return 1;
+            }
+        );
+
+        ( new CrawlCacheRepository( $wpdb ) )->rmUrls(
+            array_map( fn( $n ) => "/pagina-$n/", range( 1, 250 ) )
+        );
+
+        $this->assertCount( 3, $queries );
+    }
+
+    public function testRmUrlsWithNoUrlsRunsNoQuery() : void {
+        $wpdb = $this->db();
+        $wpdb->shouldNotReceive( 'query' );
+
+        ( new CrawlCacheRepository( $wpdb ) )->rmUrls( [] );
+
+        $this->assertTrue( true );
+    }
 }

@@ -57,7 +57,10 @@ class CrawlQueue {
     /**
      *  Get all crawlable URLs
      *
-     *  @return string[] All crawlable URLs
+     *  La chiave e' l'id della riga, non un indice: serve a chi deve poi
+     *  togliere proprio quelle righe senza ripassare dall'URL.
+     *
+     *  @return array<int, string> All crawlable URLs, keyed by row id
      */
     public static function getCrawlablePaths() : array {
         return self::repository()->getCrawlablePaths();

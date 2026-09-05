@@ -285,6 +285,8 @@ class Crawler {
             "Crawling complete. $this->crawled crawled, $this->cache_hits skipped (cached)."
         );
 
+        $this->pruneStaticSite();
+
         $args = [
             'staticSitePath' => $static_site_path,
             'crawled' => $this->crawled,
@@ -292,6 +294,49 @@ class Crawler {
         ];
 
         do_action( 'wp2static_crawling_complete', $args );
+    }
+
+    /**
+     * Toglie dal sito crawlato quello che non ha piu` un URL in coda.
+     *
+     * **Sta qui per una ragione sola:** questa riga la si raggiunge solo se il
+     * pool ha finito. Un crawl interrotto — timeout, fatal, processo ucciso —
+     * non ci arriva, e quindi non cancella niente. E` la differenza fra «questi
+     * sono tutti gli URL che ci sono» e «questi sono quelli che ho fatto in
+     * tempo a vedere», e su quella differenza c'e` un sito pubblicato.
+     *
+     * **Il confronto e` con la coda, non con quello che il crawl ha scaricato
+     * adesso.** Un URL che ha dato errore di rete resta in coda, quindi il suo
+     * file resta al suo posto: un sito irraggiungibile non si spubblica da se`.
+     * Vale anche per i cache hit, che un file non lo riscrivono.
+     *
+     * **Una coda vuota non cancella niente.** Vuota vuol dire che la
+     * rilevazione non e` mai girata o e` stata svuotata a mano, non che il
+     * sito non esiste piu`; `removePathsNotIn()` si ferma da sola su un elenco
+     * vuoto, e questo commento e` il motivo per cui si ferma.
+     */
+    private function pruneStaticSite() : void {
+        if ( ! FilesHelper::pruningEnabled() ) {
+            return;
+        }
+
+        $expected = array_map(
+            [ self::class, 'transformPath' ],
+            array_values( CrawlQueue::getCrawlablePaths() )
+        );
+
+        $removed = StaticSite::prune( $expected );
+
+        if ( $removed ) {
+            // Stessa lingua e stesso registro delle altre righe del crawl: i
+            // messaggi di WsLog non passano da gettext, in nessun file.
+            WsLog::l(
+                sprintf(
+                    'Pruned crawled site: %d file(s) no longer in the Crawl Queue.',
+                    count( $removed )
+                )
+            );
+        }
     }
 
     /**

@@ -82,6 +82,15 @@ class CrawlCache {
     /**
      * Remove multiple URLs at once
      *
+     * @param string[] $urls
+     */
+    public static function rmUrls( array $urls ) : void {
+        self::repository()->rmUrls( $urls );
+    }
+
+    /**
+     * Remove multiple URLs at once
+     *
      * @param array<string> $ids
      * @return void
      */

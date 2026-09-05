@@ -95,7 +95,7 @@ class CrawlQueueRepository {
     /**
      *  Get all crawlable URLs
      *
-     *  @return string[] All crawlable URLs, keyed by row id
+     *  @return array<int, string> All crawlable URLs, keyed by row id
      */
     public function getCrawlablePaths() : array {
         $urls = [];
@@ -124,16 +124,21 @@ class CrawlQueueRepository {
             return;
         }
 
-        $placeholders = implode( ', ', array_fill( 0, count( $ids ), '%d' ) );
+        // A chunk come le INSERT: da quando la rilevazione allinea la coda,
+        // qui puo' arrivare tutta la parte di sito che e' sparita in un colpo
+        // solo, e una DELETE con migliaia di %d supererebbe max_allowed_packet.
+        foreach ( array_chunk( $ids, self::CHUNK_SIZE ) as $chunk ) {
+            $placeholders = implode( ', ', array_fill( 0, count( $chunk ), '%d' ) );
 
-        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders
-        $this->db->query(
-            (string) $this->db->prepare(
-                "DELETE FROM %i WHERE id IN ( $placeholders )",
-                array_merge( [ $this->table ], $ids )
-            )
-        );
-        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders
+            // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders
+            $this->db->query(
+                (string) $this->db->prepare(
+                    "DELETE FROM %i WHERE id IN ( $placeholders )",
+                    array_merge( [ $this->table ], $chunk )
+                )
+            );
+            // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders
+        }
     }
 
     /**

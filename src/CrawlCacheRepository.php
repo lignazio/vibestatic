@@ -19,6 +19,12 @@ namespace WP2Static;
 class CrawlCacheRepository {
 
     /**
+     * Quanti URL entrano in una singola query. Stesso numero e stessa ragione
+     * di CrawlQueueRepository::CHUNK_SIZE: le liste in gioco sono le stesse.
+     */
+    const CHUNK_SIZE = 100;
+
+    /**
      * @var \wpdb
      */
     private $db;
@@ -165,6 +171,38 @@ class CrawlCacheRepository {
                 'hashed_url' => md5( $url ),
             ]
         );
+    }
+
+    /**
+     * Toglie dalla cache piu` URL in un colpo solo.
+     *
+     * Serve a chi dimentica un URL dalla coda: se la riga di cache restasse,
+     * un URL che tornasse con lo stesso contenuto verrebbe riconosciuto come
+     * gia` visto e il suo file non verrebbe riscritto — rilevato, crawlato e
+     * assente dal sito pubblicato.
+     *
+     * A chunk come le INSERT, e per la stessa ragione: gli elenchi in gioco
+     * arrivano a decine di migliaia di righe e una DELETE sola supererebbe
+     * max_allowed_packet.
+     *
+     * @param string[] $urls URL da dimenticare, nella forma in cui sono stati
+     *                       messi in cache.
+     */
+    public function rmUrls( array $urls ) : void {
+        foreach ( array_chunk( $urls, self::CHUNK_SIZE ) as $chunk ) {
+            $hashes = array_map( 'md5', $chunk );
+
+            $placeholders = implode( ', ', array_fill( 0, count( $hashes ), '%s' ) );
+
+            // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders
+            $this->db->query(
+                (string) $this->db->prepare(
+                    "DELETE FROM %i WHERE hashed_url IN ( $placeholders )",
+                    array_merge( [ $this->table ], $hashes )
+                )
+            );
+            // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders
+        }
     }
 
     /**
