@@ -46,7 +46,7 @@ $memory_limit = $view['memoryLimit'];
 /** @var string[] $extensions */
 $extensions = $view['extensions'];
 
-/** @var list<object{label: string, value: string}> $core_options */
+/** @var list<object{label: string, value: string, type: string}> $core_options */
 $core_options = $view['coreOptions'];
 
 /** @var array<string, string> $site_info */
@@ -220,7 +220,29 @@ $site_info = $view['site_info'];
             <?php foreach ( $core_options as $option ) : ?>
             <tr>
                 <td><?php echo esc_html( $option->label ); ?></td>
-                <td><?php echo esc_html( $option->value ); ?></td>
+                <td>
+                    <?php
+                    /*
+                     * A password is never printed here. This page is the one
+                     * people screenshot and attach to a support request — the
+                     * issue template sends them to it — and `CoreOptions::getAll()`
+                     * hands back password options already decrypted, so the HTTP
+                     * basic auth password of a staging site was being displayed
+                     * in the clear to anyone who could see the screen.
+                     *
+                     * What this page needs to answer is "is it configured", not
+                     * "what is it". `wp vibestatic options get` still returns the
+                     * value to someone who asks for that one option on purpose.
+                     */
+                    if ( 'password' === $option->type ) {
+                        echo '' === $option->value
+                            ? '<em>' . esc_html__( 'not set', 'vibestatic' ) . '</em>'
+                            : esc_html__( 'set (hidden)', 'vibestatic' );
+                    } else {
+                        echo esc_html( $option->value );
+                    }
+                    ?>
+                </td>
             </tr>
             <?php endforeach; ?>
         </tbody>

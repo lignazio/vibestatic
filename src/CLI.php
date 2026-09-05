@@ -563,17 +563,15 @@ class CLI {
                 return;
             }
 
-            // decrypt basicAuthPassword
-            if ( $option_name === 'basicAuthPassword' ) {
-                $option_value = CoreOptions::encrypt_decrypt(
-                    'decrypt',
-                    CoreOptions::getValue( $option_name )
-                );
-            } else {
-                $option_value = CoreOptions::getValue( $option_name );
-            }
-
-            WP_CLI::line( $option_value );
+            /*
+             * No special case for basicAuthPassword. `getValue()` already
+             * decrypts every option whose type is `password`, so decrypting
+             * again here ran the value through the cipher a second time and
+             * `wp vibestatic options get basicAuthPassword` printed an empty
+             * line — for a password that was stored perfectly well and that the
+             * plugin itself read correctly.
+             */
+            WP_CLI::line( CoreOptions::getValue( $option_name ) );
         }
 
         if ( $action === 'set' ) {
@@ -596,7 +594,24 @@ class CLI {
         }
 
         if ( $action === 'list' ) {
-            $options = CoreOptions::getAll();
+            /*
+             * Passwords are masked in the listing, for the same reason they are
+             * masked on the Diagnostics page: asking for every option is not
+             * asking for the password, and this output ends up in terminal
+             * scrollback, CI logs and screen shares. `options get <name>` still
+             * returns the value to someone who asks for that one on purpose.
+             */
+            $options = [];
+
+            foreach ( CoreOptions::getAll() as $option ) {
+                /** @var object{name: string, value: string, type: string} $option */
+                $hide = 'password' === $option->type && '' !== $option->value;
+
+                $options[] = [
+                    'name' => $option->name,
+                    'value' => $hide ? '(hidden)' : $option->value,
+                ];
+            }
 
             WP_CLI\Utils\format_items(
                 'table',
