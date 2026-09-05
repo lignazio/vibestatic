@@ -1,67 +1,65 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: Something in VibeStatic does not work
 title: ''
 labels: ''
 assignees: ''
 
 ---
 
-# Before creating an issue / filing a support request
+## Before filing
 
- - [ ] try to troubleshoot the issue yourself (see [Troubleshooting guide](https://forum.wp2static.com/-33/how-to-troubleshoot-a-failing-export))
- - [ ] prepare as much information as possible to help the developer 
- - [ ] Identify the issue as likely: **Theme** / **Plugin** / **Environment** or **WP2Static bug**
+Please work down this list first — it separates a VibeStatic bug from a theme,
+plugin or environment problem, and it is usually quick.
 
-## Determining if it's an issue with Theme, Plugin, Environment or a bug in WP2Static
+- [ ] **Switch to a default WordPress theme** and export again. If the problem
+      goes away, it is theme-related.
+- [ ] **Deactivate every plugin except VibeStatic** and export again. If the
+      problem goes away, turn them back on one at a time until you find which.
+- [ ] **Check the Diagnostics page** (VibeStatic → Diagnostics). An unlimited
+      `max_execution_time`, a writable uploads directory and a permalink
+      structure ending in a slash are the three things that most often are not
+      what the plugin needs.
+- [ ] **Look at the log** (VibeStatic → Logs). It usually names the URL or the
+      file the run stopped on.
 
-_Work down this list until you've identified what kind of issue this is_
+If it persists after all four, it is likely a VibeStatic bug. Please file it.
 
- - switch to a default WordPress theme
+## What happened
 
-If the issue is gone - mark this as a **Theme** related issue
+A clear description of the problem.
 
- - disable all plugins besides WP2Static
+## How to reproduce
 
-If the issue is gone:
+1. …
+2. …
+3. …
 
- - continue to turn back on each plugin, 1 by 1, until you've isolated the offending plugin, mark this as a **Plugin** related issue
+## What you expected instead
 
-- try cloning your site to another environment, such as [Lokl](https://lokl.dev) (optimised for WP2Static) or use a quick Vultr or Digital Ocean VPS for a few hrs (less than $1 cost)
+## Environment
 
-If the issue is gone, mark this as an **Environmental** issue
+- VibeStatic version:
+- WordPress version:
+- PHP version:
+- Single site or multisite:
+- Which deployment add-on:
+- Hosting / local environment (WP Engine, a VPS, Local, Valet, Docker, …):
 
-If issue persists after all this, it may still be related to specific content you have or is an issue with the WP2Static plugin, itself. Send a complete set of information with your issue.
+## Logs
 
+Please check for anything sensitive before attaching — the logs contain the URLs
+of your site, and a deploy log can contain the path or host you publish to.
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+- VibeStatic logs: WordPress dashboard → VibeStatic → Logs
+- Server logs: PHP and web server error logs
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+## Anything else
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+Screenshots, the contents of the Advanced page, the size of the site in pages —
+whatever you think matters.
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+---
 
-**Environment (please complete the following information):**
- - Hosting OS: [ie, Linux, BSD, mac, Windows] + version number
- - Web server setup (ie,  Docker, Laravel Valet, Local by FlyWheel, DevilBox, etc)
- - Hosting company (ie, local computer, WPEngine, etc)
-
-**Log files (please complete the following information):**
-
-Please ensure no sensitive information in your log files, then attach to your issue. 
-
- - WP2Static Logs (found on WP dashboard > WP2Static > Logs)
- - Server logs (PHP and webserver error logs)
-
-
-**Additional context**
-Add any other context about the problem here.
+**Security issues do not go here.** See
+[SECURITY.md](https://github.com/lignazio/vibestatic/blob/vibestatic/SECURITY.md).

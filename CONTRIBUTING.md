@@ -1,79 +1,83 @@
-## Versioning & branches
+# Contributing
 
-`develop` branch is considered unstable with latest code changes (current build status: ![codequality](https://github.com/elementor/wp2static/workflows/codequality/badge.svg?branch=develop)). `develop` branch should always have a `-dev` WordPress plugin version, ie `7.1.1-dev`.
+## Branches and versioning
 
-`master` branch should always reflect a stable release, such as `7.1.1`, which should have a matching tag.
+Work happens on `vibestatic`, which carries a `-dev` version in the plugin
+header (currently `8.0.0-dev`). A release is a `v*` tag whose number matches
+that header exactly — `release.yml` refuses to publish if they disagree, and
+`tools/build_release.sh` refuses if the header and `VIBESTATIC_VERSION`
+disagree. Between them the version cannot diverge in three places silently,
+which it previously could.
 
-## Beginner-friendly contributing
+The `develop` and `master` branches are the upstream project's history, kept for
+reference. Nothing is merged into them.
 
-Please don't be intimidated to contribute code to this project. I welcome code
- in any way you're comfortable to contribute it (email, forum, diff). If you're
- new to GitHub and this kind of thing, the below guide may help you. 
+## Before opening a pull request
 
-1. Fork project with button in top of WP2static github [home page](https://github.com/elementor/wp2static)
-1. Clone your project to your development computer (please, change <your-account> by your account name):  
-   `git clone https://github.com/<your-account>/wp2static.git`
-1. Fork your new branch from **develop** naming with:
-   1. If you want add new feature: `feature-<name of your feature>`
-   1. If you want to fix a bug: `bug-<name of bug>`  
-      `git checkout -b feature-myfeature`
-1. Do your commits
-1. Push to your repository  
-   `git push origin feature-myfeature`
-1. Then go to your https://github.com/<your-account>/wp2static site and create a pull request:  
-   In base repository choose _elementor/wp2static_ and choose _development_ branch.
-1. After Pull Request is approved you need to sync repositories.
-1. In your local development add **upstream** branch:  
-   `git remote add upstream https://github.com/elementor/wp2static`
-1. Fetch **upstream**  
-   `git fetch upstream`
-1. Checkout your local branch:  
-   `git checkout develop`
-1. Merge **upstream** with your local:  
-   `git merge upstream/develop`
-1. You can now make new branches.
+```
+composer test
+```
 
-### Working example
+That is what CI runs and what blocks: lint on the current PHP, PHP 8.2+
+compatibility, PHPStan at level max, the unit tests, and the security and i18n
+sniffs. It has to be green.
 
-#### Preparing Repository
+Two things run in CI but do not block, deliberately:
 
-Fork project WP2static [home page](https://github.com/elementor/wp2static)
+- `composer phpcs` in full — style and documentation, with a known backlog. It
+  is a separate step so that a red build over a missing docblock cannot hide a
+  new SQL injection in the same output.
+- the external test suite, which downloads sitemaps from third-party sites and
+  fails for reasons unrelated to this code. Run it by hand with
+  `composer phpunit-external`.
 
-`git clone https://github.com/ebavs/wp2static.git # clone repository (please,change ebavs by yours, this is only an example)`
+If you touch a user-visible string, run `composer i18n` and commit the
+regenerated `.pot` files. CI compares them against the code and fails if they
+have drifted.
 
-Then add WP2Static remote
+If you add to the PHPStan baseline, say why in the pull request. The baseline is
+a list of things to fix, not a way of not seeing them.
 
-`git remote add upstream https://github.com/elementor/wp2static # add remote`
+## What this project is careful about
 
-#### Working and Commiting
+- **The add-on API does not change.** The `WP2Static\` namespace, the 30
+  `wp2static_*` hooks, the 8 `wp_wp2static_*` tables, the admin page slugs and
+  the `admin_post_wp2static_*` actions are what twenty-one existing add-ons
+  call. New names are added alongside the old ones, never in place of them.
+- **Anything that deletes files from a published site gets a safety catch and a
+  test.** Unpublishing a live page is the only category of damage this code can
+  do.
+- **Comments explain why, not what.** A comment that restates the line below it
+  ages badly; one that records the reason a decision was taken is why this
+  codebase can be picked up again. They are written in English.
+- **Measure before claiming.** "Faster", "fixed", "no longer happens" are
+  claims: the pull request should carry the number, the log line, or the before
+  and after.
 
-`git checkout -b feature-newdocumentation # create new branch to do changes`
+## Development environment
 
-`git commit -am "my new commits" # send new changes`
+There is a native WordPress setup under `dev/`, no Docker:
 
-`git push origin feature-myfeature # push to your repository`
+```
+source dev/env.sh
+vs-help
+```
 
-Then **Pull Request** in WP2Static
+It needs PHP via Homebrew, a running MariaDB and wp-cli. `vs-serve` starts it on
+`localhost:8080`.
 
-#### Sync Repository
+The upstream integration tests were six Clojure `deftest`s on NixOS pinned to
+nixpkgs 22.11, out of support since 2023. They are frozen rather than removed,
+together with the Nix files they need (`default.nix`, `nix/`, `.envrc`); see
+`integration-tests/README.md` and `.github/workflows/README.md`. The same four
+behaviours are exercised against `dev/` through the WP-CLI commands in
+`src/CLI.php`.
 
-`git fetch upstream # download commits from wp2static repo`
+## Reporting a security issue
 
-`git checkout develop # change to local develop branch`
+Not through a public issue. See [SECURITY.md](./SECURITY.md).
 
-`git merge upstream/develop # merge with wpstatic develop branch`
+## Licence
 
-### Publishing a new release
-
-This is currently done by @elementor and involves these steps:
-
- - test code in `develop` branch
- - set a new dev version if needed, ie `7.1.1-dev`
- - merge `develop` branch to `master`
- - adjust `wp2static.php` version to non-dev, ie `7.1.1`
- - update `CHANGELOG.md`
- - create new git tag with matching version
- - push `master` branch and tag to GitHub
- - create new Release in GitHub with same notes as CHANGELOG
- - build zip installer and publish to wp2static.com with MD5 hash
-
+Contributions are accepted under GPL-2.0-or-later, the licence this fork ships
+under. The upstream project it derives from is public domain (Unlicense).

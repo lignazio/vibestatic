@@ -1,115 +1,151 @@
 # VibeStatic
 
-Generazione e pubblicazione di siti statici da WordPress.
+Static site generation and publishing for WordPress.
 
-VibeStatic è un fork di [WP2Static](https://github.com/elementor/wp2static), creato
-da Leon Stafford e mantenuto da Strattic (Elementor) fino al 2024. L'ultimo commit
-di codice dell'originale è del 2023; il progetto aveva 1470 stelle e nessun erede.
-L'originale è rilasciato nel pubblico dominio (Unlicense); questo fork esce sotto
-**GPLv2 o successiva**, che è lo standard di WordPress.
+VibeStatic is a fork of [WP2Static](https://github.com/elementor/wp2static),
+created by Leon Stafford and maintained by Strattic (Elementor) until 2024. The
+original's last code commit is from 2023; the project had 1470 stars and no
+successor. The original is released into the public domain (Unlicense); this
+fork ships under **GPLv2 or later**, which is the WordPress standard.
 
-## Cosa cambia rispetto all'originale
+## Incremental deployment
 
-- **PHP 8.2, 8.3 e 8.4.** Il codice si parsa e gira su tutte e tre senza una
-  deprecation.
-- **Le violazioni di sicurezza passano da 302 a zero.** Fra queste una SQL
-  injection reale, tre handler che verificavano il nonce *dopo* aver scritto, e
-  `current_user_can()` assente su ventiquattro handler su ventiquattro. La
-  configurazione del linter escludeva esattamente i cinque controlli che le
-  avrebbero trovate; ora sono accesi e bloccano la CI.
-- **Guzzle aggiornato.** L'originale imbarcava un fork del 2020 senza le patch
-  di sicurezza successive. Qui c'è Guzzle upstream, prefissato al momento
-  dell'installazione da [Strauss](https://github.com/BrianHenryIE/strauss) perché
-  non collida con quello di altri plugin.
-- **Nessun codice promozionale.** Sparita la tabella di annunci pubblicitari e il
-  pixel di tracciamento che a ogni caricamento di una pagina admin trasmetteva a
-  un server esterno l'URL del sito e quello di deploy.
-- **Test veri.** Le classi che decidono cosa è cambiato e cosa va ripubblicato
-  ora ricevono le proprie dipendenze dall'esterno e hanno una suite che le copre.
+This is the feature that separates this fork from Simply Static free, which
+republishes the whole site on every save.
 
-## Deploy incrementale
+The crawler already recognises which pages changed by itself — it compares the
+hash of each downloaded page with the one from last time, so the pages that
+depend on a modified post are discovered on their own, with nobody having to
+declare who depends on whom. What was missing was the deploy side:
+`DeployCache::plan()` compares the generated site with what has already been
+published and says what to upload, what to remove, and what to leave alone, in a
+single query.
 
-È la funzionalità che distingue questo fork da Simply Static free, che
-ripubblica tutto il sito a ogni salvataggio.
-
-Il crawler riconosce già da sé quali pagine sono cambiate — confronta l'hash di
-ogni pagina scaricata con quello dell'ultima volta, quindi le pagine dipendenti
-da un post modificato si scoprono da sole, senza che nessuno debba dichiarare
-chi dipende da chi. Quello che mancava era il lato deploy: `DeployCache::plan()`
-confronta il sito generato con quello già pubblicato e dice cosa caricare, cosa
-rimuovere e cosa lasciare stare, in una query sola.
-
-Misurato sull'ambiente di sviluppo, 1806 file: dopo aver modificato **un** post,
+Measured on the development environment, 1806 files, after modifying **one**
+post:
 
 ```
 Deploy plan: 13 to upload, 0 to remove, 1793 unchanged.
 Directory deployment complete: 13 copied, 0 removed.
 ```
 
-mezzo secondo invece di tre e mezzo. Con niente da cambiare, zero file e nessuna
-scrittura. Cancellando un post, il file e la cartella rimasta vuota spariscono
-anche a destinazione — così non restano URL morti online.
+Half a second instead of three and a half. With nothing to change, zero files
+and no writes at all.
 
-Il rapporto viene stampato **prima** di agire: un deploy incrementale che non
-dice quanti file tocca non è verificabile, e chi non riesce a verificarlo
-finisce per ricaricare tutto.
+**And the published site can shrink.** A page that stops being part of the site
+is removed from the crawl queue, from the crawled copy, from the post-processed
+copy, and from the destination — directories that end up empty included, so no
+dead URLs are left online. That path has three safety catches, because a failure
+upstream does not present as an error, it presents as a shorter list: a
+detection run that finds nothing prunes nothing; one that loses more than half
+of what it knew prunes nothing and logs why; and the function that actually
+deletes re-checks the fraction against the files on disk rather than the URLs.
+`wp2static_prune_stale_files` switches the whole thing off,
+`wp2static_max_stale_fraction` moves the threshold.
 
-L'addon `addons/directory-deployment` è adottato nel fork. L'originale non ha
-mai funzionato: il suo ultimo commit, del 2021, aveva lasciato un rinominamento
-a metà con cinque guasti indipendenti — non si attivava, e se si attivava non
-deployava e la sua pagina di configurazione dava un fatal error.
+The report is printed **before** acting: an incremental deploy that does not say
+how many files it touches cannot be verified, and whoever cannot verify it ends
+up re-uploading everything.
 
-## Compatibilità con gli addon
+The `addons/directory-deployment` add-on is adopted into this fork. The original
+never worked: its last commit, from 2021, left a half-finished rename with five
+independent faults — it would not activate, and if it did it would not deploy,
+and its settings page gave a fatal error.
 
-**L'API non cambia.** Il rinominamento vale per quello che si legge e per quello
-che sta su disco; non tocca niente che un addon possa chiamare:
+## What else changed from the original
 
-| Resta `wp2static` | Diventa `vibestatic` |
+- **PHP 8.2, 8.3 and 8.4.** The code parses and runs on all three without a
+  single deprecation.
+- **Security violations went from 302 to zero.** Among them a real SQL
+  injection, three handlers that verified the nonce *after* writing, and
+  `current_user_can()` missing on twenty-four handlers out of twenty-four. The
+  linter's configuration excluded exactly the five checks that would have found
+  them; they are on now and they block CI.
+- **Guzzle updated.** The original shipped a 2020 fork without the security
+  patches published since. This carries upstream Guzzle, prefixed at install
+  time by [Strauss](https://github.com/BrianHenryIE/strauss) so it cannot
+  collide with another plugin's copy.
+- **No promotional code.** Gone is the table of advertising notices and the
+  tracking pixel that transmitted the site URL and the deploy URL to an external
+  server on every admin page load.
+- **Real tests.** The classes that decide what changed and what gets
+  republished now receive their dependencies from outside and have a suite
+  covering them.
+- **Translatable.** The plugin had zero wrapped strings and one `__()` using a
+  text domain from a different plugin. It now ships a `.pot`, and CI fails if a
+  string is wrapped with the wrong domain or if the `.pot` falls behind the code.
+- **Updates for zip installs.** `Update URI` tells WordPress not to look on
+  wordpress.org; `src/Updater.php` points it at this repository's releases
+  instead, using the native `update_plugins_<hostname>` filter rather than a
+  library.
+
+## Add-on compatibility
+
+**The API does not change.** The rename applies to what people read and to what
+sits on disk; it touches nothing an add-on can call:
+
+| Stays `wp2static` | Becomes `vibestatic` |
 |---|---|
-| il namespace PHP `WP2Static\` | il nome del plugin e le stringhe dell'interfaccia |
-| i 30 hook `wp2static_*` | il file principale e la cartella del plugin |
-| le 8 tabelle `wp_wp2static_*` | il text domain |
-| gli slug delle pagine admin | le costanti `VIBESTATIC_PATH` e `VIBESTATIC_VERSION` |
-| le azioni `admin_post_wp2static_*` | il comando WP-CLI |
+| the PHP namespace `WP2Static\` | the plugin name and the interface strings |
+| the 30 `wp2static_*` hooks | the main file and the plugin directory |
+| the 8 `wp_wp2static_*` tables | the text domain |
+| the admin page slugs | the `VIBESTATIC_PATH` and `VIBESTATIC_VERSION` constants |
+| the `admin_post_wp2static_*` actions | the WP-CLI command |
 
-`wp wp2static` continua a rispondere accanto a `wp vibestatic`: è in script di
-deploy e in cron di chi il plugin lo usava già.
+`wp wp2static` keeps answering alongside `wp vibestatic`: it lives in the deploy
+scripts and cron entries of everyone who already used the plugin.
 
-## Installazione
+One thing was repaired rather than preserved. `wp2static_add_menu_items` — the
+filter add-ons use to register a settings page — stopped being fired by the core
+on 9 May 2020, while sftp, s3 and netlify kept registering on it. Those three
+add-ons install, activate, hook into the deploy, and have nowhere to put their
+credentials. The filter is fired again here, with the same contract as before.
 
-- da questo codice sorgente: `git clone` e poi `composer install` nella cartella
-  del plugin — l'installazione compila anche le dipendenze prefissate;
-- da zip: `composer run-script build` produce `dist/vibestatic-<versione>.zip`.
+## Installation
 
-Richiede PHP 8.2 o successivo.
+- from this source: `git clone`, then `composer install` in the plugin
+  directory — the install also builds the prefixed dependencies;
+- from a zip: `composer run-script build` produces
+  `dist/vibestatic-<version>.zip`.
 
-## Sviluppo
+Requires PHP 8.2 or later and WordPress 6.5 or later.
+
+## Development
 
 ```
-composer test        # tutto quello che gira in CI ed è bloccante
-composer phpunit     # solo i test unitari
-composer phpcs       # stile e documentazione (non bloccante, debito noto)
-composer build       # lo zip distribuibile in dist/
+composer test        # everything that runs in CI and blocks
+composer phpunit     # unit tests only
+composer phpcs       # style and documentation (non-blocking, known debt)
+composer i18n        # regenerate the .pot files
+composer build       # the distributable zip, into dist/
 ```
 
-`composer install` lancia da sé Strauss, che genera `vendor-prefixed/`: senza
-quella cartella il plugin non ha un client HTTP. Non va lanciato a mano.
+`composer install` runs Strauss by itself, which generates `vendor-prefixed/`:
+without that directory the plugin has no HTTP client. Do not run it by hand.
 
-I test che fanno richieste di rete reale stanno in una suite a parte,
-`composer phpunit-external`, e non girano in CI: falliscono quando cambia il
-sito di qualcun altro, e in quel caso non dicono niente su questo codice.
+The tests that make real network requests live in a separate suite,
+`composer phpunit-external`, and do not run in CI: they fail when somebody
+else's site changes, and in that case they say nothing about this code.
 
-I test d'integrazione dell'originale erano sei `deftest` in Clojure su NixOS
-puntati a nixpkgs 22.11, fuori supporto dal 2023: sono congelati, non rimossi.
-Vedi `integration-tests/` e `.github/workflows/README.md`.
+The original's integration tests were six Clojure `deftest`s on NixOS pinned to
+nixpkgs 22.11, out of support since 2023: they are frozen, not removed, along
+with the Nix files they need (`default.nix`, `nix/`, `.envrc`). See
+`integration-tests/` and `.github/workflows/README.md`.
 
-## Due readme, due lingue
+There is a development environment under `dev/` — native WordPress, no Docker.
+`source dev/env.sh` then `vs-help`.
 
-Questo file è per chi lavora sul progetto, ed è in italiano come i commenti nel
-codice e i messaggi dei commit. `readme.txt` è la scheda pubblica del plugin nel
-formato di wordpress.org, ed è in inglese come l'interfaccia del plugin: chi lo
-installa legge inglese, chi lo modifica legge italiano.
+## Contributing
 
-## Licenza
+See [CONTRIBUTING.md](./CONTRIBUTING.md). Security reports go through
+[SECURITY.md](./SECURITY.md), not through public issues.
 
-GPL-2.0-or-later. Vedi [LICENSE](./LICENSE).
+## Two readmes
+
+This file is the project's documentation on GitHub. `readme.txt` is the plugin's
+public listing in the wordpress.org format, which has its own required structure
+and section headers; both are in English.
+
+## Licence
+
+GPL-2.0-or-later. See [LICENSE](./LICENSE).
