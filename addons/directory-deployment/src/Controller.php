@@ -95,8 +95,16 @@ class Controller {
 
         $table_name = $wpdb->prefix . 'wp2static_addon_directory_deployment_options';
 
+        /*
+         * Emptying the target before every deployment is off by default. It
+         * used to be on, which meant a fresh install pointed at a document root
+         * deleted the published site on the first run — and on every run after
+         * it, incremental deployment included, since an empty destination makes
+         * the plan report everything as new. The settings page has always
+         * described the option as one to leave off; the seed disagreed with it.
+         */
         $defaults = [
-            'directoryDeploymentDeleteBeforeDeployment' => '1',
+            'directoryDeploymentDeleteBeforeDeployment' => '0',
             'directoryDeploymentTargetDirectory' => '',
             'directoryDeploymentAdditionalSourceDirectory' => '',
         ];

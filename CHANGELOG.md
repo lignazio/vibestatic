@@ -55,6 +55,12 @@ one by one, with the reasoning; this is the summary.
 
 ### Fixed
 
+- **`directory-deployment` emptied the target directory before every
+  deployment**, because that was the seeded default while the settings page
+  described the option as one to leave off. On a fresh install pointed at a
+  document root, the first deployment deleted the published site and rebuilt it
+  from nothing — with the site absent while it ran, and with incremental
+  deployment reduced to a full upload every time. It now defaults to off.
 - **A real SQL injection** in the add-on toggle, plus every other interpolated
   query. All queries now go through `prepare()`, with `%i` for identifiers.
 - **Three handlers verified the nonce after writing**, and `current_user_can()`
