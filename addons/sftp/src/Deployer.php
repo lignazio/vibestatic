@@ -16,14 +16,15 @@ namespace WP2StaticSFTP;
 use WP2Static\DeployCache;
 use WP2Static\WsLog;
 /*
- * Unprefixed, because that is how the add-on's own vendor/ ships it. phpseclib
- * is a common dependency and two plugins loading different majors of it in one
- * process is the same collision the core solved for Guzzle with Strauss; doing
- * the same here is a packaging change, recorded rather than smuggled in with a
- * behaviour fix. The pinned version is 2.0.27, from 2020.
+ * The prefixed copy, from the core's own vendor-prefixed/, not an unprefixed
+ * one under the module. phpseclib is a common dependency — plenty of backup
+ * plugins ship it — and WordPress loads every plugin in one process, so two
+ * different majors of it destroy each other: the first loaded wins and the
+ * other gets a class that is not the one it expects. It is the same collision
+ * the core solved for Guzzle, solved the same way.
  */
-use phpseclib\Crypt\RSA;
-use phpseclib\Net\SFTP;
+use WP2Static\Vendor\phpseclib\Crypt\RSA;
+use WP2Static\Vendor\phpseclib\Net\SFTP;
 
 class Deployer {
 

@@ -22,10 +22,11 @@
     },
     "require": {
         "php": ">=8.2",
-        "guzzlehttp/guzzle": "^8.1",
         "ext-mbstring": "*",
         "ext-simplexml": "*",
-        "lib-libxml": "*"
+        "lib-libxml": "*",
+        "guzzlehttp/guzzle": "^8.1",
+        "phpseclib/phpseclib": "^2.0"
     },
     "require-dev": {
         "brianhenryie/strauss": "^0.29",
@@ -64,15 +65,12 @@
     },
     "scripts": {
         "post-install-cmd": [
-            "@prefix",
-            "@addon-deps"
+            "@prefix"
         ],
         "post-update-cmd": [
-            "@prefix",
-            "@addon-deps"
+            "@prefix"
         ],
         "prefix": "@php tools/prefix_dependencies.php",
-        "addon-deps": "@composer install --no-dev --working-dir=addons/sftp",
         "lint": "parallel-lint --exclude integration-tests --exclude vendor .",
         "phpcs": "phpcs -s",
         "phpcs-security": "phpcs -s --sniffs=WordPress.DB.PreparedSQL,WordPress.DB.PreparedSQLPlaceholders,WordPress.Security.EscapeOutput,WordPress.Security.NonceVerification,WordPress.Security.ValidatedSanitizedInput",
@@ -102,7 +100,6 @@
     },
     "scripts-descriptions": {
         "prefix": "Rewrites third-party dependencies into vendor-prefixed/ under WP2Static\\Vendor\\. Runs by itself after every install and update: there is no need to call it by hand.",
-        "addon-deps": "Installs the adopted add-ons' own dependencies — today only the sftp add-on's phpseclib. Runs by itself after every install and update, because static analysis now covers addons/ and would otherwise report every phpseclib class as unknown on a fresh clone.",
         "lint": "Parses every PHP file with the current interpreter. It includes vendor-prefixed/, deliberately: it is the check that the namespace rewriting Strauss performed did not produce code that fails to compile.",
         "phpcs": "WordPress coding standards, in full. Still has 422 violations: documentation and style, which is why it is not in `test`.",
         "phpcs-security": "The five security sniffs only — prepared SQL, nonces, escaping, sanitised input. This one is at zero, and has to stay there.",

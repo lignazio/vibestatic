@@ -3,10 +3,10 @@
  * The add-on's autoloader.
  *
  * Its own namespace is mapped here in a few lines rather than through
- * `vendor/autoload.php`, so that the add-on loads without a build step. What
- * does need vendor/ is phpseclib, which is a real third-party dependency and
- * cannot be conjured: if it is missing, this says so plainly instead of dying
- * on a failed require, which is what the original did.
+ * `vendor/autoload.php`, so the module loads without a build step of its own.
+ * phpseclib is not its business any more: it is a production dependency of the
+ * core, prefixed by Strauss into vendor-prefixed/, and the core's autoloader
+ * has already been registered by the time a module is loaded.
  *
  * @package WP2StaticSFTP
  */
@@ -27,18 +27,3 @@ spl_autoload_register(
         }
     }
 );
-
-if ( is_readable( __DIR__ . '/vendor/autoload.php' ) ) {
-    require_once __DIR__ . '/vendor/autoload.php';
-}
-
-/**
- * Whether phpseclib is available.
- *
- * Checked where it is needed rather than at load: an add-on that fatally errors
- * on activation cannot be deactivated from the dashboard, which leaves whoever
- * installed it with a site they have to fix over SSH.
- */
-function wp2static_sftp_has_phpseclib() : bool {
-    return class_exists( 'phpseclib\Net\SFTP' );
-}

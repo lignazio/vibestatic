@@ -48,30 +48,6 @@ function vibestatic_sftp_load_textdomain() : void {
 
 add_action( 'init', 'vibestatic_sftp_load_textdomain' );
 
-/**
- * Tell the user when phpseclib is missing, instead of failing silently.
- *
- * The original required `vendor/autoload.php` at the top of the file, so an
- * add-on installed without a build step took the whole site down with a fatal
- * error on activation — and a site that fatals on activation cannot be fixed
- * from the dashboard.
- */
-function vibestatic_sftp_dependency_notice() : void {
-    if ( wp2static_sftp_has_phpseclib() ) {
-        return;
-    }
-
-    printf(
-        '<div class="notice notice-error"><p>%s</p></div>',
-        esc_html__(
-            'The VibeStatic sFTP module needs the phpseclib library. Run "composer install" in the plugin directory, or install the packaged zip.',
-            'vibestatic-sftp'
-        )
-    );
-}
-
-add_action( 'admin_notices', 'vibestatic_sftp_dependency_notice' );
-
 /*
  * How this module's options table gets created. Schema::install() calls it,
  * because that is the one place in the plugin where a table is made; as a

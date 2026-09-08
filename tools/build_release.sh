@@ -93,9 +93,23 @@ rm -rf "$ROOT/vendor" "$ROOT/vendor-prefixed"
 ( cd "$ROOT" && "$COMPOSER" dump-autoload --quiet --no-dev --optimize --classmap-authoritative )
 
 mkdir -p "$BUILD/$SLUG"
-for item in src views languages vendor-prefixed; do
+# addons/ is in this list, and that is the whole point of it being here: the
+# bundled deployers used to be separate plugins outside the package, so a zip
+# install could crawl a site and process it and then had nowhere to put it.
+for item in src views languages vendor-prefixed addons; do
     [ -e "$ROOT/$item" ] && cp -R "$ROOT/$item" "$BUILD/$SLUG/"
 done
+
+# Whatever development left inside a module. There are no per-module
+# dependencies today — phpseclib went into the core's own, prefixed by Strauss
+# — but a vendor/ or a composer.lock reaching a release is how an unprefixed
+# copy of a common library ends up in someone's WordPress.
+if [ -d "$BUILD/$SLUG/addons" ]; then
+    find "$BUILD/$SLUG/addons" -maxdepth 2 -name vendor -type d -exec rm -rf {} +
+    find "$BUILD/$SLUG/addons" -maxdepth 2 \
+        \( -name 'composer.json' -o -name 'composer.lock' -o -name '.gitignore' \) \
+        -delete
+fi
 
 # From vendor/ only the autoloader is needed: the third-party libraries are in
 # vendor-prefixed/, and everything else in here is development material.
@@ -111,6 +125,10 @@ find "$ROOT/vendor/composer" -maxdepth 1 -type f -exec cp {} "$BUILD/$SLUG/vendo
 cp "$ROOT"/*.php "$BUILD/$SLUG/"
 [ -f "$ROOT/readme.txt" ] && cp "$ROOT/readme.txt" "$BUILD/$SLUG/"
 [ -f "$ROOT/LICENSE" ] && cp "$ROOT/LICENSE" "$BUILD/$SLUG/"
+
+# macOS leaves one of these in every directory it has been looked at in, and
+# they were going into the zip.
+find "$BUILD" -name '.DS_Store' -delete
 
 find "$BUILD" -type d -exec chmod 755 {} \;
 find "$BUILD" -type f -exec chmod 644 {} \;

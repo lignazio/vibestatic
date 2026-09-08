@@ -45,7 +45,7 @@ parameters:
 		-
 			rawMessage: 'Parameter #1 $query of method wpdb::query() expects string, string|null given.'
 			identifier: argument.type
-			count: 3
+			count: 2
 			path: addons/sftp/src/Controller.php
 
 		-
@@ -61,7 +61,7 @@ parameters:
 			path: addons/sftp/src/Controller.php
 
 		-
-			rawMessage: 'Call to internal method phpseclib\Net\SFTP::put() from outside its root namespace phpseclib.'
+			rawMessage: 'Call to internal method WP2Static\Vendor\phpseclib\Net\SFTP::put() from outside its root namespace WP2Static.'
 			identifier: method.internal
 			count: 1
 			path: addons/sftp/src/Deployer.php

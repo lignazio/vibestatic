@@ -131,31 +131,29 @@ class Controller {
         $table_name = $wpdb->prefix . 'wp2static_addon_sftp_options';
 
         /*
-         * An upsert, not a bare INSERT. There is no unique key on `name`, so
-         * every call used to add a row: saving an option twice left two rows
-         * for it, and `getOptions()` — which keys a `SELECT *` by name —
-         * returned whichever came last. The table grew without bound and the
-         * value in effect depended on row order.
+         * One upsert, not an UPDATE followed by an INSERT when nothing was
+         * updated. There is no unique key on `name` in the original, so a bare
+         * INSERT added a row on every save: the table grew without bound and
+         * the value in effect depended on row order.
+         *
+         * The UPDATE-then-INSERT that replaced it was wrong in a quieter way.
+         * MySQL reports zero affected rows when an UPDATE matches a row and
+         * writes the same value back into it, so re-saving a field without
+         * changing it looked like "no such row" and ran the INSERT — a
+         * duplicate-key error per unchanged field, on every save of the
+         * settings page. `ON DUPLICATE KEY UPDATE` asks the one question that
+         * has an answer: put this value under this name.
          */
         $wpdb->query(
             $wpdb->prepare(
-                'UPDATE %i SET value = %s WHERE name = %s',
+                'INSERT INTO %i (name, value) VALUES (%s, %s)
+                 ON DUPLICATE KEY UPDATE value = %s',
                 $table_name,
+                $name,
                 $value,
-                $name
+                $value
             )
         );
-
-        if ( 0 === (int) $wpdb->rows_affected ) {
-            $wpdb->query(
-                $wpdb->prepare(
-                    'INSERT INTO %i (name, value) VALUES (%s, %s)',
-                    $table_name,
-                    $name,
-                    $value
-                )
-            );
-        }
     }
 
     public static function renderSFTPPage() : void {

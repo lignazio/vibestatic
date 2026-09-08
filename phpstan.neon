@@ -37,14 +37,16 @@ parameters:
     # it, every phpseclib class the sftp add-on uses came back as "class not
     # found" — the exclusion meant to keep somebody else's code out of the
     # report was instead making our own code unanalysable.
-    # phpseclib, the sftp add-on's dependency, is what this covers today: it
-    # stays in symbol discovery and out of the report. Deliberately NOT
-    # bootstrapped — nothing here should make it resolvable at runtime from the
-    # core's autoloader, because dev resolving a class from somewhere
-    # production does not is how a difference between what is tested and what
-    # ships gets in. `composer install` at the root installs it, through the
-    # `addon-deps` script; both that script and this entry go away when
-    # phpseclib moves into the core's own dependencies and through Strauss.
+    # A module with third-party dependencies of its own would be analysed by
+    # whoever maintains them, not here. There are none today — phpseclib moved
+    # into the core's own dependencies and through Strauss — but the pattern
+    # stays, because the day one appears is the day nobody remembers to add it.
+    #
+    # `analyse:` and not a plain list. A plain list is shorthand for
+    # `analyseAndScan`, which also hides the files from symbol discovery: with
+    # it, every phpseclib class came back as "class not found" — the exclusion
+    # meant to keep somebody else's code out of the report was instead making
+    # our own code unanalysable.
     excludePaths:
         analyse:
             - %currentWorkingDirectory%/addons/*/vendor/*
