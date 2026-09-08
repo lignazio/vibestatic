@@ -196,6 +196,20 @@ final class CrawlerTest extends TestCase {
         $this->assertSame( [], $this->cached );
     }
 
+    public function testAnErrorStatusIsNeitherSavedNorCached() : void {
+        $this->mockOptionsAndQueue( [ '/protetta/' ], false );
+        $this->mockCrawlCache( [] );
+
+        // What a site behind HTTP basic auth answers to every request. Saved,
+        // it becomes the page: the deploy then publishes the error in place of
+        // the site.
+        $this->crawler( [ new Response( 401, [], '<h1>401 Unauthorized</h1>' ) ] )
+            ->crawlSite( '/statico' );
+
+        $this->assertSame( [], $this->written );
+        $this->assertSame( [], $this->cached );
+    }
+
     public function testARedirectIsCachedByItsDestinationAndNotByItsBody() : void {
         $this->mockOptionsAndQueue( [ '/vecchio/' ], false );
         $this->mockCrawlCache( [] );

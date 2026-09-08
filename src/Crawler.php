@@ -38,6 +38,11 @@ class Crawler {
     private $cache_hits = 0;
 
     /**
+     * @var integer URLs that answered with an error status.
+     */
+    private $errors = 0;
+
+    /**
      * @var array<string, true> Paths found in this pass's pages, as a set.
      */
     private $discovered = [];
@@ -247,8 +252,22 @@ class Crawler {
 
 
         WsLog::l(
-            "Crawling complete. $this->crawled crawled, $this->cache_hits skipped (cached)."
+            "Crawling complete. $this->crawled crawled, $this->cache_hits skipped (cached)," .
+            " $this->errors with an error status."
         );
+
+        /*
+         * A count in the middle of a summary line is easy to read past, and
+         * this one decides whether what follows is a site or a set of error
+         * pages. When everything failed it is said again, on its own line.
+         */
+        if ( $this->errors > 0 && $this->errors === $this->crawled ) {
+            WsLog::l(
+                'Every URL answered with an error status: nothing was written.' .
+                ' If the site is behind HTTP basic auth, fill in the credentials' .
+                ' under WP2Static > Options.'
+            );
+        }
 
         $this->pruneStaticSite();
 
@@ -256,6 +275,7 @@ class Crawler {
             'staticSitePath' => $static_site_path,
             'crawled' => $this->crawled,
             'cache_hits' => $this->cache_hits,
+            'errors' => $this->errors,
         ];
 
         do_action( 'wp2static_crawling_complete', $args );
@@ -478,6 +498,29 @@ class Crawler {
                         $is_cacheable = false;
                     } elseif ( in_array( $status_code, WP2STATIC_REDIRECT_CODES ) ) {
                         $crawled_contents = null;
+                    } elseif ( $status_code < 200 || $status_code > 299 ) {
+                        /*
+                         * Every other unsuccessful status: 401 and 403 first of
+                         * all, which is what a site behind basic auth answers
+                         * with, but 500 and 502 as well. The body of an error
+                         * page is not the page. Written to the static site it
+                         * replaces the good copy with the error, and the deploy
+                         * publishes it — measured on a real site whose staging
+                         * copy is behind basic auth: 152 pages crawled, 152
+                         * identical "401 Unauthorized" pages written, deployed,
+                         * and not one line in the log saying so.
+                         *
+                         * Not writing leaves the previous file where it is,
+                         * which is the same rule the pruning follows: what this
+                         * crawl could not see, it does not touch.
+                         */
+                        WsLog::l(
+                            "HTTP $status_code for URL $root_relative_path, not saved."
+                        );
+
+                        $crawled_contents = null;
+                        $is_cacheable = false;
+                        $this->errors++;
                     }
 
                     $redirect_to = null;

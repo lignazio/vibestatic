@@ -55,6 +55,14 @@ one by one, with the reasoning; this is the summary.
 
 ### Fixed
 
+- **An error page was saved as the page.** The crawler special-cased 404 and
+  the redirects and wrote everything else to the static site verbatim, body and
+  all. Found on a real site whose WordPress lives behind HTTP basic auth: 152
+  pages crawled, 152 identical "401 Unauthorized" pages written, post-processed
+  and deployed, with nothing in the log to say the site had not been seen at
+  all. Any status outside 2xx is now logged, not written and not cached — so
+  the previously published file stays where it is — and a crawl where
+  everything failed says so on a line of its own.
 - **`directory-deployment` emptied the target directory before every
   deployment**, because that was the seeded default while the settings page
   described the option as one to leave off. On a fresh install pointed at a
