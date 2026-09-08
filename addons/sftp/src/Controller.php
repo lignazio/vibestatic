@@ -194,7 +194,21 @@ class Controller {
         $sftp_deployer->upload_files( $processed_site_path );
     }
 
-    public static function activate_for_single_site() : void {
+    /**
+     * Create and seed this module's options table.
+     *
+     * Called by WP2Static\Modules::installTables(), from Schema::install(),
+     * which is the one place in this project where a table is created. It
+     * replaces `activate()` / `activate_for_single_site()` and their
+     * deactivation twins: a module has no `register_activation_hook`, and that
+     * hook never fired on an update anyway — the reason Schema exists.
+     *
+     * The multisite loop went with them. It was the same twenty lines copied
+     * into every add-on, with the blog-id query assembled by `sprintf` instead
+     * of `prepare`; `Controller::activate()` in the core already walks the
+     * network's sites, so this is called once per site by the caller.
+     */
+    public static function installTables() : void {
         // initialize options DB
         /** @var \wpdb $wpdb */
         global $wpdb;
@@ -227,73 +241,26 @@ class Controller {
         }
     }
 
-    public static function deactivate_for_single_site() : void {
-    }
-
-    public static function deactivate( ?bool $network_wide = null ) : void {
-        if ( $network_wide ) {
-            /** @var \wpdb $wpdb */
-            global $wpdb;
-
-            // prepare() with %i, not sprintf(): a table name pushed through
-            // sprintf is a query assembled by string, which is the shape every
-            // SQL injection in this project has had.
-            $site_ids = $wpdb->get_col(
-                $wpdb->prepare(
-                    'SELECT blog_id FROM %i WHERE site_id = %d',
-                    $wpdb->blogs,
-                    $wpdb->siteid
-                )
-            );
-
-            foreach ( $site_ids as $site_id ) {
-                switch_to_blog( $site_id );
-                self::deactivate_for_single_site();
-            }
-
-            restore_current_blog();
-        } else {
-            self::deactivate_for_single_site();
-        }
-    }
-
-    public static function activate( ?bool $network_wide = null ) : void {
-        if ( $network_wide ) {
-            /** @var \wpdb $wpdb */
-            global $wpdb;
-
-            // prepare() with %i, not sprintf(): a table name pushed through
-            // sprintf is a query assembled by string, which is the shape every
-            // SQL injection in this project has had.
-            $site_ids = $wpdb->get_col(
-                $wpdb->prepare(
-                    'SELECT blog_id FROM %i WHERE site_id = %d',
-                    $wpdb->blogs,
-                    $wpdb->siteid
-                )
-            );
-
-            foreach ( $site_ids as $site_id ) {
-                switch_to_blog( $site_id );
-                self::activate_for_single_site();
-            }
-
-            restore_current_blog();
-        } else {
-            self::activate_for_single_site();
-        }
-    }
-
     /**
-     * Add WP2Static submenu
+     * The add-on's settings page, hung under the VibeStatic menu.
      *
-     * @param mixed[] $submenu_pages array of submenu pages
-     * @return mixed[] array of submenu pages
+     * Through `wp2static_add_menu_items`, the filter the core removed on
+     * 9 May 2020 and this fork brought back: without it sftp, s3 and netlify
+     * had been installable, activatable and impossible to configure for five
+     * years.
+     *
+     * @param mixed $submenu_pages Pages registered so far.
+     * @return mixed[] The same, plus this one.
      */
     public static function addSubmenuPage( $submenu_pages ) : array {
-        $submenu_pages['sftp'] = [ 'WP2StaticSFTP\Controller', 'renderSFTPPage' ];
+        // Whatever else is on the filter comes first, and it is checked before
+        // being written into: another add-on returning something that is not an
+        // array should cost this one its settings page, not a fatal error.
+        $pages = is_array( $submenu_pages ) ? $submenu_pages : [];
 
-        return $submenu_pages;
+        $pages['sftp'] = [ 'WP2StaticSFTP\Controller', 'renderSFTPPage' ];
+
+        return $pages;
     }
 
     public static function saveOptionsFromUI() : void {

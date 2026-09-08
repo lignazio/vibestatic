@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-08T05:51:27+00:00\n"
+"POT-Creation-Date: 2026-09-08T06:09:28+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vibestatic\n"
@@ -306,7 +306,15 @@ msgstr ""
 msgid "Removes the emoji scripts, the wlwmanifest link and the wp-embed and comment-reply scripts. This changes your LIVE site as well as the exported one, on purpose: a static copy should look like what your visitors actually get."
 msgstr ""
 
-#: src/WordPressAdmin.php:375
+#. translators: %s: comma-separated list of add-on slugs.
+#: src/Modules.php:227
+#, php-format
+msgid "VibeStatic now ships this add-on itself: %s. The separately installed copy is the one running — deactivate it, so the bundled one takes over."
+msgid_plural "VibeStatic now ships these add-ons itself: %s. The separately installed copies are the ones running — deactivate them, so the bundled ones take over."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/WordPressAdmin.php:385
 msgid "Invalid request method."
 msgstr ""
 

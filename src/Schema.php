@@ -29,8 +29,10 @@ class Schema {
      *
      * 2 — the `removeWordPressCruft` option. Not a new column: a row that
      *     `seedOptions()` has to insert on sites that already have the plugin.
+     * 3 — the bundled modules' options tables. They used to be created by each
+     *     add-on's own activation hook; a module does not have one.
      */
-    const VERSION = 2;
+    const VERSION = 3;
 
     /**
      * @var string Where the applied version is remembered.
@@ -48,6 +50,15 @@ class Schema {
         DeployCache::createTable();
         JobQueue::createTable();
         Addons::createTable();
+
+        /*
+         * The bundled modules' own tables. They are only reachable once the
+         * modules have been loaded — `plugins_loaded`, so before the `init`
+         * this runs on — and Modules::installTables() skips whatever is not
+         * there rather than fataling, which is what happens if the plugin is
+         * activated with the addons/ directory missing from a partial install.
+         */
+        Modules::installTables();
 
         update_option( self::OPTION, (string) self::VERSION, false );
     }

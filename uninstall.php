@@ -30,6 +30,19 @@ $tables_to_drop = [
     // dismissed. It stays in the list because it has to be removed from
     // installations that already have it.
     'wp2static_notices',
+    /*
+     * The bundled modules' options tables. Each add-on used to drop its own in
+     * its own uninstall.php, which WordPress runs only for a plugin it is
+     * uninstalling: a module has no such file of its own any more, so without
+     * these two lines the sFTP credentials and the target directory would
+     * survive uninstalling the plugin that stored them.
+     *
+     * The list is spelled out rather than read from WP2Static\Modules: this
+     * file runs without the autoloader, by design — see the note at the top.
+     * The two lists have to be kept in step by hand.
+     */
+    'wp2static_addon_directory_deployment_options',
+    'wp2static_addon_sftp_options',
 ];
 
 foreach ( $tables_to_drop as $table ) {

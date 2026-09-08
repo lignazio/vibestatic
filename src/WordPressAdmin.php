@@ -50,6 +50,16 @@ class WordPressAdmin {
          */
         add_action( 'init', [ Schema::class, 'updateIfNeeded' ], 5 );
 
+        /*
+         * The bundled deployers. On `plugins_loaded` and not here at load time:
+         * plugin files are included alphabetically, so `vibestatic` runs before
+         * any `wp2static-addon-*` still installed separately, and the check for
+         * an already-loaded copy would always come back empty. Priority 5 keeps
+         * them ahead of the schema update on `init`, which asks them for their
+         * tables.
+         */
+        add_action( 'plugins_loaded', [ Modules::class, 'load' ], 5 );
+
         // Updates for anyone who installed from a zip. This registers filters
         // only: the call to GitHub happens when WordPress checks, not now.
         Updater::registerHooks();

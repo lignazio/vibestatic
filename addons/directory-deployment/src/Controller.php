@@ -220,66 +220,23 @@ class Controller {
         }
     }
 
-    public static function activateForSingleSite(): void {
+    /**
+     * Create and seed this module's options table.
+     *
+     * Called by WP2Static\Modules::installTables(), from Schema::install(),
+     * which is the one place in this project where a table is created. It
+     * replaces `activate()` / `activate_for_single_site()` and their
+     * deactivation twins: a module has no `register_activation_hook`, and that
+     * hook never fired on an update anyway — the reason Schema exists.
+     *
+     * The multisite loop went with them. It was the same twenty lines copied
+     * into every add-on, with the blog-id query assembled by `sprintf` instead
+     * of `prepare`; `Controller::activate()` in the core already walks the
+     * network's sites, so this is called once per site by the caller.
+     */
+    public static function installTables() : void {
         self::createOptionsTable();
         self::seedOptions();
-    }
-
-    public static function deactivateForSingleSite() : void {
-    }
-
-    public static function deactivate( ?bool $network_wide = null ) : void {
-        if ( $network_wide ) {
-            /** @var \wpdb $wpdb */
-            global $wpdb;
-
-            // prepare() with %i, not sprintf(): a table name pushed through
-            // sprintf is a query assembled by string, which is the shape every
-            // SQL injection in this project has had.
-            $site_ids = $wpdb->get_col(
-                $wpdb->prepare(
-                    'SELECT blog_id FROM %i WHERE site_id = %d',
-                    $wpdb->blogs,
-                    $wpdb->siteid
-                )
-            );
-
-            foreach ( $site_ids as $site_id ) {
-                switch_to_blog( $site_id );
-                self::deactivateForSingleSite();
-            }
-
-            restore_current_blog();
-        } else {
-            self::deactivateForSingleSite();
-        }
-    }
-
-    public static function activate( ?bool $network_wide = null ) : void {
-        if ( $network_wide ) {
-            /** @var \wpdb $wpdb */
-            global $wpdb;
-
-            // prepare() with %i, not sprintf(): a table name pushed through
-            // sprintf is a query assembled by string, which is the shape every
-            // SQL injection in this project has had.
-            $site_ids = $wpdb->get_col(
-                $wpdb->prepare(
-                    'SELECT blog_id FROM %i WHERE site_id = %d',
-                    $wpdb->blogs,
-                    $wpdb->siteid
-                )
-            );
-
-            foreach ( $site_ids as $site_id ) {
-                switch_to_blog( $site_id );
-                self::activateForSingleSite();
-            }
-
-            restore_current_blog();
-        } else {
-            self::activateForSingleSite();
-        }
     }
 
     public static function saveOptionsFromUI() : void {
