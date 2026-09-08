@@ -31,8 +31,10 @@ class Schema {
      *     `seedOptions()` has to insert on sites that already have the plugin.
      * 3 — the bundled modules' options tables. They used to be created by each
      *     add-on's own activation hook; a module does not have one.
+     * 4 — the Netlify module's options table, and a unique key on `name` that
+     *     the add-on never had.
      */
-    const VERSION = 3;
+    const VERSION = 4;
 
     /**
      * @var string Where the applied version is remembered.

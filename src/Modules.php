@@ -55,6 +55,7 @@ class Modules {
             'wp2static-addon-directory-deployment' => 'directory-deployment',
             'wp2static-addon-sftp' => 'sftp',
             'wp2static-addon-zip' => 'zip',
+            'wp2static-addon-netlify' => 'netlify',
         ];
     }
 
@@ -188,6 +189,7 @@ class Modules {
         return [
             'wp2static_addon_directory_deployment_options',
             'wp2static_addon_sftp_options',
+            'wp2static_addon_netlify_options',
         ];
     }
 
@@ -202,6 +204,8 @@ class Modules {
                 return class_exists( 'WP2StaticSFTP\Controller', false );
             case 'zip':
                 return class_exists( 'WP2StaticZip\Controller', false );
+            case 'netlify':
+                return class_exists( 'WP2StaticNetlify\Controller', false );
             default:
                 return false;
         }
