@@ -49,10 +49,6 @@ final class DetectPluginAssetsTest extends TestCase {
 
         $this->plugins_path = vfsStream::url( 'attivo' ) . '/plugins';
 
-        Mockery::mock( 'overload:\WP2Static\SiteInfo' )
-            ->shouldReceive( 'getPath' )->andReturn( $this->plugins_path . '/' )
-            ->shouldReceive( 'getUrl' )->andReturn( 'https://foo.com/wp-content/plugins/' );
-
         Mockery::mock( 'overload:\WP2Static\FilesHelper' )
             ->shouldReceive( 'filePathLooksCrawlable' )
             ->andReturnUsing(
@@ -63,6 +59,14 @@ final class DetectPluginAssetsTest extends TestCase {
 
         WP_Mock::userFunction( 'is_multisite', [ 'return' => false ] );
         WP_Mock::userFunction( 'get_home_url', [ 'return' => 'https://foo.com' ] );
+        WP_Mock::userFunction(
+            'wp_parse_url',
+            [
+                'return' => function ( $url, $component = -1 ) {
+                    return parse_url( (string) $url, (int) $component );
+                },
+            ]
+        );
         WP_Mock::userFunction(
             'get_option',
             [
@@ -79,12 +83,25 @@ final class DetectPluginAssetsTest extends TestCase {
         );
     }
 
+    /**
+     * The URL WordPress hands back for the plugins directory. Its scheme is
+     * decided by `set_url_scheme()` at runtime, so it is a parameter here
+     * rather than a fixture: the site is the same, the answer is not.
+     */
+    private function mockSiteInfo( string $plugins_url ) : void {
+        Mockery::mock( 'overload:\WP2Static\SiteInfo' )
+            ->shouldReceive( 'getPath' )->andReturn( $this->plugins_path . '/' )
+            ->shouldReceive( 'getUrl' )->andReturn( $plugins_url );
+    }
+
     public function tearDown() : void {
         WP_Mock::tearDown();
         Mockery::close();
     }
 
     public function testOnlyActivePluginsAreDetected() : void {
+        $this->mockSiteInfo( 'https://foo.com/wp-content/plugins/' );
+
         $detected = DetectPluginAssets::detect();
 
         $this->assertSame(
@@ -97,6 +114,8 @@ final class DetectPluginAssetsTest extends TestCase {
     }
 
     public function testADeactivatedPluginIsNeverPublished() : void {
+        $this->mockSiteInfo( 'https://foo.com/wp-content/plugins/' );
+
         /*
          * The comparison used to be `str_replace( $active_dirs, '', $path ) !==
          * $path`, that is, "the name of an active plugin appears somewhere in
@@ -112,5 +131,21 @@ final class DetectPluginAssetsTest extends TestCase {
         foreach ( DetectPluginAssets::detect() as $url ) {
             $this->assertStringNotContainsString( 'spento', $url );
         }
+    }
+
+    public function testTheSchemeOfThePluginsURLNeverReachesTheQueue() : void {
+        /*
+         * The site is https, but `plugins_url()` answers http because
+         * `is_ssl()` is false outside the web server — which is the normal
+         * case for an export driven from WP-CLI or from cron. What has to come
+         * out is a path either way: an absolute URL here is taken downstream
+         * for a path, and the files land outside the crawled site.
+         */
+        $this->mockSiteInfo( 'http://foo.com/wp-content/plugins/' );
+
+        $this->assertSame(
+            [ '/wp-content/plugins/attivo/assets/style.css' ],
+            DetectPluginAssets::detect()
+        );
     }
 }

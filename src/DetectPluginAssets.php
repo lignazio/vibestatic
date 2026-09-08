@@ -55,6 +55,27 @@ class DetectPluginAssets {
             // a little further down (Windows).
             $plugins_prefix = rtrim( str_replace( '\\', '/', $plugins_path ), '/' ) . '/';
 
+            /*
+             * The path of the plugins URL, without its scheme and host.
+             *
+             * What was here before built the absolute URL and then removed
+             * `get_home_url()` from it by string comparison. The two do not
+             * always agree on the scheme: `plugins_url()` passes through
+             * `set_url_scheme()`, which chooses http or https from `is_ssl()`,
+             * and from WP-CLI — where a scheduled or scripted export runs —
+             * `is_ssl()` is false. On an https site the first string was then
+             * http:// and the second https://, nothing matched, and the
+             * absolute URL travelled on into the crawl queue as if it were a
+             * path.
+             *
+             * Measured on a real site exported from the command line: 297
+             * plugin assets written under a directory named
+             * `wp2static-crawled-sitehttp:` — outside the crawled site, so
+             * never post-processed and never deployed.
+             */
+            $plugins_url_path =
+                rtrim( (string) wp_parse_url( $plugins_url, PHP_URL_PATH ), '/' ) . '/';
+
             foreach ( $iterator as $filename => $file_object ) {
                 /**
                  * @var string $filename
@@ -100,25 +121,12 @@ class DetectPluginAssets {
                 }
 
                 $detected_filename =
-                    str_replace(
-                        $plugins_path,
-                        $plugins_url,
-                        $filename
-                    );
+                    $plugins_url_path . substr( $filename, strlen( $plugins_prefix ) );
 
-                $detected_filename =
-                    str_replace(
-                        get_home_url(),
-                        '',
-                        $detected_filename
-                    );
-
-                if ( is_string( $detected_filename ) ) {
-                    array_push(
-                        $files,
-                        $detected_filename
-                    );
-                }
+                array_push(
+                    $files,
+                    $detected_filename
+                );
             }
         }
 

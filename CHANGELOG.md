@@ -55,6 +55,15 @@ one by one, with the reasoning; this is the summary.
 
 ### Fixed
 
+- **Plugin assets left the crawl as absolute URLs when the export ran from
+  WP-CLI.** `plugins_url()` picks its scheme from `is_ssl()`, false outside the
+  web server, so on an https site it answered `http://` while `get_home_url()`
+  answered `https://`; the string comparison that was supposed to reduce the
+  URL to a path matched nothing and the whole URL went into the queue. The
+  crawler then treated it as a path: on the site tested, 297 files written
+  under a directory called `wp2static-crawled-sitehttp:`, outside the crawled
+  site, never post-processed and never deployed. The path is now taken from the
+  URL instead of subtracted from it.
 - **An error page was saved as the page.** The crawler special-cased 404 and
   the redirects and wrote everything else to the static site verbatim, body and
   all. Found on a real site whose WordPress lives behind HTTP basic auth: 152

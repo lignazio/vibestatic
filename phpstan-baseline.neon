@@ -403,12 +403,6 @@ parameters:
 			path: src/DetectPageURLs.php
 
 		-
-			rawMessage: 'Call to function is_string() with string will always evaluate to true.'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/DetectPluginAssets.php
-
-		-
 			rawMessage: 'Parameter #1 $post of function get_permalink expects int|WP_Post, string|null given.'
 			identifier: argument.type
 			count: 1
