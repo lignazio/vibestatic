@@ -38,18 +38,32 @@ class Crawler {
     private $cache_hits = 0;
 
     /**
+     * @var array<string, true> Paths found in this pass's pages, as a set.
+     */
+    private $discovered = [];
+
+    /**
+     * How many times the crawl will go round picking up newly found URLs.
+     *
+     * Not a performance guard. A site that links to endlessly new addresses —
+     * a calendar with a "next month" link, a paginated archive with no last
+     * page — supplies new work for ever, and without a cap the crawl never
+     * ends.
+     */
+    const MAX_PASSES = 10;
+
+    /**
      * Crawler constructor
      *
-     * I due parametri sono la giuntura che rende la classe verificabile.
-     * Omettendoli il comportamento e` quello di sempre — il client se lo
-     * costruisce da se` leggendo le opzioni — ma un test puo` passargli un
-     * client con un handler finto e provare il giro completo: cosa viene
-     * scritto, cosa finisce in cache, cosa succede su un 404 e su un redirect.
-     * Senza, l'unico modo di esercitare il crawler era avere un sito vero
-     * dall'altra parte.
+     * The two parameters are the seam that makes this class testable. Left out,
+     * the behaviour is what it always was — the client builds itself from the
+     * options — but a test can hand it a client with a fake handler and run the
+     * whole round: what gets written, what gets cached, what happens on a 404
+     * and on a redirect. Without them the only way to exercise the crawler was
+     * to have a real site on the other end.
      *
-     * @param Client|null $client    Client HTTP; se null lo costruisce da se`.
-     * @param string|null $site_path Radice del sito; se null la chiede a SiteInfo.
+     * @param Client|null $client    HTTP client; null to build one.
+     * @param string|null $site_path The site's root; null to ask SiteInfo.
      */
     public function __construct( ?Client $client = null, ?string $site_path = null ) {
         $this->site_path = $site_path ?? rtrim( SiteInfo::getURL( 'site' ), '/' );
@@ -125,12 +139,21 @@ class Crawler {
     public function crawlSite( string $static_site_path ) : void {
         WsLog::l( 'Starting to crawl detected URLs.' );
 
-        $site_host = parse_url( $this->site_path, PHP_URL_HOST );
+        // parse_url() answers false on a malformed URL and null on a URL with
+        // no host: both mean there is nothing here to crawl, and saying so is
+        // better than carrying the ambiguity into every request.
+        $site_host = (string) parse_url( $this->site_path, PHP_URL_HOST );
         $site_port = parse_url( $this->site_path, PHP_URL_PORT );
-        $site_host = $site_port ? $site_host . ":$site_port" : $site_host;
+        $site_host = $site_port ? $site_host . ':' . (string) $site_port : $site_host;
+
+        if ( '' === $site_host ) {
+            WsLog::l( 'Cannot crawl: the site URL has no host — ' . $this->site_path );
+
+            return;
+        }
         $site_urls = [ "http://$site_host", "https://$site_host" ];
 
-        $use_crawl_cache = CoreOptions::getValue( 'useCrawlCaching' );
+        $use_crawl_cache = (bool) CoreOptions::getValue( 'useCrawlCaching' );
 
         WsLog::l( ( $use_crawl_cache ? 'Using' : 'Not using' ) . ' CrawlCache.' );
 
@@ -143,10 +166,220 @@ class Crawler {
          * To avoid that you need to assing the result to a variable.
          */
 
-        $crawlable_paths = CrawlQueue::getCrawlablePaths();
+        /*
+         * Link following, and the reason it is a loop.
+         *
+         * The pool's request generator is built from a snapshot of the queue,
+         * and a generator cannot be extended while it runs — so a URL found
+         * inside a page cannot be fetched in the same pass. Each pass crawls
+         * what the previous one turned up, until nothing new appears.
+         *
+         * MAX_PASSES is not caution about slow sites: a page that links to a
+         * page that links back, through URLs that differ each time, is an
+         * endless supply of "new" work. The cap makes that end, and says so.
+         */
+        $follow_links = (bool) CoreOptions::getValue( 'addURLsWhileCrawling' );
+
+        WsLog::l( ( $follow_links ? 'Following' : 'Not following' ) . ' links found while crawling.' );
+
+        $already_crawled = [];
+        $pass = 0;
+
+        do {
+            $pass++;
+
+            $paths = array_values(
+                array_diff( CrawlQueue::getCrawlablePaths(), $already_crawled )
+            );
+
+            if ( ! $paths ) {
+                break;
+            }
+
+            if ( $pass > 1 ) {
+                WsLog::l( sprintf( 'Crawling %d URL(s) found by following links.', count( $paths ) ) );
+            }
+
+            $this->discovered = [];
+
+            $this->crawlPass( $paths, $use_crawl_cache, $site_urls, $site_host );
+
+            $already_crawled = array_merge( $already_crawled, $paths );
+
+            $added = $follow_links ? $this->queueDiscovered( $already_crawled ) : 0;
+
+            if ( $added && $pass >= self::MAX_PASSES ) {
+                WsLog::l(
+                    sprintf(
+                        'Stopping after %d passes with %d URL(s) still being found:' .
+                        ' the site appears to link to endlessly new addresses.',
+                        self::MAX_PASSES,
+                        $added
+                    )
+                );
+
+                break;
+            }
+        } while ( $added > 0 );
+
+
+        WsLog::l(
+            "Crawling complete. $this->crawled crawled, $this->cache_hits skipped (cached)."
+        );
+
+        $this->pruneStaticSite();
+
+        $args = [
+            'staticSitePath' => $static_site_path,
+            'crawled' => $this->crawled,
+            'cache_hits' => $this->cache_hits,
+        ];
+
+        do_action( 'wp2static_crawling_complete', $args );
+    }
+
+    /**
+     * Remember the internal paths a crawled page points at.
+     *
+     * Only HTML: a stylesheet or a JSON feed has no links this can read, and
+     * running the parser over a megabyte of image would cost for nothing. The
+     * content type comes from the response rather than the file extension,
+     * because a page served at `/about/` has neither.
+     *
+     * @param ResponseInterface $response  The crawled response.
+     * @param string            $contents  Its body.
+     * @param string            $page_url  Absolute URL of the page.
+     * @param string            $site_host Host, with port, the site answers on.
+     */
+    private function collectLinks(
+        ResponseInterface $response,
+        string $contents,
+        string $page_url,
+        string $site_host
+    ) : void {
+        if ( '' === $contents ) {
+            return;
+        }
+
+        $content_type = strtolower( $response->getHeaderLine( 'Content-Type' ) );
+
+        if ( false === strpos( $content_type, 'html' ) ) {
+            return;
+        }
+
+        foreach ( LinkDiscovery::find( $contents, $page_url, $site_host ) as $path ) {
+            $this->discovered[ $path ] = true;
+        }
+    }
+
+    /**
+     * Put newly found paths into the queue.
+     *
+     * The ignore lists apply, and they are the core's own: a link to
+     * `/wp-content/plugins/…` or to a `.zip` is followed no more eagerly than
+     * detection would have followed it.
+     *
+     * @param string[] $already_crawled Paths this crawl has already fetched.
+     * @return int How many were genuinely new.
+     */
+    private function queueDiscovered( array $already_crawled ) : int {
+        if ( ! $this->discovered ) {
+            return 0;
+        }
+
+        $known = array_flip( CrawlQueue::getCrawlablePaths() ) + array_flip( $already_crawled );
+
+        /*
+         * The two lists are read once, not once per path. `filePathLooksCrawlable()`
+         * would do the same work — an option read and two filters — for every
+         * link on every page, and the first pass of a real site brings back
+         * thousands.
+         */
+        $filenames_to_ignore = self::strings(
+            apply_filters(
+                'wp2static_filenames_to_ignore',
+                CoreOptions::getLineDelimitedBlobValue( 'filenamesToIgnore' )
+            )
+        );
+
+        $extensions_to_ignore = self::strings(
+            apply_filters(
+                'wp2static_file_extensions_to_ignore',
+                CoreOptions::getLineDelimitedBlobValue( 'fileExtensionsToIgnore' )
+            )
+        );
+
+        $new = [];
+
+        foreach ( array_keys( $this->discovered ) as $path ) {
+            if ( isset( $known[ $path ] ) ) {
+                continue;
+            }
+
+            if ( ! FilesHelper::pathLooksCrawlable( $path, $filenames_to_ignore, $extensions_to_ignore ) ) {
+                continue;
+            }
+
+            $new[] = $path;
+        }
+
+        if ( ! $new ) {
+            return 0;
+        }
+
+        CrawlQueue::addUrls( $new );
+
+        return count( $new );
+    }
+
+    /**
+     * Whatever a filter returned, as a list of strings.
+     *
+     * The two ignore lists go through `apply_filters`, so anything can come
+     * back: a third-party add-on returning a string, or an array with a stray
+     * object in it, should cost its own entry and not the whole crawl.
+     *
+     * @param mixed $value What the filter returned.
+     * @return string[]
+     */
+    private static function strings( $value ) : array {
+        if ( ! is_array( $value ) ) {
+            return [];
+        }
+
+        $strings = [];
+
+        foreach ( $value as $entry ) {
+            if ( is_string( $entry ) ) {
+                $strings[] = $entry;
+            }
+        }
+
+        return $strings;
+    }
+
+    /**
+     * Run one pass of the pool over a set of paths.
+     *
+     * A pass, not the crawl: with link following on, a page can put a URL in
+     * the queue that this pass's request generator was already built from, and
+     * a generator cannot be added to once it is running. crawlSite() calls this
+     * again for whatever turned up.
+     *
+     * @param string[] $paths           Root-relative paths to fetch.
+     * @param bool     $use_crawl_cache Whether to skip writing unchanged pages.
+     * @param string[] $site_urls       The site's http and https roots.
+     * @param string   $site_host       Host, with port, the site answers on.
+     */
+    private function crawlPass(
+        array $paths,
+        bool $use_crawl_cache,
+        array $site_urls,
+        string $site_host
+    ) : void {
         $urls = [];
 
-        foreach ( $crawlable_paths as $root_relative_path ) {
+        foreach ( $paths as $root_relative_path ) {
             $absolute_uri = new URL( $this->site_path . $root_relative_path );
             $urls[] = [
                 'url' => (string) $absolute_uri->get(),
@@ -173,11 +406,31 @@ class Crawler {
             [
                 'concurrency' => $concurrency,
                 'fulfilled' => function ( ResponseInterface $response, $index ) use (
-                    $urls, $use_crawl_cache, $site_urls
+                    $urls, $use_crawl_cache, $site_urls, $site_host
                 ) {
                     $root_relative_path = $urls[ $index ]['path'];
                     $crawled_contents = (string) $response->getBody();
                     $status_code = $response->getStatusCode();
+
+                    /*
+                     * Links are read here, before anything downstream can
+                     * decide this page is unchanged — and that placement is the
+                     * whole safety of the feature.
+                     *
+                     * A URL found only by following a link is, by construction,
+                     * one detection does not produce: `URLDetector::
+                     * pruneCrawlQueue()` drops it from the queue at the start of
+                     * every run, and `pruneStaticSite()` then deletes any file
+                     * with no URL in the queue. It survives only by being found
+                     * again on this run. The crawler re-downloads every URL
+                     * regardless — the cache saves the writing, not the request
+                     * — so the body is in hand even for a page that has not
+                     * changed, and reading it here means an unchanged page
+                     * still vouches for what it links to. Read it after the
+                     * cache check and a site that changed nothing would
+                     * unpublish every page reachable only by a link.
+                     */
+                    $this->collectLinks( $response, $crawled_contents, $urls[ $index ]['url'], $site_host );
 
                     $is_cacheable = true;
                     if ( $status_code === 404 ) {
@@ -279,20 +532,6 @@ class Crawler {
 
         // Force the pool of requests to complete.
         $promise->wait();
-
-        WsLog::l(
-            "Crawling complete. $this->crawled crawled, $this->cache_hits skipped (cached)."
-        );
-
-        $this->pruneStaticSite();
-
-        $args = [
-            'staticSitePath' => $static_site_path,
-            'crawled' => $this->crawled,
-            'cache_hits' => $this->cache_hits,
-        ];
-
-        do_action( 'wp2static_crawling_complete', $args );
     }
 
     /**

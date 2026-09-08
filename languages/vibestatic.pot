@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-08T07:34:43+00:00\n"
+"POT-Creation-Date: 2026-09-08T07:48:35+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vibestatic\n"
@@ -396,74 +396,82 @@ msgid "Skip crawling unchanged URLs."
 msgstr ""
 
 #: src/CoreOptions.php:286
-msgid "Completion Email"
+msgid "Follow links while crawling"
 msgstr ""
 
 #: src/CoreOptions.php:290
+msgid "Also crawl URLs found in the pages as they are crawled, not only the ones detection produced. Finds pages reachable by a link and nothing else — a hand-written link in a post, a route a plugin renders, a file nothing else references. Off by default: it changes what ends up in the published site."
+msgstr ""
+
+#: src/CoreOptions.php:301
+msgid "Completion Email"
+msgstr ""
+
+#: src/CoreOptions.php:305
 msgid "Email to send deployment completion notification to."
 msgstr ""
 
-#: src/CoreOptions.php:299
+#: src/CoreOptions.php:314
 msgid "Completion Webhook"
 msgstr ""
 
-#: src/CoreOptions.php:303
+#: src/CoreOptions.php:318
 msgid "Webhook to send deployment completion notification to."
 msgstr ""
 
-#: src/CoreOptions.php:312
+#: src/CoreOptions.php:327
 msgid "Completion Webhook Method"
 msgstr ""
 
-#: src/CoreOptions.php:316
+#: src/CoreOptions.php:331
 msgid "How to send completion webhook payload (GET|POST)."
 msgstr ""
 
-#: src/CoreOptions.php:327
+#: src/CoreOptions.php:342
 msgid "Crawl Concurrency"
 msgstr ""
 
-#: src/CoreOptions.php:331
+#: src/CoreOptions.php:346
 msgid "The maximum number of files that will be crawled at the same time."
 msgstr ""
 
-#: src/CoreOptions.php:340
+#: src/CoreOptions.php:355
 msgid "File Extensions to Ignore"
 msgstr ""
 
-#: src/CoreOptions.php:344
+#: src/CoreOptions.php:359
 msgid "Files with these extensions will be ignored while crawling."
 msgstr ""
 
-#: src/CoreOptions.php:382
+#: src/CoreOptions.php:397
 msgid "Directory and File Names to Ignore"
 msgstr ""
 
-#: src/CoreOptions.php:386
+#: src/CoreOptions.php:401
 msgid "Directories and files with these names will be ignored while crawling."
 msgstr ""
 
-#: src/CoreOptions.php:453
+#: src/CoreOptions.php:468
 msgid "Hosts to Rewrite"
 msgstr ""
 
-#: src/CoreOptions.php:457
+#: src/CoreOptions.php:472
 msgid "Hosts to rewrite to the deployment URL."
 msgstr ""
 
-#: src/CoreOptions.php:467
+#: src/CoreOptions.php:482
 msgid "Skip URL Rewrite"
 msgstr ""
 
-#: src/CoreOptions.php:471
+#: src/CoreOptions.php:486
 msgid "Do not rewrite any URLs. This may give a slight speed-up when the deployment URL is the same as the WordPress URL."
 msgstr ""
 
-#: src/CoreOptions.php:481
+#: src/CoreOptions.php:496
 msgid "Remove WordPress emoji and RSD output"
 msgstr ""
 
-#: src/CoreOptions.php:485
+#: src/CoreOptions.php:500
 msgid "Removes the emoji scripts, the wlwmanifest link and the wp-embed and comment-reply scripts. This changes your LIVE site as well as the exported one, on purpose: a static copy should look like what your visitors actually get."
 msgstr ""
 
@@ -542,12 +550,12 @@ msgid "Detection Options"
 msgstr ""
 
 #: views/advanced-options-page.php:54
-#: views/options-page.php:76
+#: views/options-page.php:77
 msgid "Post-processing Options"
 msgstr ""
 
 #: views/advanced-options-page.php:74
-#: views/options-page.php:133
+#: views/options-page.php:134
 msgid "Save options"
 msgstr ""
 
@@ -962,7 +970,7 @@ msgstr ""
 msgid "Crawling Options"
 msgstr ""
 
-#: views/options-page.php:86
+#: views/options-page.php:87
 msgid "Deployment Options"
 msgstr ""
 

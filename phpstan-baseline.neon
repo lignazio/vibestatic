@@ -195,7 +195,7 @@ parameters:
 		-
 			rawMessage: 'In method "WP2Static\CoreOptions::savePosted", you should not use the $_POST superglobal.'
 			identifier: thecodingmachine.superglobalUsed
-			count: 21
+			count: 22
 			path: src/CoreOptions.php
 
 		-
@@ -231,7 +231,7 @@ parameters:
 		-
 			rawMessage: Possibly invalid array key type mixed.
 			identifier: offsetAccess.invalidOffset
-			count: 3
+			count: 4
 			path: src/Crawler.php
 
 		-

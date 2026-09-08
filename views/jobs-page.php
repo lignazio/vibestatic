@@ -74,13 +74,13 @@ $intervals = [
             <?php foreach ( [ 'queueJobOnPostSave', 'queueJobOnPostDelete' ] as $job_event ) : ?>
                 <tr>
                     <td style="width:33%;">
-                        <?php echo $label( $job_event ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
+                        <?php echo $label( $job_event ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup already escaped by OptionRenderer. ?>
                     </td>
                     <td>
                         <?php echo esc_html( $options[ $job_event ]->description ); ?>
                     </td>
                     <td>
-                        <?php echo $input( $job_event ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
+                        <?php echo $input( $job_event ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup already escaped by OptionRenderer. ?>
                     </td>
                 </tr>
             <?php endforeach; ?>
@@ -104,7 +104,7 @@ $intervals = [
             <tr>
                 <?php foreach ( $auto_jobs as $auto_job ) : ?>
                     <td style="text-align:center;">
-                        <?php echo $label( $auto_job ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
+                        <?php echo $label( $auto_job ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup already escaped by OptionRenderer. ?>
                     </td>
                 <?php endforeach; ?>
             </tr>
@@ -112,7 +112,7 @@ $intervals = [
         <tbody>
             <tr style="text-align:center;">
                 <?php foreach ( $auto_jobs as $auto_job ) : ?>
-                    <td><?php echo $input( $auto_job ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?></td>
+                    <td><?php echo $input( $auto_job ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup already escaped by OptionRenderer. ?></td>
                 <?php endforeach; ?>
             </tr>
         </tbody>
@@ -124,7 +124,7 @@ $intervals = [
         <tbody>
             <tr>
                 <td style="width: 50%">
-                    <?php echo $label( 'processQueueInterval', true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
+                    <?php echo $label( 'processQueueInterval', true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup already escaped by OptionRenderer. ?>
                     <p><i>
                         <?php
                         printf(
@@ -154,7 +154,7 @@ $intervals = [
                     </select>
                 </td>
             </tr>
-            <?php echo $row( 'processQueueImmediately' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer. ?>
+            <?php echo $row( 'processQueueImmediately' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup already escaped by OptionRenderer. ?>
         </tbody>
     </table>
 

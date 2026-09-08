@@ -33,8 +33,10 @@ class Schema {
      *     add-on's own activation hook; a module does not have one.
      * 4 — the Netlify module's options table, and a unique key on `name` that
      *     the add-on never had.
+     * 5 — the `addURLsWhileCrawling` option. A row seedOptions() has to insert
+     *     on sites that already have the plugin.
      */
-    const VERSION = 4;
+    const VERSION = 5;
 
     /**
      * @var string Where the applied version is remembered.

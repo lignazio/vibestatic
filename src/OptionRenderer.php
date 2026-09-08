@@ -45,7 +45,7 @@ class OptionRenderer {
 
     /**
      * @param array<string, mixed> $option
-     * @return string HTML gia' escapato
+     * @return string Already-escaped HTML
      */
     public static function optionInput( array $option ) : string {
         $option_input = call_user_func(
@@ -58,7 +58,7 @@ class OptionRenderer {
 
     /**
      * @param array<string, mixed> $option
-     * @return string HTML gia' escapato
+     * @return string Already-escaped HTML
      */
     public static function optionInputArray( array $option ) : string {
         $name = esc_attr( self::str( $option['name'] ) );
@@ -69,7 +69,7 @@ class OptionRenderer {
 
     /**
      * @param array<string, mixed> $option
-     * @return string HTML gia' escapato
+     * @return string Already-escaped HTML
      */
     public static function optionInputBoolean( array $option ) : string {
         /**
@@ -85,7 +85,7 @@ class OptionRenderer {
 
     /**
      * @param array<string, mixed> $option
-     * @return string HTML gia' escapato
+     * @return string Already-escaped HTML
      */
     public static function optionInputInteger( array $option ) : string {
         return self::textLikeInput( $option, 'number' );
@@ -93,7 +93,7 @@ class OptionRenderer {
 
     /**
      * @param array<string, mixed> $option
-     * @return string HTML gia' escapato
+     * @return string Already-escaped HTML
      */
     public static function optionInputPassword( array $option ) : string {
         return self::textLikeInput( $option, 'password' );
@@ -101,7 +101,7 @@ class OptionRenderer {
 
     /**
      * @param array<string, mixed> $option
-     * @return string HTML gia' escapato
+     * @return string Already-escaped HTML
      */
     public static function optionInputString( array $option ) : string {
         return self::textLikeInput( $option, 'text' );
@@ -125,7 +125,7 @@ class OptionRenderer {
 
     /**
      * @param array<string, mixed> $option
-     * @return string HTML gia' escapato
+     * @return string Already-escaped HTML
      */
     public static function optionLabel( array $option, bool $description = false ) : string {
         $descr = $description && $option['description']

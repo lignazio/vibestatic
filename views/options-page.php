@@ -49,7 +49,7 @@ $row = function ( string $name ) use ( $options ) : string {
         </thead>
         <tbody>
             <?php
-            // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer.
+            // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- markup already escaped by OptionRenderer.
             echo $row( 'detectCustomPostTypes' );
             echo $row( 'detectPages' );
             echo $row( 'detectPosts' );
@@ -64,10 +64,11 @@ $row = function ( string $name ) use ( $options ) : string {
     <table class="widefat striped">
         <tbody>
             <?php
-            // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer.
+            // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- markup already escaped by OptionRenderer.
             echo $row( 'basicAuthUser' );
             echo $row( 'basicAuthPassword' );
             echo $row( 'useCrawlCaching' );
+            echo $row( 'addURLsWhileCrawling' );
             // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
             ?>
         </tbody>
@@ -78,7 +79,7 @@ $row = function ( string $name ) use ( $options ) : string {
     <table class="widefat striped">
         <tbody>
             <?php
-            echo $row( 'deploymentURL' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer.
+            echo $row( 'deploymentURL' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup already escaped by OptionRenderer.
             ?>
         </tbody>
     </table>
@@ -88,14 +89,14 @@ $row = function ( string $name ) use ( $options ) : string {
     <table class="widefat striped">
         <tbody>
             <?php
-            echo $row( 'completionEmail' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer.
+            echo $row( 'completionEmail' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup already escaped by OptionRenderer.
             ?>
             <tr>
                 <td style="width:50%;">
                     <?php
                     /** @var array<string, ?string> $webhook_option */
                     $webhook_option = (array) $options['completionWebhook'];
-                    echo OptionRenderer::optionLabel( $webhook_option ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer.
+                    echo OptionRenderer::optionLabel( $webhook_option ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup already escaped by OptionRenderer.
                     ?>
                 </td>
                 <td>

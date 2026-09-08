@@ -41,7 +41,7 @@ $row = function ( string $name ) use ( $options ) : string {
     <table class="widefat striped">
         <tbody>
             <?php
-            // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer.
+            // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- markup already escaped by OptionRenderer.
             echo $row( 'filenamesToIgnore' );
             echo $row( 'fileExtensionsToIgnore' );
             // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -56,7 +56,7 @@ $row = function ( string $name ) use ( $options ) : string {
     <table class="widefat striped">
         <tbody>
             <?php
-            // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- markup gia' escapato da OptionRenderer.
+            // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- markup already escaped by OptionRenderer.
             echo $row( 'crawlConcurrency' );
             echo $row( 'skipURLRewrite' );
             echo $row( 'removeWordPressCruft' );

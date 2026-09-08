@@ -280,6 +280,21 @@ class CoreOptions {
                 'wp2static_use_crawl_cache'
             ),
             self::makeOptionSpec(
+                'boolean',
+                'addURLsWhileCrawling',
+                '0',
+                __(
+                    'Follow links while crawling',
+                    'vibestatic'
+                ),
+                __(
+                    'Also crawl URLs found in the pages as they are crawled, not only the ones detection produced. Finds pages reachable by a link and nothing else — a hand-written link in a post, a route a plugin renders, a file nothing else references. Off by default: it changes what ends up in the published site.',
+                    'vibestatic'
+                ),
+                null,
+                'wp2static_add_urls_while_crawling'
+            ),
+            self::makeOptionSpec(
                 'string',
                 'completionEmail',
                 '',
@@ -831,6 +846,11 @@ class CoreOptions {
                 self::repository()->update(
                     'useCrawlCaching',
                     [ 'value' => isset( $_POST['useCrawlCaching'] ) ? 1 : 0 ]
+                );
+
+                self::repository()->update(
+                    'addURLsWhileCrawling',
+                    [ 'value' => isset( $_POST['addURLsWhileCrawling'] ) ? 1 : 0 ]
                 );
 
                 self::repository()->update(
