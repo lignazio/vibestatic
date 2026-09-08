@@ -96,7 +96,7 @@
             "@phpcs-security",
             "@phpcs-i18n"
         ],
-        "build": "/bin/sh tools/build_release.sh"
+        "build": "tools/build_release.sh"
     },
     "scripts-descriptions": {
         "prefix": "Rewrites third-party dependencies into vendor-prefixed/ under WP2Static\\Vendor\\. Runs by itself after every install and update: there is no need to call it by hand.",
