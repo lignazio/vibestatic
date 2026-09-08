@@ -1,6 +1,6 @@
 # Changelog
 
-## VibeStatic 8.0.0-rc3 (2026-09-08)
+## VibeStatic 8.0.0 (2026-09-08)
 
 The fork picks up from WP2Static 7.2. The commit history describes each change
 one by one, with the reasoning; this is the summary.
