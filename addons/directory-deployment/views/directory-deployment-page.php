@@ -21,8 +21,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /** @var array<string, mixed> $view */
 
-/** @var array<string, object> $options */
+/*
+ * The shape, not a bare `object`. With `object` the analysis knows there is an
+ * object there and nothing about what is on it, so `$option->name` in an
+ * attribute is unchecked — which is exactly the kind of value that reached the
+ * core's options page unescaped and was only found by reading it.
+ */
+/** @var array<string, object{name: string, value: string}> $options */
 $options = $view['options'];
+
+/** @var string $nonce_action */
+$nonce_action = $view['nonce_action'];
 
 /*
  * The labels live here, not in the add-on table's `label` column. That column
@@ -45,6 +54,13 @@ $labels = [
  * @param string $label  Already-translated label.
  */
 $text_row = function ( $option, string $label ) : void {
+    /*
+     * The shape goes here, inside the body, and not in the @param above: a
+     * docblock on a closure is not read, wherever it is put, so `$option`
+     * stayed `mixed` and `$option->name` went into an attribute unchecked —
+     * which is the whole reason the views are typed at all.
+     */
+    /** @var object{name: string, value: string} $option */
     ?>
     <tr>
         <td style="width:50%;">
@@ -75,7 +91,7 @@ $text_row = function ( $option, string $label ) : void {
     method="POST"
     action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 
-    <?php wp_nonce_field( strval( $view['nonce_action'] ) ); ?>
+    <?php wp_nonce_field( $nonce_action ); ?>
     <input name="action" type="hidden" value="wp2static_directory_deployment_save_options" />
 
     <table class="widefat striped">

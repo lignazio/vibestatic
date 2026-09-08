@@ -62,6 +62,7 @@ class Controller {
      *  @return mixed[] All options
      */
     public static function getOptions() : array {
+        /** @var \wpdb $wpdb */
         global $wpdb;
         $options = [];
 
@@ -87,6 +88,7 @@ class Controller {
      * view's business, where they can be translated.
      */
     public static function seedOptions() : void {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_addon_sftp_options';
@@ -123,6 +125,7 @@ class Controller {
      * @param mixed $value option value to save
      */
     public static function saveOption( string $name, $value ) : void {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_addon_sftp_options';
@@ -193,6 +196,7 @@ class Controller {
 
     public static function activate_for_single_site() : void {
         // initialize options DB
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_addon_sftp_options';
@@ -228,6 +232,7 @@ class Controller {
 
     public static function deactivate( ?bool $network_wide = null ) : void {
         if ( $network_wide ) {
+            /** @var \wpdb $wpdb */
             global $wpdb;
 
             // prepare() with %i, not sprintf(): a table name pushed through
@@ -254,6 +259,7 @@ class Controller {
 
     public static function activate( ?bool $network_wide = null ) : void {
         if ( $network_wide ) {
+            /** @var \wpdb $wpdb */
             global $wpdb;
 
             // prepare() with %i, not sprintf(): a table name pushed through
@@ -302,6 +308,7 @@ class Controller {
          */
         \WP2Static\Controller::authorize( 'wp2static-sftp-options' );
 
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_addon_sftp_options';
@@ -370,6 +377,7 @@ class Controller {
      * @return string option value
      */
     public static function getValue( string $name ) : string {
+        /** @var \wpdb $wpdb */
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'wp2static_addon_sftp_options';

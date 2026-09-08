@@ -20,8 +20,13 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+/** @var array<string, mixed> $view */
+
 /** @var array<string, object{name: string, value: string}> $options */
 $options = $view['options'];
+
+/** @var string $nonce_action */
+$nonce_action = $view['nonce_action'];
 
 /**
  * The fields, in the order they are shown: name => [ label, type, help ].
@@ -101,7 +106,7 @@ $fields = [
     method="POST"
     action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 
-    <?php wp_nonce_field( strval( $view['nonce_action'] ) ); ?>
+    <?php wp_nonce_field( $nonce_action ); ?>
     <input name="action" type="hidden" value="wp2static_sftp_save_options" />
 
     <table class="widefat striped">

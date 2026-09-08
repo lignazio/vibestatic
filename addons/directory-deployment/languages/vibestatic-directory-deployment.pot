@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-05T14:41:47+00:00\n"
+"POT-Creation-Date: 2026-09-08T05:51:27+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vibestatic-directory-deployment\n"
@@ -39,27 +39,27 @@ msgstr ""
 msgid "https://lucenti.studio"
 msgstr ""
 
-#: src/Controller.php:353
-#: views/directory-deployment-page.php:71
+#: src/Controller.php:360
+#: views/directory-deployment-page.php:87
 msgid "Directory Deployment Options"
 msgstr ""
 
-#: views/directory-deployment-page.php:36
+#: views/directory-deployment-page.php:45
 msgid "Target directory (absolute path)"
 msgstr ""
 
-#: views/directory-deployment-page.php:37
+#: views/directory-deployment-page.php:46
 msgid "Delete target directory before deployment"
 msgstr ""
 
-#: views/directory-deployment-page.php:38
+#: views/directory-deployment-page.php:47
 msgid "Additional source directory to include in deployment (absolute path)"
 msgstr ""
 
-#: views/directory-deployment-page.php:95
+#: views/directory-deployment-page.php:111
 msgid "Leave this off and each deployment copies only the files that changed, removing the ones that are gone. Turn it on and the target directory is emptied before every deployment: that is for starting over, not for daily use — while it empties, the published site is not there."
 msgstr ""
 
-#: views/directory-deployment-page.php:119
+#: views/directory-deployment-page.php:135
 msgid "Save Options"
 msgstr ""

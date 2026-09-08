@@ -20,8 +20,34 @@ parameters:
     paths:
         - %currentWorkingDirectory%/src/
         - %currentWorkingDirectory%/views/
+        # The adopted add-ons. They were outside the analysis entirely, which
+        # left the only part of the project that takes $_POST, writes SQL and
+        # stores the credentials of a remote server as the only part nothing
+        # looked at. It is the same hole the sniffs had until they were pointed
+        # at addons/ and turned up 98 violations.
+        - %currentWorkingDirectory%/addons/
         - %currentWorkingDirectory%/vibestatic.php
         - %currentWorkingDirectory%/uninstall.php
+
+    # Each add-on carries its own dependencies; those are analysed by whoever
+    # maintains them, not here.
+    #
+    # `analyse:` and not a plain list. A plain list is shorthand for
+    # `analyseAndScan`, which also hides the files from symbol discovery: with
+    # it, every phpseclib class the sftp add-on uses came back as "class not
+    # found" — the exclusion meant to keep somebody else's code out of the
+    # report was instead making our own code unanalysable.
+    # phpseclib, the sftp add-on's dependency, is what this covers today: it
+    # stays in symbol discovery and out of the report. Deliberately NOT
+    # bootstrapped — nothing here should make it resolvable at runtime from the
+    # core's autoloader, because dev resolving a class from somewhere
+    # production does not is how a difference between what is tested and what
+    # ships gets in. `composer install` at the root installs it, through the
+    # `addon-deps` script; both that script and this entry go away when
+    # phpseclib moves into the core's own dependencies and through Strauss.
+    excludePaths:
+        analyse:
+            - %currentWorkingDirectory%/addons/*/vendor/*
 
     # Third-party dependencies live under WP2Static\Vendor\ in
     # vendor-prefixed/, which has an autoloader of its own: without registering
@@ -38,4 +64,8 @@ parameters:
     ignoreErrors:
         # WP_CLI::add_command accepts a class or a [class, method] array and
         # calls them internally; PHPStan only sees the `callable` signature.
-        - '/^Parameter #2 \$callable of static method WP_CLI::add_command\(\) expects callable\(\): mixed, \S+ given\.$/'
+        # `.+` and not `\S+`: an array callable is printed as
+        # `array{'WP2StaticSFTP\\CLI', 'sftp'}`, with a space after the comma,
+        # so the non-whitespace form matched the core's callables and missed
+        # every add-on's.
+        - '/^Parameter #2 \$callable of static method WP_CLI::add_command\(\) expects callable\(\): mixed, .+ given\.$/'

@@ -1,6 +1,96 @@
 parameters:
 	ignoreErrors:
 		-
+			rawMessage: 'Argument of an invalid type list<stdClass>|null supplied for foreach, only iterables are supported.'
+			identifier: foreach.nonIterable
+			count: 1
+			path: addons/directory-deployment/src/Controller.php
+
+		-
+			rawMessage: 'In method "WP2StaticDirectoryDeployer\Controller::saveOptionsFromUI", you should not use the $_POST superglobal.'
+			identifier: thecodingmachine.superglobalUsed
+			count: 2
+			path: addons/directory-deployment/src/Controller.php
+
+		-
+			rawMessage: 'Parameter #1 $new_blog_id of function switch_to_blog expects int, string|null given.'
+			identifier: argument.type
+			count: 2
+			path: addons/directory-deployment/src/Controller.php
+
+		-
+			rawMessage: 'Parameter #1 $query of method wpdb::query() expects string, string|null given.'
+			identifier: argument.type
+			count: 4
+			path: addons/directory-deployment/src/Controller.php
+
+		-
+			rawMessage: 'Parameter #1 $str of function sanitize_text_field expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: addons/directory-deployment/src/Controller.php
+
+		-
+			rawMessage: Possibly invalid array key type mixed.
+			identifier: offsetAccess.invalidOffset
+			count: 1
+			path: addons/directory-deployment/src/Controller.php
+
+		-
+			rawMessage: 'Parameter #1 $query of method wpdb::query() expects string, string|null given.'
+			identifier: argument.type
+			count: 1
+			path: addons/directory-deployment/uninstall.php
+
+		-
+			rawMessage: 'Argument of an invalid type list<stdClass>|null supplied for foreach, only iterables are supported.'
+			identifier: foreach.nonIterable
+			count: 1
+			path: addons/sftp/src/Controller.php
+
+		-
+			rawMessage: 'In method "WP2StaticSFTP\Controller::saveOptionsFromUI", you should not use the $_POST superglobal.'
+			identifier: thecodingmachine.superglobalUsed
+			count: 4
+			path: addons/sftp/src/Controller.php
+
+		-
+			rawMessage: 'Parameter #1 $new_blog_id of function switch_to_blog expects int, string|null given.'
+			identifier: argument.type
+			count: 2
+			path: addons/sftp/src/Controller.php
+
+		-
+			rawMessage: 'Parameter #1 $query of method wpdb::query() expects string, string|null given.'
+			identifier: argument.type
+			count: 3
+			path: addons/sftp/src/Controller.php
+
+		-
+			rawMessage: 'Parameter #1 $str of function sanitize_text_field expects string, mixed given.'
+			identifier: argument.type
+			count: 2
+			path: addons/sftp/src/Controller.php
+
+		-
+			rawMessage: Possibly invalid array key type mixed.
+			identifier: offsetAccess.invalidOffset
+			count: 1
+			path: addons/sftp/src/Controller.php
+
+		-
+			rawMessage: 'Call to internal method phpseclib\Net\SFTP::put() from outside its root namespace phpseclib.'
+			identifier: method.internal
+			count: 1
+			path: addons/sftp/src/Deployer.php
+
+		-
+			rawMessage: 'Parameter #1 $query of method wpdb::query() expects string, string|null given.'
+			identifier: argument.type
+			count: 1
+			path: addons/sftp/uninstall.php
+
+		-
 			rawMessage: 'Method WP2Static\Addons::getAll() should return array<mixed> but returns list<stdClass>|null.'
 			identifier: return.type
 			count: 2

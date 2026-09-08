@@ -19,17 +19,17 @@ namespace WP2Static;
 class DeployPlan {
 
     /**
-     * @var string[] Percorsi da caricare: nuovi o cambiati.
+     * @var string[] Paths to upload: new or changed.
      */
     private $to_deploy;
 
     /**
-     * @var string[] Percorsi da rimuovere a destinazione.
+     * @var string[] Paths to remove at the destination.
      */
     private $to_delete;
 
     /**
-     * @var int Quanti file sono identici a quelli gia' pubblicati.
+     * @var int How many files are identical to what is already published.
      */
     private $unchanged;
 
