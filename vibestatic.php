@@ -3,7 +3,7 @@
  * Plugin Name: VibeStatic
  * Plugin URI:  https://github.com/lignazio/vibestatic
  * Description: Static site generation for WordPress, with incremental deployment.
- * Version:     8.0.0
+ * Version:     8.1.0-dev
  * Requires at least: 6.5
  * Requires PHP: 8.2
  * Author:      Ignazio Lucenti
@@ -42,7 +42,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     die;
 }
 
-define( 'VIBESTATIC_VERSION', '8.0.0' );
+define( 'VIBESTATIC_VERSION', '8.1.0-dev' );
 define( 'VIBESTATIC_PATH', plugin_dir_path( __FILE__ ) );
 
 /*

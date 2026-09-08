@@ -123,13 +123,13 @@ class CoreOptions {
             self::makeOptionSpec(
                 'boolean',
                 'detectUploads',
-                '1',
+                '0',
                 __(
                     'Detect Uploads',
                     'vibestatic'
                 ),
                 __(
-                    'Include Uploads in URL Detection.',
+                    'Queue every file under uploads, whether a page links to it or not. Off by default: what the pages reference is picked up while crawling, which covers the media the site actually shows and keeps the published copy the size of the site rather than of the media library. Turn it on when something has to be published that no crawled page mentions — an image whose src is built in JavaScript, a background coming from a stylesheet, a PDF linked only from an email or another site. It also publishes every thumbnail size WordPress generated and whatever other plugins keep under uploads.',
                     'vibestatic'
                 )
             ),
@@ -282,13 +282,13 @@ class CoreOptions {
             self::makeOptionSpec(
                 'boolean',
                 'addURLsWhileCrawling',
-                '0',
+                '1',
                 __(
                     'Follow links while crawling',
                     'vibestatic'
                 ),
                 __(
-                    'Also crawl URLs found in the pages as they are crawled, not only the ones detection produced. Finds pages reachable by a link and nothing else — a hand-written link in a post, a route a plugin renders, a file nothing else references. Off by default: it changes what ends up in the published site.',
+                    'Also crawl URLs found in the pages as they are crawled, not only the ones detection produced. It reads img src and srcset, video, audio, source, link and script, so it is what brings the media a page shows into the published site, and it finds pages reachable by a link and nothing else — a hand-written link in a post, a route a plugin renders. On by default: with "Detect Uploads" off, this is what keeps the images in the site.',
                     'vibestatic'
                 ),
                 null,

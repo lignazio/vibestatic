@@ -1,5 +1,24 @@
 # Changelog
 
+## VibeStatic 8.1.0 (unreleased)
+
+### Changed
+
+- **The uploads directory is no longer queued wholesale.** `detectUploads` now
+  defaults to off and `addURLsWhileCrawling` to on, so what gets published is
+  what the pages reference — `img src` and `srcset`, `video`, `audio`,
+  `source`, `link`, `script` — instead of every file sitting under `uploads/`.
+  Measured on a real portfolio site: 472 MB against 151 MB, the difference
+  being thumbnail sizes nothing shows, uploads of deleted pages, and another
+  static-export plugin's leftovers stored under `uploads/`. The two options move
+  together on purpose: with both off a fresh install would publish a site with
+  no images. Turn `detectUploads` back on when a file has to be published that
+  no crawled page mentions — an `src` built in JavaScript, a background coming
+  from a stylesheet, a PDF linked only from an email. Existing installs keep
+  the value they have: seeding does not overwrite.
+
+---
+
 ## VibeStatic 8.0.0 (2026-09-08)
 
 The fork picks up from WP2Static 7.2. The commit history describes each change
@@ -32,6 +51,7 @@ one by one, with the reasoning; this is the summary.
 - Development environment under `dev/` — native WordPress, no Docker.
 
 ### Changed
+
 
 - Requires PHP 8.2 and WordPress 6.5. Runs clean on PHP 8.2, 8.3 and 8.4.
 - `guzzlehttp/guzzle` 8.1 upstream, prefixed at install time by Strauss,
