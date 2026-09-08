@@ -106,3 +106,16 @@ function wp2static_uninstall_rmdir( string $path ) : void {
 foreach ( [ 'wp2static-crawled-site', 'wp2static-processed-site' ] as $directory ) {
     wp2static_uninstall_rmdir( $uploads_path . $directory );
 }
+
+/*
+ * The ZIP module's archive. It used to have an uninstall.php of its own, which
+ * WordPress runs only for a plugin it is uninstalling — and which called
+ * `unlink()` with no arguments at all, so it was a fatal error during uninstall
+ * and the archive stayed on disk regardless. A whole site's worth of it.
+ */
+$wp2static_zip = $uploads_path . 'wp2static-processed-site.zip';
+
+if ( is_file( $wp2static_zip ) ) {
+    // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+    unlink( $wp2static_zip );
+}

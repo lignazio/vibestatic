@@ -54,6 +54,7 @@ class Modules {
         return [
             'wp2static-addon-directory-deployment' => 'directory-deployment',
             'wp2static-addon-sftp' => 'sftp',
+            'wp2static-addon-zip' => 'zip',
         ];
     }
 
@@ -199,6 +200,8 @@ class Modules {
                 return class_exists( 'WP2StaticDirectoryDeployer\Controller', false );
             case 'sftp':
                 return class_exists( 'WP2StaticSFTP\Controller', false );
+            case 'zip':
+                return class_exists( 'WP2StaticZip\Controller', false );
             default:
                 return false;
         }

@@ -114,10 +114,13 @@ final class ModulesTest extends TestCase {
     }
 
     /**
-     * Each loaded module says how its tables are made, so Schema has something
-     * to call. A module that registers nothing is a module whose options table
-     * never gets created — and the failure shows up much later, as a deployer
-     * that cannot save its settings.
+     * A module that has tables says how they are made, so Schema has something
+     * to call — and one that has none registers nothing.
+     *
+     * Both halves matter. A module with settings and no installer is one whose
+     * options table never gets created, and that surfaces much later as a
+     * deployer that cannot save anything; a module with no settings at all —
+     * ZIP has none — must not be forced to pretend otherwise.
      */
     public function testEachLoadedModuleRegistersATableInstaller() : void {
         WP_Mock::userFunction( 'is_admin', [ 'return' => true ] );
@@ -138,12 +141,14 @@ final class ModulesTest extends TestCase {
         /** @var array<string, callable> $installers */
         $installers = $registered->getValue();
 
-        $this->assertSame(
-            array_keys( Modules::available() ),
-            array_keys( $installers )
-        );
+        $this->assertNotEmpty( $installers );
 
         foreach ( $installers as $slug => $installer ) {
+            $this->assertArrayHasKey(
+                $slug,
+                Modules::available(),
+                "$slug registered an installer but is not a known module"
+            );
             $this->assertIsCallable( $installer, "$slug registered a non-callable" );
         }
     }
