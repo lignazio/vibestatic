@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-08T08:22:39+00:00\n"
+"POT-Creation-Date: 2026-09-08T10:31:50+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vibestatic\n"
@@ -404,106 +404,130 @@ msgid "Also crawl URLs found in the pages as they are crawled, not only the ones
 msgstr ""
 
 #: src/CoreOptions.php:301
-msgid "Additional Paths to Crawl"
+msgid "Form Endpoint"
 msgstr ""
 
 #: src/CoreOptions.php:305
-msgid "One path per line, for what nothing enumerates and nothing links to: a file put on the server by hand, a route a plugin answers without a post behind it. They are added to detection, not to the crawl queue directly — anything the detection does not name is removed from the queue on the next run."
+msgid "Where the published forms should post. A static site cannot run PHP, so a form left pointing at WordPress is a button that does nothing; give it the URL of a form service — Formspree, Basin, Web3Forms — and it will work. Empty means no form is touched at all."
 msgstr ""
 
-#: src/CoreOptions.php:315
-msgid "Crawl Chunk Size"
+#: src/CoreOptions.php:314
+msgid "Form Handling"
 msgstr ""
 
-#: src/CoreOptions.php:319
-msgid "How many URLs to hold in memory at a time. 0 takes the whole queue at once, which is what it has always done and is fine for most sites; set a few thousand if the crawl runs out of memory on a very large one."
+#: src/CoreOptions.php:318
+msgid "\"endpoint\" points forms at the URL above. \"netlify\" instead marks them for Netlify Forms, which is not a URL but two marks on the markup — use it only when the site is deployed to Netlify."
 msgstr ""
 
-#: src/CoreOptions.php:328
-msgid "Crawl Progress Interval"
+#: src/CoreOptions.php:327
+msgid "Form Rules"
 msgstr ""
 
-#: src/CoreOptions.php:332
-msgid "Write a progress line to the log every this many URLs. 0 turns the running count off and leaves only the line at the end."
+#: src/CoreOptions.php:331
+msgid "One rule per line, as \"id = endpoint\", where the id is the form's id or name attribute. It overrides the endpoint above for that one form. Leave the endpoint empty — \"id =\" — to leave that form exactly as it is."
 msgstr ""
 
 #: src/CoreOptions.php:341
-msgid "Detect Redirection plugin URLs"
+msgid "Additional Paths to Crawl"
 msgstr ""
 
 #: src/CoreOptions.php:345
+msgid "One path per line, for what nothing enumerates and nothing links to: a file put on the server by hand, a route a plugin answers without a post behind it. They are added to detection, not to the crawl queue directly — anything the detection does not name is removed from the queue on the next run."
+msgstr ""
+
+#: src/CoreOptions.php:355
+msgid "Crawl Chunk Size"
+msgstr ""
+
+#: src/CoreOptions.php:359
+msgid "How many URLs to hold in memory at a time. 0 takes the whole queue at once, which is what it has always done and is fine for most sites; set a few thousand if the crawl runs out of memory on a very large one."
+msgstr ""
+
+#: src/CoreOptions.php:368
+msgid "Crawl Progress Interval"
+msgstr ""
+
+#: src/CoreOptions.php:372
+msgid "Write a progress line to the log every this many URLs. 0 turns the running count off and leaves only the line at the end."
+msgstr ""
+
+#: src/CoreOptions.php:381
+msgid "Detect Redirection plugin URLs"
+msgstr ""
+
+#: src/CoreOptions.php:385
 msgid "Crawl the source addresses of the redirects the Redirection plugin manages, so the 301s they answer with end up in the static site. Off where that plugin is not installed: it does nothing."
 msgstr ""
 
-#: src/CoreOptions.php:354
+#: src/CoreOptions.php:394
 msgid "Completion Email"
 msgstr ""
 
-#: src/CoreOptions.php:358
+#: src/CoreOptions.php:398
 msgid "Email to send deployment completion notification to."
 msgstr ""
 
-#: src/CoreOptions.php:367
+#: src/CoreOptions.php:407
 msgid "Completion Webhook"
 msgstr ""
 
-#: src/CoreOptions.php:371
+#: src/CoreOptions.php:411
 msgid "Webhook to send deployment completion notification to."
 msgstr ""
 
-#: src/CoreOptions.php:380
+#: src/CoreOptions.php:420
 msgid "Completion Webhook Method"
 msgstr ""
 
-#: src/CoreOptions.php:384
+#: src/CoreOptions.php:424
 msgid "How to send completion webhook payload (GET|POST)."
 msgstr ""
 
-#: src/CoreOptions.php:395
+#: src/CoreOptions.php:435
 msgid "Crawl Concurrency"
 msgstr ""
 
-#: src/CoreOptions.php:399
+#: src/CoreOptions.php:439
 msgid "The maximum number of files that will be crawled at the same time."
 msgstr ""
 
-#: src/CoreOptions.php:408
+#: src/CoreOptions.php:448
 msgid "File Extensions to Ignore"
 msgstr ""
 
-#: src/CoreOptions.php:412
+#: src/CoreOptions.php:452
 msgid "Files with these extensions will be ignored while crawling."
 msgstr ""
 
-#: src/CoreOptions.php:450
+#: src/CoreOptions.php:490
 msgid "Directory and File Names to Ignore"
 msgstr ""
 
-#: src/CoreOptions.php:454
+#: src/CoreOptions.php:494
 msgid "Directories and files with these names will be ignored while crawling."
 msgstr ""
 
-#: src/CoreOptions.php:521
+#: src/CoreOptions.php:561
 msgid "Hosts to Rewrite"
 msgstr ""
 
-#: src/CoreOptions.php:525
+#: src/CoreOptions.php:565
 msgid "Hosts to rewrite to the deployment URL."
 msgstr ""
 
-#: src/CoreOptions.php:535
+#: src/CoreOptions.php:575
 msgid "Skip URL Rewrite"
 msgstr ""
 
-#: src/CoreOptions.php:539
+#: src/CoreOptions.php:579
 msgid "Do not rewrite any URLs. This may give a slight speed-up when the deployment URL is the same as the WordPress URL."
 msgstr ""
 
-#: src/CoreOptions.php:549
+#: src/CoreOptions.php:589
 msgid "Remove WordPress emoji and RSD output"
 msgstr ""
 
-#: src/CoreOptions.php:553
+#: src/CoreOptions.php:593
 msgid "Removes the emoji scripts, the wlwmanifest link and the wp-embed and comment-reply scripts. This changes your LIVE site as well as the exported one, on purpose: a static copy should look like what your visitors actually get."
 msgstr ""
 
@@ -515,7 +539,7 @@ msgid_plural "VibeStatic now ships these add-ons itself: %s. The separately inst
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/WordPressAdmin.php:385
+#: src/WordPressAdmin.php:389
 msgid "Invalid request method."
 msgstr ""
 
@@ -577,16 +601,25 @@ msgid "Advanced Options"
 msgstr ""
 
 #: views/advanced-options-page.php:39
+#: views/advanced-options-page.php:74
 #: views/options-page.php:37
 msgid "Detection Options"
 msgstr ""
 
+#: views/advanced-options-page.php:51
+msgid "Forms"
+msgstr ""
+
 #: views/advanced-options-page.php:55
+msgid "A static site cannot run PHP, so a form left pointing at WordPress is a button that does nothing. Search and comment forms are left alone: they cannot be made to work by pointing them elsewhere, and removing them would be a larger change than this should make on its own."
+msgstr ""
+
+#: views/advanced-options-page.php:89
 #: views/options-page.php:80
 msgid "Post-processing Options"
 msgstr ""
 
-#: views/advanced-options-page.php:75
+#: views/advanced-options-page.php:109
 #: views/options-page.php:137
 msgid "Save options"
 msgstr ""

@@ -43,6 +43,40 @@ $row = function ( string $name ) use ( $options ) : string {
             <?php
             // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- markup already escaped by OptionRenderer.
             echo $row( 'additionalPathsToCrawl' );
+            // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+            ?>
+        </tbody>
+    </table>
+
+    <h2><?php esc_html_e( 'Forms', 'vibestatic' ); ?></h2>
+
+    <p>
+        <?php
+        esc_html_e(
+            'A static site cannot run PHP, so a form left pointing at WordPress is a button that does nothing. Search and comment forms are left alone: they cannot be made to work by pointing them elsewhere, and removing them would be a larger change than this should make on its own.',
+            'vibestatic'
+        );
+        ?>
+    </p>
+
+    <table class="widefat striped">
+        <tbody>
+            <?php
+            // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- markup already escaped by OptionRenderer.
+            echo $row( 'formAction' );
+            echo $row( 'formProvider' );
+            echo $row( 'formRules' );
+            // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+            ?>
+        </tbody>
+    </table>
+
+    <h2><?php esc_html_e( 'Detection Options', 'vibestatic' ); ?></h2>
+
+    <table class="widefat striped">
+        <tbody>
+            <?php
+            // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- markup already escaped by OptionRenderer.
             echo $row( 'filenamesToIgnore' );
             echo $row( 'fileExtensionsToIgnore' );
             // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped

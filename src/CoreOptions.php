@@ -295,6 +295,46 @@ class CoreOptions {
                 'wp2static_add_urls_while_crawling'
             ),
             self::makeOptionSpec(
+                'string',
+                'formAction',
+                '',
+                __(
+                    'Form Endpoint',
+                    'vibestatic'
+                ),
+                __(
+                    'Where the published forms should post. A static site cannot run PHP, so a form left pointing at WordPress is a button that does nothing; give it the URL of a form service — Formspree, Basin, Web3Forms — and it will work. Empty means no form is touched at all.',
+                    'vibestatic'
+                )
+            ),
+            self::makeOptionSpec(
+                'string',
+                'formProvider',
+                'endpoint',
+                __(
+                    'Form Handling',
+                    'vibestatic'
+                ),
+                __(
+                    '"endpoint" points forms at the URL above. "netlify" instead marks them for Netlify Forms, which is not a URL but two marks on the markup — use it only when the site is deployed to Netlify.',
+                    'vibestatic'
+                )
+            ),
+            self::makeOptionSpec(
+                'array',
+                'formRules',
+                '1',
+                __(
+                    'Form Rules',
+                    'vibestatic'
+                ),
+                __(
+                    'One rule per line, as "id = endpoint", where the id is the form\'s id or name attribute. It overrides the endpoint above for that one form. Leave the endpoint empty — "id =" — to leave that form exactly as it is.',
+                    'vibestatic'
+                ),
+                ''
+            ),
+            self::makeOptionSpec(
                 'array',
                 'additionalPathsToCrawl',
                 '1',
@@ -921,6 +961,13 @@ class CoreOptions {
                     [ 'value' => isset( $_POST['addURLsWhileCrawling'] ) ? 1 : 0 ]
                 );
 
+                foreach ( [ 'formAction', 'formProvider' ] as $form_option ) {
+                    self::repository()->update(
+                        $form_option,
+                        [ 'value' => sanitize_text_field( strval( filter_input( INPUT_POST, $form_option ) ) ) ]
+                    );
+                }
+
                 self::repository()->update(
                     'detectRedirectionPluginURLs',
                     [ 'value' => isset( $_POST['detectRedirectionPluginURLs'] ) ? 1 : 0 ]
@@ -1052,6 +1099,7 @@ class CoreOptions {
                 foreach (
                     [
                         'additionalPathsToCrawl',
+                        'formRules',
                         'fileExtensionsToIgnore',
                         'filenamesToIgnore',
                         'hostsToRewrite',

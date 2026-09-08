@@ -60,6 +60,10 @@ class WordPressAdmin {
          */
         add_action( 'plugins_loaded', [ Modules::class, 'load' ], 5 );
 
+        // Registers two hooks and reads no options: with no endpoint
+        // configured, FormConverter opens no file and touches no form.
+        FormConverter::registerHooks();
+
         // Updates for anyone who installed from a zip. This registers filters
         // only: the call to GitHub happens when WordPress checks, not now.
         Updater::registerHooks();

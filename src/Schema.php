@@ -37,8 +37,9 @@ class Schema {
      *     on sites that already have the plugin.
      * 6 — `additionalPathsToCrawl`, `crawlChunkSize`,
      *     `crawlProgressReportInterval` and `detectRedirectionPluginURLs`.
+     * 7 — `formAction`, `formProvider` and `formRules`.
      */
-    const VERSION = 6;
+    const VERSION = 7;
 
     /**
      * @var string Where the applied version is remembered.
