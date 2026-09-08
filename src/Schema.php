@@ -38,8 +38,9 @@ class Schema {
      * 6 — `additionalPathsToCrawl`, `crawlChunkSize`,
      *     `crawlProgressReportInterval` and `detectRedirectionPluginURLs`.
      * 7 — `formAction`, `formProvider` and `formRules`.
+     * 8 — the FTP module's options table.
      */
-    const VERSION = 7;
+    const VERSION = 8;
 
     /**
      * @var string Where the applied version is remembered.

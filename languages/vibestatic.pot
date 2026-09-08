@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-08T10:31:50+00:00\n"
+"POT-Creation-Date: 2026-09-08T10:45:36+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vibestatic\n"
@@ -61,9 +61,65 @@ msgid "Leave this off and each deployment copies only the files that changed, re
 msgstr ""
 
 #: addons/directory-deployment/views/directory-deployment-page.php:135
+#: addons/ftp/views/ftp-page.php:151
 #: addons/netlify/views/netlify-page.php:91
 #: addons/sftp/views/sftp-page.php:153
 msgid "Save Options"
+msgstr ""
+
+#: addons/ftp/views/ftp-page.php:33
+msgid "Host"
+msgstr ""
+
+#: addons/ftp/views/ftp-page.php:34
+#: addons/sftp/views/sftp-page.php:47
+msgid "Port"
+msgstr ""
+
+#: addons/ftp/views/ftp-page.php:34
+msgid "21 unless the host says otherwise."
+msgstr ""
+
+#: addons/ftp/views/ftp-page.php:35
+#: addons/sftp/views/sftp-page.php:52
+msgid "Username"
+msgstr ""
+
+#: addons/ftp/views/ftp-page.php:37
+#: addons/sftp/views/sftp-page.php:57
+msgid "Password"
+msgstr ""
+
+#: addons/ftp/views/ftp-page.php:39
+msgid "Stored encrypted."
+msgstr ""
+
+#: addons/ftp/views/ftp-page.php:42
+msgid "Remote root"
+msgstr ""
+
+#: addons/ftp/views/ftp-page.php:44
+msgid "Where the site goes on the server, for example /public_html. Leave empty for the directory you land in on login."
+msgstr ""
+
+#: addons/ftp/views/ftp-page.php:51
+msgid "FTP Deployment"
+msgstr ""
+
+#: addons/ftp/views/ftp-page.php:57
+msgid "This server has no FTP support in PHP. Install the ext-ftp extension, or use the sFTP module, which needs nothing beyond what the plugin already ships."
+msgstr ""
+
+#: addons/ftp/views/ftp-page.php:112
+msgid "Encrypt the connection (FTPS)"
+msgstr ""
+
+#: addons/ftp/views/ftp-page.php:116
+msgid "Leave this on. With it off, the password and then every byte of the site travel in the clear over whatever network is in between. It is here because some shared hosting still offers nothing else."
+msgstr ""
+
+#: addons/ftp/views/ftp-page.php:127
+msgid "This PHP build has no FTPS support, so this setting will have no effect."
 msgstr ""
 
 #: addons/netlify/views/netlify-page.php:27
@@ -94,20 +150,8 @@ msgstr ""
 msgid "Host name of the sFTP server."
 msgstr ""
 
-#: addons/sftp/views/sftp-page.php:47
-msgid "Port"
-msgstr ""
-
 #: addons/sftp/views/sftp-page.php:49
 msgid "Defaults to 22 when left empty."
-msgstr ""
-
-#: addons/sftp/views/sftp-page.php:52
-msgid "Username"
-msgstr ""
-
-#: addons/sftp/views/sftp-page.php:57
-msgid "Password"
 msgstr ""
 
 #: addons/sftp/views/sftp-page.php:59
@@ -532,7 +576,7 @@ msgid "Removes the emoji scripts, the wlwmanifest link and the wp-embed and comm
 msgstr ""
 
 #. translators: %s: comma-separated list of add-on slugs.
-#: src/Modules.php:234
+#: src/Modules.php:238
 #, php-format
 msgid "VibeStatic now ships this add-on itself: %s. The separately installed copy is the one running — deactivate it, so the bundled one takes over."
 msgid_plural "VibeStatic now ships these add-ons itself: %s. The separately installed copies are the ones running — deactivate them, so the bundled ones take over."

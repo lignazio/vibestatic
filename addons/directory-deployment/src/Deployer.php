@@ -17,7 +17,7 @@ namespace WP2StaticDirectoryDeployer;
 use WP2Static\DeployCache;
 use WP2Static\WsLog;
 
-class Deployer {
+class Deployer extends \WP2Static\PlanDrivenDeployer {
 
     /**
      * The namespace these files are recorded under in the core's DeployCache.
@@ -28,17 +28,27 @@ class Deployer {
      */
     const DEFAULT_NAMESPACE = 'wp2static-addon-directory-deployment';
 
+    protected function deployCacheNamespace() : string {
+        return self::DEFAULT_NAMESPACE;
+    }
+
+    protected function label() : string {
+        return 'Directory deployment';
+    }
+
+    protected function root() : string {
+        return rtrim( (string) Controller::getValue( 'directoryDeploymentTargetDirectory' ), '/' );
+    }
+
     /**
-     * @param string $processed_site_path The processed site's directory.
+     * The name the add-on has always had for this.
      */
     public function uploadFiles( string $processed_site_path ) : void {
-        if ( ! is_dir( $processed_site_path ) ) {
-            WsLog::l( 'Processed folder does not exist: ' . $processed_site_path );
+        $this->deploy( $processed_site_path );
+    }
 
-            return;
-        }
-
-        $target = (string) Controller::getValue( 'directoryDeploymentTargetDirectory' );
+    protected function connect() : bool {
+        $target = $this->root();
 
         if ( '' === $target ) {
             WsLog::l(
@@ -46,16 +56,14 @@ class Deployer {
                 ' Directory Deployment > Configure'
             );
 
-            return;
+            return false;
         }
 
         if ( ! is_dir( $target ) ) {
             WsLog::l( 'Target folder does not exist: ' . $target );
 
-            return;
+            return false;
         }
-
-        $target = rtrim( $target, '/' );
 
         /*
          * Emptying the destination is still possible, but it is no longer the
@@ -73,37 +81,19 @@ class Deployer {
             DeployCache::truncate( self::DEFAULT_NAMESPACE );
         }
 
-        $plan = DeployCache::plan( self::DEFAULT_NAMESPACE );
+        return true;
+    }
 
-        WsLog::l( $plan->summary() );
-
-        $copied = 0;
-
-        foreach ( $plan->toDeploy() as $path ) {
-            if ( $this->copyFile( $processed_site_path . $path, $target . $path ) ) {
-                DeployCache::addFile( $path, self::DEFAULT_NAMESPACE );
-
-                $copied++;
-            }
-        }
-
-        $removed = $this->removeFiles( $plan->toDelete(), $target );
-
-        // The cache is updated AFTER: if the deploy stops halfway, what was
-        // not copied has to still be pending on the next run.
-        DeployCache::rmPaths( $plan->toDelete(), self::DEFAULT_NAMESPACE );
-
-        WsLog::l( "Directory deployment complete: $copied copied, $removed removed." );
-
-        $this->copyAdditionalSource( $target );
+    protected function disconnect() : void {
+        $this->copyAdditionalSource( $this->root() );
     }
 
     /**
-     * @param string $from Absolute path of the source file.
-     * @param string $to   Absolute destination path.
+     * @param string $local       Absolute path of the file to copy.
+     * @param string $destination Absolute path it goes to.
      */
-    private function copyFile( string $from, string $to ) : bool {
-        $directory = dirname( $to );
+    protected function put( string $local, string $destination ) : bool {
+        $directory = dirname( $destination );
 
         if ( ! is_dir( $directory ) && ! mkdir( $directory, 0755, true ) && ! is_dir( $directory ) ) {
             WsLog::l( 'Could not create directory: ' . $directory );
@@ -111,82 +101,17 @@ class Deployer {
             return false;
         }
 
-        if ( ! copy( $from, $to ) ) {
-            WsLog::l( 'Could not copy: ' . $from );
-
-            return false;
-        }
-
-        return true;
+        return copy( $local, $destination );
     }
 
-    /**
-     * Delete the files that have gone, and the directories they leave empty.
-     *
-     * @param string[] $paths  Root-relative paths to remove.
-     * @param string   $target Root of the destination.
-     * @return int How many were actually removed.
-     */
-    private function removeFiles( array $paths, string $target ) : int {
-        $removed = 0;
-        $directories = [];
-
-        foreach ( $paths as $path ) {
-            $file = $target . $path;
-
-            if ( is_file( $file ) && unlink( $file ) ) {
-                $directories[ dirname( $file ) ] = true;
-
-                $removed++;
-            }
-        }
-
-        /*
-         * A directory left empty is a visible leftover: on a server with
-         * directory listings enabled it becomes an indexable empty page. They go
-         * deepest first, and only if empty — `rmdir` fails on its own for the
-         * rest.
-         */
-        krsort( $directories );
-
-        foreach ( array_keys( $directories ) as $directory ) {
-            $this->removeEmptyDirectories( $directory, $target );
-        }
-
-        return $removed;
+    protected function delete( string $destination ) : bool {
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink -- a local file this module wrote.
+        return is_file( $destination ) && unlink( $destination );
     }
 
-    /**
-     * Remove a directory left empty, then every ancestor it leaves empty in
-     * turn, stopping at the destination root.
-     *
-     * **It walks up, and that is the point.** Only the directory that held the
-     * file was collected above, so unpublishing the one post under
-     * `/2019/08/` removed `/2019/08` and left `/2019` behind: an empty
-     * directory nobody would ever look in again, on a server that may well
-     * list it. Emptiness is only visible one level at a time, so it has to be
-     * asked one level at a time.
-     *
-     * `rmdir` failing is the normal stop condition — it refuses a directory
-     * that still has something in it — which is why the loop leans on it
-     * rather than counting entries first.
-     *
-     * @param string $directory Absolute path of the directory just emptied.
-     * @param string $target    Root of the destination; never removed.
-     */
-    private function removeEmptyDirectories( string $directory, string $target ) : void {
-        /*
-         * The prefix test carries the trailing slash. Without it a destination
-         * of `/srv/site` matches `/srv/site-old`, and this would walk out of
-         * the destination and start deleting a sibling's empty directories.
-         */
-        while (
-            $directory !== $target
-            && 0 === strpos( $directory, $target . '/' )
-            && @rmdir( $directory )
-        ) {
-            $directory = dirname( $directory );
-        }
+    protected function removeDirectory( string $destination ) : bool {
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- a local directory this module made.
+        return @rmdir( $destination );
     }
 
     /**

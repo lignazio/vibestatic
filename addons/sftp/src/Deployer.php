@@ -28,7 +28,7 @@ use WP2Static\Vendor\phpseclib3\Crypt\PublicKeyLoader;
 use WP2Static\Vendor\phpseclib3\Exception\NoKeyLoadedException;
 use WP2Static\Vendor\phpseclib3\Net\SFTP;
 
-class Deployer {
+class Deployer extends \WP2Static\PlanDrivenDeployer {
 
     /**
      * The namespace these files are recorded under in the core's DeployCache.
@@ -52,70 +52,40 @@ class Deployer {
         $this->connection = $connection;
     }
 
+    protected function deployCacheNamespace() : string {
+        return self::DEFAULT_NAMESPACE;
+    }
+
+    protected function label() : string {
+        return 'sFTP deployment';
+    }
+
     /**
-     * @param string $processed_site_path The processed site's directory.
+     * Only the trailing slash is trimmed.
+     *
+     * Trimming both ends turns an absolute remote root into a relative one, and
+     * phpseclib then happily creates the whole path under the sFTP user's home
+     * instead: the deploy reports every file as uploaded, because it was — just
+     * not where the user asked. Eighty-two megabytes went into a home directory
+     * that way, with the log saying it had all gone fine. An empty root means
+     * the home directory, which is what the server gives us anyway.
+     */
+    protected function root() : string {
+        return rtrim( (string) Controller::getValue( 'remote_root' ), '/' );
+    }
+
+    protected function connect() : bool {
+        $this->connection = $this->connection ?: $this->openConnection();
+
+        return (bool) $this->connection;
+    }
+
+    /**
+     * The name the add-on has always had for this. Kept so anything calling it
+     * — the CLI, somebody's script — keeps working.
      */
     public function upload_files( string $processed_site_path ) : void {
-        if ( ! is_dir( $processed_site_path ) ) {
-            WsLog::l( 'Processed folder does not exist: ' . $processed_site_path );
-
-            return;
-        }
-
-        $connection = $this->connection ?: $this->connect();
-
-        if ( ! $connection ) {
-            return;
-        }
-
-        $plan = DeployCache::plan( self::DEFAULT_NAMESPACE );
-
-        WsLog::l( $plan->summary() );
-
-        /*
-         * Only the trailing slash is trimmed. Trimming both ends turns an
-         * absolute remote root into a relative one, and phpseclib then happily
-         * creates the whole path under the SFTP user's home instead: the deploy
-         * reports every file as uploaded, because it was — just not where the
-         * user asked. An empty root means the home directory, which is what the
-         * server gives us anyway.
-         */
-        $root = rtrim( (string) Controller::getValue( 'remote_root' ), '/' );
-        $uploaded = 0;
-        $failed = 0;
-
-        foreach ( $plan->toDeploy() as $path ) {
-            if ( $this->put( $connection, $processed_site_path . $path, $root . $path ) ) {
-                DeployCache::addFile( $path, self::DEFAULT_NAMESPACE );
-
-                $uploaded++;
-                continue;
-            }
-
-            $failed++;
-
-            /*
-             * One line per failure, up to a point. A misconfigured server fails
-             * for every file, and this add-on used to write one log row each:
-             * on a site of eighteen hundred pages that is eighteen hundred rows
-             * saying the same thing, which buries the deploy that actually ran.
-             */
-            if ( $failed <= 10 ) {
-                WsLog::l( "sFTP put failed for $path" );
-            }
-        }
-
-        if ( $failed > 10 ) {
-            WsLog::l( sprintf( 'sFTP put failed for %d more file(s).', $failed - 10 ) );
-        }
-
-        $removed = $this->removeFiles( $connection, $plan->toDelete(), $root );
-
-        // The cache is updated AFTER: if the deploy stops halfway, what was not
-        // uploaded has to still be pending on the next run.
-        DeployCache::rmPaths( $plan->toDelete(), self::DEFAULT_NAMESPACE );
-
-        WsLog::l( "sFTP deployment complete: $uploaded uploaded, $removed removed, $failed failed." );
+        $this->deploy( $processed_site_path );
     }
 
     /**
@@ -123,7 +93,7 @@ class Deployer {
      *
      * @return SFTP|null Null when the options are incomplete or login fails.
      */
-    private function connect() : ?SFTP {
+    private function openConnection() : ?SFTP {
         $host = (string) Controller::getValue( 'host' );
 
         if ( '' === $host ) {
@@ -234,64 +204,41 @@ class Deployer {
     }
 
     /**
-     * @param SFTP   $connection Open connection.
-     * @param string $from       Absolute local path.
-     * @param string $to         Path on the remote server, relative to its root.
+     * @param string $local       Absolute local path.
+     * @param string $destination Path on the remote server, root included.
      */
-    private function put( SFTP $connection, string $from, string $to ) : bool {
-        if ( ! is_readable( $from ) ) {
+    protected function put( string $local, string $destination ) : bool {
+        if ( ! is_readable( $local ) || null === $this->connection ) {
             return false;
         }
 
-        $directory = dirname( $to );
+        $directory = dirname( $destination );
 
         if ( '.' !== $directory && '/' !== $directory ) {
             // mkdir() with the recursive flag, instead of walking the path one
             // segment at a time with a chdir() per segment per file.
-            $connection->mkdir( $directory, -1, true );
+            $this->connection->mkdir( $directory, -1, true );
         }
 
-        return (bool) $connection->put( $to, $from, SFTP::SOURCE_LOCAL_FILE );
+        return (bool) $this->connection->put( $destination, $local, SFTP::SOURCE_LOCAL_FILE );
     }
 
-    /**
-     * @param SFTP     $connection Open connection.
-     * @param string[] $paths      Paths that have left the site.
-     * @param string   $root       Remote root.
-     * @return int How many were removed.
-     */
-    private function removeFiles( SFTP $connection, array $paths, string $root ) : int {
-        $removed = 0;
-        $emptied = [];
-
-        foreach ( $paths as $path ) {
-            if ( $connection->delete( $root . $path, false ) ) {
-                $removed++;
-                $emptied[ dirname( $root . $path ) ] = true;
-            }
+    protected function delete( string $destination ) : bool {
+        if ( null === $this->connection ) {
+            return false;
         }
 
-        /*
-         * A directory left empty is a visible leftover: on a server with
-         * directory listings enabled it becomes an indexable empty page, which
-         * is the same dead-URL problem the deploy plan exists to avoid.
-         *
-         * Deepest first, walking up for as long as rmdir accepts: a directory
-         * can be left empty because the only subdirectory it held was emptied,
-         * and in that case its own name never came through here. rmdir fails on
-         * its own for a non-empty directory, so there is no need to check.
-         */
-        krsort( $emptied );
+        // `false`: not recursively. These are files, and a recursive delete
+        // pointed at a path that turned out to be a directory would take the
+        // directory with it.
+        return (bool) $this->connection->delete( $destination, false );
+    }
 
-        $stop = '' === $root ? '.' : $root;
-
-        foreach ( array_keys( $emptied ) as $directory ) {
-            while ( $directory !== $stop && strlen( $directory ) > strlen( $stop )
-                && $connection->rmdir( $directory ) ) {
-                $directory = dirname( $directory );
-            }
+    protected function removeDirectory( string $destination ) : bool {
+        if ( null === $this->connection ) {
+            return false;
         }
 
-        return $removed;
+        return (bool) $this->connection->rmdir( $destination );
     }
 }
