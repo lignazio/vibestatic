@@ -246,12 +246,12 @@ class Controller {
          */
         \WP2Static\Controller::authorize( 'wp2static-s3-options' );
 
+        // phpcs:disable WordPress.Security.NonceVerification.Missing -- verified by \WP2Static\Controller::authorize() above; WPCS discards guards reached through ::.
         foreach ( array_keys( self::DEFAULTS ) as $name ) {
             if ( in_array( $name, self::SECRETS, true ) ) {
                 continue;
             }
 
-            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified by \WP2Static\Controller::authorize() above; WPCS discards guards reached through ::.
             $value = isset( $_POST[ $name ] )
                 ? sanitize_text_field( wp_unslash( $_POST[ $name ] ) )
                 : '';
@@ -260,7 +260,6 @@ class Controller {
         }
 
         foreach ( self::SECRETS as $name ) {
-            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- see above.
             $secret = isset( $_POST[ $name ] )
                 ? sanitize_text_field( wp_unslash( $_POST[ $name ] ) )
                 : '';
@@ -270,6 +269,7 @@ class Controller {
                 \WP2Static\CoreOptions::encrypt_decrypt( 'encrypt', $secret )
             );
         }
+        // phpcs:enable WordPress.Security.NonceVerification.Missing
 
         wp_safe_redirect( admin_url( 'admin.php?page=wp2static-s3' ) );
         exit;

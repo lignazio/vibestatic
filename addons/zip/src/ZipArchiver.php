@@ -38,7 +38,7 @@ class ZipArchiver {
             $error = 'Could not create zip: ' . $temp_zip;
             WsLog::l( $error );
 
-            throw new \WP2Static\WP2StaticException( $error );
+            throw new \WP2Static\WP2StaticException( esc_html( $error ) );
         }
 
         $added = $this->addFiles( $zip_archive, $processed_site_path );
@@ -77,7 +77,7 @@ class ZipArchiver {
                 $error = 'Trying to add unknown file to Zip: ' . $filename;
                 WsLog::l( $error );
 
-                throw new \WP2Static\WP2StaticException( $error );
+                throw new \WP2Static\WP2StaticException( esc_html( $error ) );
             }
 
             /*
@@ -91,7 +91,7 @@ class ZipArchiver {
                 $error = 'Could not add file: ' . $entry;
                 WsLog::l( $error );
 
-                throw new \WP2Static\WP2StaticException( $error );
+                throw new \WP2Static\WP2StaticException( esc_html( $error ) );
             }
 
             $added++;

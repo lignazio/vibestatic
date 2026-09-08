@@ -235,12 +235,12 @@ class Controller {
          */
         \WP2Static\Controller::authorize( 'wp2static-ftp-options' );
 
+        // phpcs:disable WordPress.Security.NonceVerification.Missing -- verified by \WP2Static\Controller::authorize() above; WPCS discards guards reached through ::.
         foreach ( array_keys( self::DEFAULTS ) as $name ) {
             if ( 'password' === $name ) {
                 continue;
             }
 
-            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified by \WP2Static\Controller::authorize() above; WPCS discards guards reached through ::.
             $value = isset( $_POST[ $name ] )
                 ? sanitize_text_field( wp_unslash( $_POST[ $name ] ) )
                 : '';
@@ -248,17 +248,16 @@ class Controller {
             // A checkbox that is not ticked is not posted at all, so its
             // absence is the value rather than a missing field.
             if ( 'use_tls' === $name ) {
-                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- see above.
                 $value = isset( $_POST['use_tls'] ) ? '1' : '0';
             }
 
             self::saveOption( $name, $value );
         }
 
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- see above.
         $password = isset( $_POST['password'] )
             ? sanitize_text_field( wp_unslash( $_POST['password'] ) )
             : '';
+        // phpcs:enable WordPress.Security.NonceVerification.Missing
 
         self::saveOption(
             'password',
