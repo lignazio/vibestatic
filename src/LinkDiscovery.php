@@ -35,21 +35,34 @@ class LinkDiscovery {
      * `a[href]` is the one that matters — it is what makes a page reachable —
      * but a static copy needs what the page loads as well as where it points.
      *
+     * The `data-` attributes are here because of lazy loading, which is now the
+     * normal way a theme or an optimisation plugin ships media: the real URL
+     * sits in `data-src` and JavaScript moves it into `src` when the element
+     * comes near the viewport. To a crawler that reads only `src` the file does
+     * not exist. Measured on a portfolio site: thirteen video loops, each
+     * referenced from fifteen to eighteen pages as
+     * `<source data-src="…mp4">`, absent from the published copy — every
+     * project page with a dead player and nothing in the log about it.
+     *
+     * `data-bg` and friends are deliberately not here: their value is CSS
+     * (`url(...)`), not a URL, and guessing at it would queue paths that do not
+     * exist.
+     *
      * @var array<string, string[]>
      */
     const ATTRIBUTES = [
         'a' => [ 'href' ],
         'area' => [ 'href' ],
-        'audio' => [ 'src' ],
-        'embed' => [ 'src' ],
-        'iframe' => [ 'src' ],
-        'img' => [ 'src', 'srcset' ],
+        'audio' => [ 'src', 'data-src', 'data-lazy-src' ],
+        'embed' => [ 'src', 'data-src' ],
+        'iframe' => [ 'src', 'data-src', 'data-lazy-src' ],
+        'img' => [ 'src', 'srcset', 'data-src', 'data-lazy-src', 'data-srcset', 'data-lazy-srcset' ],
         'link' => [ 'href' ],
         'object' => [ 'data' ],
         'script' => [ 'src' ],
-        'source' => [ 'src', 'srcset' ],
+        'source' => [ 'src', 'srcset', 'data-src', 'data-lazy-src', 'data-srcset', 'data-lazy-srcset' ],
         'track' => [ 'src' ],
-        'video' => [ 'src', 'poster' ],
+        'video' => [ 'src', 'poster', 'data-src', 'data-lazy-src', 'data-poster' ],
     ];
 
     /**
@@ -136,7 +149,9 @@ class LinkDiscovery {
      * @return string[]
      */
     private static function candidates( string $attribute, string $value ) : array {
-        if ( 'srcset' !== $attribute ) {
+        // The lazy-loading variants carry the same comma-separated list as the
+        // attribute they stand in for, so they are split the same way.
+        if ( ! in_array( $attribute, [ 'srcset', 'data-srcset', 'data-lazy-srcset' ], true ) ) {
             return [ $value ];
         }
 

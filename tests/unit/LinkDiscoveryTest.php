@@ -81,6 +81,36 @@ final class LinkDiscoveryTest extends TestCase {
      * Another host is not ours to crawl, and neither is a scheme that does not
      * fetch anything.
      */
+    public function testItReadsTheLazyLoadingAttributes() : void {
+        /*
+         * Lazy loading is the normal way a theme ships media today: the URL
+         * lives in `data-src` and JavaScript moves it into `src` when the
+         * element approaches the viewport. Reading only `src` means the file
+         * never gets crawled, and the published page points at a video that is
+         * not there — measured on a real portfolio, thirteen of them.
+         */
+        $this->assertSame(
+            [
+                '/wp-content/uploads/loop.mp4',
+                '/wp-content/uploads/poster.webp',
+            ],
+            $this->find(
+                '<video data-poster="/wp-content/uploads/poster.webp">' .
+                '<source data-src="/wp-content/uploads/loop.mp4" type="video/mp4">' .
+                '</video>'
+            )
+        );
+    }
+
+    public function testItReadsEveryURLInALazySrcset() : void {
+        $this->assertSame(
+            [ '/img/grande.jpg', '/img/piccola.jpg' ],
+            $this->find(
+                '<img data-srcset="/img/piccola.jpg 480w, /img/grande.jpg 1200w">'
+            )
+        );
+    }
+
     public function testItIgnoresWhatIsNotAPageOfOurs() : void {
         $html = '<a href="https://elsewhere.test/page/">off site</a>'
             . '<a href="mailto:someone@example.com">mail</a>'

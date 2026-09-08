@@ -2,6 +2,19 @@
 
 ## VibeStatic 8.1.0 (unreleased)
 
+### Added
+
+- **Lazy-loaded media is discovered.** Link discovery now reads `data-src`,
+  `data-srcset`, `data-lazy-src`, `data-lazy-srcset` and `data-poster`
+  alongside `src`, `srcset` and `poster`. Lazy loading is how a theme or an
+  optimisation plugin normally ships media — the URL sits in a `data-`
+  attribute and JavaScript moves it into `src` — and to a crawler reading only
+  `src` those files do not exist. Found by testing the change below on a real
+  portfolio: thirteen video loops written as `<source data-src="…mp4">`, each
+  referenced from fifteen to eighteen pages, absent from the published copy.
+  `data-bg` and its relatives are deliberately left out: their value is CSS,
+  not a URL.
+
 ### Changed
 
 - **The uploads directory is no longer queued wholesale.** `detectUploads` now
