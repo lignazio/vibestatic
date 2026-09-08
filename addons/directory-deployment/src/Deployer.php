@@ -121,11 +121,11 @@ class Deployer {
     }
 
     /**
-     * Cancella i file spariti e le cartelle rimaste vuote.
+     * Delete the files that have gone, and the directories they leave empty.
      *
-     * @param string[] $paths  Percorsi relativi da rimuovere.
+     * @param string[] $paths  Root-relative paths to remove.
      * @param string   $target Root of the destination.
-     * @return int Quanti ne sono stati rimossi davvero.
+     * @return int How many were actually removed.
      */
     private function removeFiles( array $paths, string $target ) : int {
         $removed = 0;
@@ -150,12 +150,43 @@ class Deployer {
         krsort( $directories );
 
         foreach ( array_keys( $directories ) as $directory ) {
-            if ( 0 === strpos( $directory, $target ) && $directory !== $target ) {
-                @rmdir( $directory );
-            }
+            $this->removeEmptyDirectories( $directory, $target );
         }
 
         return $removed;
+    }
+
+    /**
+     * Remove a directory left empty, then every ancestor it leaves empty in
+     * turn, stopping at the destination root.
+     *
+     * **It walks up, and that is the point.** Only the directory that held the
+     * file was collected above, so unpublishing the one post under
+     * `/2019/08/` removed `/2019/08` and left `/2019` behind: an empty
+     * directory nobody would ever look in again, on a server that may well
+     * list it. Emptiness is only visible one level at a time, so it has to be
+     * asked one level at a time.
+     *
+     * `rmdir` failing is the normal stop condition — it refuses a directory
+     * that still has something in it — which is why the loop leans on it
+     * rather than counting entries first.
+     *
+     * @param string $directory Absolute path of the directory just emptied.
+     * @param string $target    Root of the destination; never removed.
+     */
+    private function removeEmptyDirectories( string $directory, string $target ) : void {
+        /*
+         * The prefix test carries the trailing slash. Without it a destination
+         * of `/srv/site` matches `/srv/site-old`, and this would walk out of
+         * the destination and start deleting a sibling's empty directories.
+         */
+        while (
+            $directory !== $target
+            && 0 === strpos( $directory, $target . '/' )
+            && @rmdir( $directory )
+        ) {
+            $directory = dirname( $directory );
+        }
     }
 
     /**
