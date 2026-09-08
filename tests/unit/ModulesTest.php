@@ -34,7 +34,7 @@ final class ModulesTest extends TestCase {
         }
 
         if ( ! defined( 'VIBESTATIC_VERSION' ) ) {
-            define( 'VIBESTATIC_VERSION', '8.0.0-rc2' );
+            define( 'VIBESTATIC_VERSION', '8.0.0-rc3' );
         }
     }
 
