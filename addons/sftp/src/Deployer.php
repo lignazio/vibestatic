@@ -23,8 +23,10 @@ use WP2Static\WsLog;
  * other gets a class that is not the one it expects. It is the same collision
  * the core solved for Guzzle, solved the same way.
  */
-use WP2Static\Vendor\phpseclib\Crypt\RSA;
-use WP2Static\Vendor\phpseclib\Net\SFTP;
+use WP2Static\Vendor\phpseclib3\Crypt\Common\PrivateKey;
+use WP2Static\Vendor\phpseclib3\Crypt\PublicKeyLoader;
+use WP2Static\Vendor\phpseclib3\Exception\NoKeyLoadedException;
+use WP2Static\Vendor\phpseclib3\Net\SFTP;
 
 class Deployer {
 
@@ -179,7 +181,7 @@ class Deployer {
      * authentication` and only ever logged in with a password. Two fields that
      * accept input and do nothing are worse than two fields that are not there.
      *
-     * @return RSA|string|null Null when nothing usable is configured.
+     * @return PrivateKey|string|null Null when nothing usable is configured.
      */
     private function credential() {
         $key_path = (string) Controller::getValue( 'private_key' );
@@ -197,20 +199,33 @@ class Deployer {
             return null;
         }
 
-        $key = new RSA();
-
         $passphrase = \WP2Static\CoreOptions::encrypt_decrypt(
             'decrypt',
             Controller::getValue( 'passphrase' )
         );
 
-        if ( '' !== $passphrase ) {
-            $key->setPassword( $passphrase );
+        /*
+         * PublicKeyLoader works out the format itself, and that is the reason
+         * for phpseclib 3 rather than 2 here. Version 2 had `Crypt\RSA` and
+         * nothing else: it could not read a key in OpenSSH format — which is
+         * what `ssh-keygen` has produced by default for years — so anyone
+         * generating a key today was told their key was unreadable, and it
+         * could not read an Ed25519 key at all. It throws rather than
+         * returning false, so the failure is caught rather than tested for.
+         */
+        try {
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local file, not a remote request.
+            $key = PublicKeyLoader::load( (string) file_get_contents( $key_path ), $passphrase );
+        } catch ( NoKeyLoadedException $exception ) {
+            WsLog::l( 'sFTP private key could not be read: wrong format, or wrong passphrase.' );
+
+            return null;
         }
 
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local file, not a remote request.
-        if ( ! $key->loadKey( (string) file_get_contents( $key_path ) ) ) {
-            WsLog::l( 'sFTP private key could not be read: wrong format, or wrong passphrase.' );
+        if ( ! $key instanceof PrivateKey ) {
+            // A public key where a private one belongs: it loads, and then
+            // authentication fails with something far less obvious.
+            WsLog::l( 'sFTP private key path holds a public key, not a private one.' );
 
             return null;
         }

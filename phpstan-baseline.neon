@@ -61,12 +61,6 @@ parameters:
 			path: addons/sftp/src/Controller.php
 
 		-
-			rawMessage: 'Call to internal method WP2Static\Vendor\phpseclib\Net\SFTP::put() from outside its root namespace WP2Static.'
-			identifier: method.internal
-			count: 1
-			path: addons/sftp/src/Deployer.php
-
-		-
 			rawMessage: 'Method WP2Static\Addons::getAll() should return array<mixed> but returns list<stdClass>|null.'
 			identifier: return.type
 			count: 2
