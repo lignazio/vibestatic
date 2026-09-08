@@ -1,6 +1,6 @@
 # Changelog
 
-## VibeStatic 8.1.0 (unreleased)
+## VibeStatic 8.1.0 (2026-09-08)
 
 ### Added
 
