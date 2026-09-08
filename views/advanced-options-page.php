@@ -42,6 +42,7 @@ $row = function ( string $name ) use ( $options ) : string {
         <tbody>
             <?php
             // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- markup already escaped by OptionRenderer.
+            echo $row( 'additionalPathsToCrawl' );
             echo $row( 'filenamesToIgnore' );
             echo $row( 'fileExtensionsToIgnore' );
             // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped

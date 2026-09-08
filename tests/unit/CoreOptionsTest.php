@@ -59,6 +59,43 @@ final class CoreOptionsTest extends TestCase {
         $this->assertSame( '1', CoreOptions::getValue( 'crawlConcurrency' ) );
     }
 
+    /**
+     * A stored zero is a zero, not "unset".
+     *
+     * The test used to be `if ( ! $option_value )`, and '0' is falsy in PHP, so
+     * every option stored as zero was sent back to its own default — thirteen
+     * of which are not zero. What that looked like from the outside: unticking
+     * a box on the Options page saved a 0 that was read back as a 1. The crawl
+     * cache could not be turned off, and neither could the four detection
+     * toggles or the four job-queue ones. The setting was written, the
+     * interface showed it written, and nothing downstream ever saw it.
+     */
+    public function testAnOptionStoredAsZeroIsNotMistakenForUnset() : void {
+        foreach ( [ 'useCrawlCaching', 'detectPosts', 'crawlProgressReportInterval' ] as $name ) {
+            $this->repository()->shouldReceive( 'getValue' )->with( $name )->andReturn( '0' );
+
+            $this->assertSame(
+                '0',
+                CoreOptions::getValue( $name ),
+                "$name reads back as its default instead of the stored zero"
+            );
+
+            CoreOptions::setRepository( null );
+        }
+    }
+
+    /**
+     * A missing row still falls back, which is the behaviour the falsy test was
+     * there for in the first place.
+     */
+    public function testAMissingRowStillFallsBackToTheDefault() : void {
+        $this->repository()->shouldReceive( 'getValue' )
+            ->with( 'crawlProgressReportInterval' )
+            ->andReturn( null );
+
+        $this->assertSame( '300', CoreOptions::getValue( 'crawlProgressReportInterval' ) );
+    }
+
     public function testGetOfAnUnknownOptionReturnsNull() : void {
         $this->repository()->shouldNotReceive( 'getRow' );
 

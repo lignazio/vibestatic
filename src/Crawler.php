@@ -43,6 +43,11 @@ class Crawler {
     private $discovered = [];
 
     /**
+     * @var int How often to write a running count to the log; 0 for never.
+     */
+    private $progress_interval = 300;
+
+    /**
      * How many times the crawl will go round picking up newly found URLs.
      *
      * Not a performance guard. A site that links to endlessly new addresses —
@@ -167,51 +172,69 @@ class Crawler {
          */
 
         /*
-         * Link following, and the reason it is a loop.
+         * Two things share this loop, and they are not the same thing.
          *
-         * The pool's request generator is built from a snapshot of the queue,
-         * and a generator cannot be extended while it runs — so a URL found
-         * inside a page cannot be fetched in the same pass. Each pass crawls
-         * what the previous one turned up, until nothing new appears.
+         * **Chunks** drain the queue a slice at a time. The array from
+         * `getCrawlablePaths()` used to be the whole queue in memory at once —
+         * fine at eighteen hundred URLs, not at a hundred thousand, which is
+         * the `// TODO: use some Iterable` the original authors left right
+         * here. A chunk is not a pass and is not counted as one: a large site
+         * needs a hundred of them and that is not a runaway.
          *
-         * MAX_PASSES is not caution about slow sites: a page that links to a
-         * page that links back, through URLs that differ each time, is an
-         * endless supply of "new" work. The cap makes that end, and says so.
+         * **Rounds** are for link following. The pool's request generator is
+         * built from a snapshot and cannot be extended while it runs, so a URL
+         * found inside a page cannot be fetched in the same round. Each round
+         * crawls what the previous one turned up.
+         *
+         * MAX_PASSES caps the rounds and nothing else. It is not caution about
+         * slow sites: a calendar with a "next month" link supplies genuinely
+         * new URLs for ever, and without a cap the crawl never ends. When it
+         * bites, it says so.
          */
         $follow_links = (bool) CoreOptions::getValue( 'addURLsWhileCrawling' );
 
         WsLog::l( ( $follow_links ? 'Following' : 'Not following' ) . ' links found while crawling.' );
 
+        $chunk_size = max( 0, intval( CoreOptions::getValue( 'crawlChunkSize' ) ) );
+
+        $this->progress_interval = max( 0, intval( CoreOptions::getValue( 'crawlProgressReportInterval' ) ) );
+
         $already_crawled = [];
-        $pass = 0;
+        $round = 0;
+        $added = 0;
 
         do {
-            $pass++;
+            $round++;
 
-            $paths = array_values(
-                array_diff( CrawlQueue::getCrawlablePaths(), $already_crawled )
-            );
-
-            if ( ! $paths ) {
-                break;
-            }
-
-            if ( $pass > 1 ) {
-                WsLog::l( sprintf( 'Crawling %d URL(s) found by following links.', count( $paths ) ) );
+            if ( $round > 1 ) {
+                WsLog::l( sprintf( 'Crawling %d URL(s) found by following links.', $added ) );
             }
 
             $this->discovered = [];
 
-            $this->crawlPass( $paths, $use_crawl_cache, $site_urls, $site_host );
+            // Drain whatever is queued, a chunk at a time.
+            while ( true ) {
+                $pending = array_values(
+                    array_diff( CrawlQueue::getCrawlablePaths(), $already_crawled )
+                );
 
-            $already_crawled = array_merge( $already_crawled, $paths );
+                if ( ! $pending ) {
+                    break;
+                }
+
+                $chunk = $chunk_size > 0 ? array_slice( $pending, 0, $chunk_size ) : $pending;
+
+                $this->crawlPass( $chunk, $use_crawl_cache, $site_urls, $site_host );
+
+                $already_crawled = array_merge( $already_crawled, $chunk );
+            }
 
             $added = $follow_links ? $this->queueDiscovered( $already_crawled ) : 0;
 
-            if ( $added && $pass >= self::MAX_PASSES ) {
+            if ( $added && $round >= self::MAX_PASSES ) {
                 WsLog::l(
                     sprintf(
-                        'Stopping after %d passes with %d URL(s) still being found:' .
+                        'Stopping after %d rounds with %d URL(s) still being found:' .
                         ' the site appears to link to endlessly new addresses.',
                         self::MAX_PASSES,
                         $added
@@ -507,7 +530,9 @@ class Crawler {
                     }
 
                     // incrementally log crawl progress
-                    if ( $this->crawled % 300 === 0 ) {
+                    if ( $this->progress_interval > 0
+                        && $this->crawled % $this->progress_interval === 0
+                    ) {
                         $notice = "Crawling progress: $this->crawled crawled," .
                                   " $this->cache_hits skipped (cached).";
                         WsLog::l( $notice );

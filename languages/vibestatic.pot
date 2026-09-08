@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-08T07:48:35+00:00\n"
+"POT-Creation-Date: 2026-09-08T08:22:39+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vibestatic\n"
@@ -404,74 +404,106 @@ msgid "Also crawl URLs found in the pages as they are crawled, not only the ones
 msgstr ""
 
 #: src/CoreOptions.php:301
-msgid "Completion Email"
+msgid "Additional Paths to Crawl"
 msgstr ""
 
 #: src/CoreOptions.php:305
+msgid "One path per line, for what nothing enumerates and nothing links to: a file put on the server by hand, a route a plugin answers without a post behind it. They are added to detection, not to the crawl queue directly — anything the detection does not name is removed from the queue on the next run."
+msgstr ""
+
+#: src/CoreOptions.php:315
+msgid "Crawl Chunk Size"
+msgstr ""
+
+#: src/CoreOptions.php:319
+msgid "How many URLs to hold in memory at a time. 0 takes the whole queue at once, which is what it has always done and is fine for most sites; set a few thousand if the crawl runs out of memory on a very large one."
+msgstr ""
+
+#: src/CoreOptions.php:328
+msgid "Crawl Progress Interval"
+msgstr ""
+
+#: src/CoreOptions.php:332
+msgid "Write a progress line to the log every this many URLs. 0 turns the running count off and leaves only the line at the end."
+msgstr ""
+
+#: src/CoreOptions.php:341
+msgid "Detect Redirection plugin URLs"
+msgstr ""
+
+#: src/CoreOptions.php:345
+msgid "Crawl the source addresses of the redirects the Redirection plugin manages, so the 301s they answer with end up in the static site. Off where that plugin is not installed: it does nothing."
+msgstr ""
+
+#: src/CoreOptions.php:354
+msgid "Completion Email"
+msgstr ""
+
+#: src/CoreOptions.php:358
 msgid "Email to send deployment completion notification to."
 msgstr ""
 
-#: src/CoreOptions.php:314
+#: src/CoreOptions.php:367
 msgid "Completion Webhook"
 msgstr ""
 
-#: src/CoreOptions.php:318
+#: src/CoreOptions.php:371
 msgid "Webhook to send deployment completion notification to."
 msgstr ""
 
-#: src/CoreOptions.php:327
+#: src/CoreOptions.php:380
 msgid "Completion Webhook Method"
 msgstr ""
 
-#: src/CoreOptions.php:331
+#: src/CoreOptions.php:384
 msgid "How to send completion webhook payload (GET|POST)."
 msgstr ""
 
-#: src/CoreOptions.php:342
+#: src/CoreOptions.php:395
 msgid "Crawl Concurrency"
 msgstr ""
 
-#: src/CoreOptions.php:346
+#: src/CoreOptions.php:399
 msgid "The maximum number of files that will be crawled at the same time."
 msgstr ""
 
-#: src/CoreOptions.php:355
+#: src/CoreOptions.php:408
 msgid "File Extensions to Ignore"
 msgstr ""
 
-#: src/CoreOptions.php:359
+#: src/CoreOptions.php:412
 msgid "Files with these extensions will be ignored while crawling."
 msgstr ""
 
-#: src/CoreOptions.php:397
+#: src/CoreOptions.php:450
 msgid "Directory and File Names to Ignore"
 msgstr ""
 
-#: src/CoreOptions.php:401
+#: src/CoreOptions.php:454
 msgid "Directories and files with these names will be ignored while crawling."
 msgstr ""
 
-#: src/CoreOptions.php:468
+#: src/CoreOptions.php:521
 msgid "Hosts to Rewrite"
 msgstr ""
 
-#: src/CoreOptions.php:472
+#: src/CoreOptions.php:525
 msgid "Hosts to rewrite to the deployment URL."
 msgstr ""
 
-#: src/CoreOptions.php:482
+#: src/CoreOptions.php:535
 msgid "Skip URL Rewrite"
 msgstr ""
 
-#: src/CoreOptions.php:486
+#: src/CoreOptions.php:539
 msgid "Do not rewrite any URLs. This may give a slight speed-up when the deployment URL is the same as the WordPress URL."
 msgstr ""
 
-#: src/CoreOptions.php:496
+#: src/CoreOptions.php:549
 msgid "Remove WordPress emoji and RSD output"
 msgstr ""
 
-#: src/CoreOptions.php:500
+#: src/CoreOptions.php:553
 msgid "Removes the emoji scripts, the wlwmanifest link and the wp-embed and comment-reply scripts. This changes your LIVE site as well as the exported one, on purpose: a static copy should look like what your visitors actually get."
 msgstr ""
 
@@ -549,13 +581,13 @@ msgstr ""
 msgid "Detection Options"
 msgstr ""
 
-#: views/advanced-options-page.php:54
-#: views/options-page.php:77
+#: views/advanced-options-page.php:55
+#: views/options-page.php:80
 msgid "Post-processing Options"
 msgstr ""
 
-#: views/advanced-options-page.php:74
-#: views/options-page.php:134
+#: views/advanced-options-page.php:75
+#: views/options-page.php:137
 msgid "Save options"
 msgstr ""
 
@@ -970,7 +1002,7 @@ msgstr ""
 msgid "Crawling Options"
 msgstr ""
 
-#: views/options-page.php:87
+#: views/options-page.php:90
 msgid "Deployment Options"
 msgstr ""
 

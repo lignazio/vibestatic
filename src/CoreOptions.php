@@ -295,6 +295,59 @@ class CoreOptions {
                 'wp2static_add_urls_while_crawling'
             ),
             self::makeOptionSpec(
+                'array',
+                'additionalPathsToCrawl',
+                '1',
+                __(
+                    'Additional Paths to Crawl',
+                    'vibestatic'
+                ),
+                __(
+                    'One path per line, for what nothing enumerates and nothing links to: a file put on the server by hand, a route a plugin answers without a post behind it. They are added to detection, not to the crawl queue directly — anything the detection does not name is removed from the queue on the next run.',
+                    'vibestatic'
+                ),
+                ''
+            ),
+            self::makeOptionSpec(
+                'integer',
+                'crawlChunkSize',
+                '0',
+                __(
+                    'Crawl Chunk Size',
+                    'vibestatic'
+                ),
+                __(
+                    'How many URLs to hold in memory at a time. 0 takes the whole queue at once, which is what it has always done and is fine for most sites; set a few thousand if the crawl runs out of memory on a very large one.',
+                    'vibestatic'
+                )
+            ),
+            self::makeOptionSpec(
+                'integer',
+                'crawlProgressReportInterval',
+                '300',
+                __(
+                    'Crawl Progress Interval',
+                    'vibestatic'
+                ),
+                __(
+                    'Write a progress line to the log every this many URLs. 0 turns the running count off and leaves only the line at the end.',
+                    'vibestatic'
+                )
+            ),
+            self::makeOptionSpec(
+                'boolean',
+                'detectRedirectionPluginURLs',
+                '0',
+                __(
+                    'Detect Redirection plugin URLs',
+                    'vibestatic'
+                ),
+                __(
+                    "Crawl the source addresses of the redirects the Redirection plugin manages, so the 301s they answer with end up in the static site. Off where that plugin is not installed: it does nothing.",
+                    'vibestatic'
+                )
+            ),
+            self::makeOptionSpec(
                 'string',
                 'completionEmail',
                 '',
@@ -544,7 +597,22 @@ class CoreOptions {
 
         $option_value = self::repository()->getValue( $name );
 
-        if ( ! $option_value ) {
+        /*
+         * `null === … || '' === …`, not `! $option_value`.
+         *
+         * The string '0' is falsy in PHP, so the old test sent every option
+         * stored as zero back to its own default — and thirteen of them have a
+         * default that is not zero. In plain terms: unticking a box on the
+         * Options page saved a 0 that was then read back as a 1. The crawl
+         * cache could not be turned off, none of the four detection toggles
+         * could be turned off, and neither could the four job-queue ones. The
+         * setting was written, the interface showed it as written, and nothing
+         * downstream ever saw it.
+         *
+         * The repository already answers null for a row that is not there, so
+         * "not set" and "set to zero" were distinguishable all along.
+         */
+        if ( null === $option_value || '' === $option_value ) {
             $option_value = (string) $opt_spec['default_value'];
         }
 
@@ -854,6 +922,18 @@ class CoreOptions {
                 );
 
                 self::repository()->update(
+                    'detectRedirectionPluginURLs',
+                    [ 'value' => isset( $_POST['detectRedirectionPluginURLs'] ) ? 1 : 0 ]
+                );
+
+                foreach ( [ 'crawlChunkSize', 'crawlProgressReportInterval' ] as $crawl_number ) {
+                    self::repository()->update(
+                        $crawl_number,
+                        [ 'value' => max( 0, intval( filter_input( INPUT_POST, $crawl_number ) ) ) ]
+                    );
+                }
+
+                self::repository()->update(
                     'completionEmail',
                     [
                         'value' =>
@@ -971,6 +1051,7 @@ class CoreOptions {
                  */
                 foreach (
                     [
+                        'additionalPathsToCrawl',
                         'fileExtensionsToIgnore',
                         'filenamesToIgnore',
                         'hostsToRewrite',

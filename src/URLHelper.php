@@ -177,6 +177,42 @@ class URLHelper {
      * We check against known internal prefixes and WP site host
      *
      */
+    /**
+     * A configured line as a root-relative path on this site, or null.
+     *
+     * Both the "additional paths" list and the Redirection plugin's sources
+     * hold site-relative paths as a rule and whole URLs as an exception, and
+     * the exception is where it matters: a URL for *another* host is not ours
+     * to crawl, and quietly keeping its path would queue an address on our site
+     * that probably answers 404. Null means "not for us", and the caller skips
+     * it.
+     *
+     * @param string $line     What the user or the other plugin stored.
+     * @param string $site_url This site's URL.
+     * @return string|null The path, beginning with `/`, or null.
+     */
+    public static function pathOnThisSite( string $line, string $site_url ) : ?string {
+        $line = trim( $line );
+
+        if ( '' === $line ) {
+            return null;
+        }
+
+        $host = parse_url( $line, PHP_URL_HOST );
+
+        if ( is_string( $host ) && $host !== parse_url( $site_url, PHP_URL_HOST ) ) {
+            return null;
+        }
+
+        $path = parse_url( $line, PHP_URL_PATH );
+
+        if ( ! is_string( $path ) || '' === $path ) {
+            return null;
+        }
+
+        return '/' . ltrim( $path, '/' );
+    }
+
     public static function isInternalLink(
         string $url,
         string $site_url_host

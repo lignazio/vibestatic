@@ -172,6 +172,22 @@ class URLDetector {
          */
         $url_queue = call_user_func_array( 'array_merge', $arrays_to_merge );
 
+        if ( CoreOptions::getValue( 'detectRedirectionPluginURLs' ) ) {
+            $arrays_to_merge[] = DetectRedirectionPluginURLs::detect( SiteInfo::getUrl( 'site' ) );
+        }
+
+        /*
+         * Paths named by hand, and they belong *here* rather than being pushed
+         * into the queue somewhere later. `pruneCrawlQueue()` removes anything
+         * detection does not name, so a path added after this point would be
+         * crawled once and dropped on the next run. Being part of detection is
+         * what makes it stay.
+         */
+        $arrays_to_merge = [ $url_queue, self::additionalPaths() ];
+
+        /** @var string[] $url_queue */
+        $url_queue = call_user_func_array( 'array_merge', $arrays_to_merge );
+
         $url_queue = FilesHelper::cleanDetectedURLs( $url_queue );
 
         $url_queue = apply_filters(
@@ -190,6 +206,34 @@ class URLDetector {
         }
 
         return $unique_urls;
+    }
+
+    /**
+     * The paths the user listed by hand, one per line.
+     *
+     * For what nothing enumerates and nothing links to: a file dropped on the
+     * server, a route a plugin answers without registering a post, an address
+     * that has to stay published for a while longer.
+     *
+     * @return string[]
+     */
+    public static function additionalPaths() : array {
+        $configured = CoreOptions::getLineDelimitedBlobValue( 'additionalPathsToCrawl' );
+
+        $site_url = untrailingslashit( SiteInfo::getUrl( 'site' ) );
+        $paths = [];
+
+        foreach ( $configured as $line ) {
+            $path = URLHelper::pathOnThisSite( $line, $site_url );
+
+            if ( null === $path ) {
+                continue;
+            }
+
+            $paths[] = $site_url . $path;
+        }
+
+        return $paths;
     }
 
     /**

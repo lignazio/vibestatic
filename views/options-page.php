@@ -69,6 +69,9 @@ $row = function ( string $name ) use ( $options ) : string {
             echo $row( 'basicAuthPassword' );
             echo $row( 'useCrawlCaching' );
             echo $row( 'addURLsWhileCrawling' );
+            echo $row( 'detectRedirectionPluginURLs' );
+            echo $row( 'crawlChunkSize' );
+            echo $row( 'crawlProgressReportInterval' );
             // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
             ?>
         </tbody>
