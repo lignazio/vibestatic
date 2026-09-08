@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-08T10:45:36+00:00\n"
+"POT-Creation-Date: 2026-09-08T11:24:44+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vibestatic\n"
@@ -63,6 +63,7 @@ msgstr ""
 #: addons/directory-deployment/views/directory-deployment-page.php:135
 #: addons/ftp/views/ftp-page.php:151
 #: addons/netlify/views/netlify-page.php:91
+#: addons/s3/views/s3-page.php:142
 #: addons/sftp/views/sftp-page.php:153
 msgid "Save Options"
 msgstr ""
@@ -91,6 +92,7 @@ msgid "Password"
 msgstr ""
 
 #: addons/ftp/views/ftp-page.php:39
+#: addons/s3/views/s3-page.php:46
 msgid "Stored encrypted."
 msgstr ""
 
@@ -140,6 +142,90 @@ msgstr ""
 
 #: addons/netlify/views/netlify-page.php:65
 msgid "Stored encrypted. Create one under User settings / Applications in Netlify."
+msgstr ""
+
+#: addons/s3/views/s3-page.php:31
+msgid "Bucket"
+msgstr ""
+
+#: addons/s3/views/s3-page.php:33
+msgid "Region"
+msgstr ""
+
+#: addons/s3/views/s3-page.php:35
+msgid "The region the bucket is in, for example eu-south-1. It is part of the signature, so a wrong one is refused rather than redirected."
+msgstr ""
+
+#: addons/s3/views/s3-page.php:38
+msgid "Path in the bucket"
+msgstr ""
+
+#: addons/s3/views/s3-page.php:40
+msgid "A folder inside the bucket. Leave empty to publish at its root."
+msgstr ""
+
+#: addons/s3/views/s3-page.php:42
+msgid "Access key ID"
+msgstr ""
+
+#: addons/s3/views/s3-page.php:44
+msgid "Secret access key"
+msgstr ""
+
+#: addons/s3/views/s3-page.php:49
+msgid "Object ACL"
+msgstr ""
+
+#: addons/s3/views/s3-page.php:51
+msgid "Leave empty unless the bucket needs one. A bucket created since 2023 has ACLs disabled and refuses a request that carries one; older buckets serving a public site want public-read."
+msgstr ""
+
+#: addons/s3/views/s3-page.php:54
+msgid "Cache-Control"
+msgstr ""
+
+#: addons/s3/views/s3-page.php:56
+msgid "Optional, sent with every object, for example max-age=3600. There is no safe default: what suits a hashed asset is the opposite of what suits a page."
+msgstr ""
+
+#: addons/s3/views/s3-page.php:59
+msgid "CloudFront distribution ID"
+msgstr ""
+
+#: addons/s3/views/s3-page.php:61
+msgid "Optional. With one set, the paths that changed are invalidated after each deploy."
+msgstr ""
+
+#: addons/s3/views/s3-page.php:64
+msgid "Most paths to invalidate"
+msgstr ""
+
+#: addons/s3/views/s3-page.php:66
+msgid "Above this many changes it invalidates everything instead, which is one request rather than thousands. CloudFront gives a thousand paths a month free and charges beyond that."
+msgstr ""
+
+#: addons/s3/views/s3-page.php:69
+msgid "CloudFront access key ID"
+msgstr ""
+
+#: addons/s3/views/s3-page.php:71
+msgid "Optional. Leave empty to invalidate with the S3 credentials above."
+msgstr ""
+
+#: addons/s3/views/s3-page.php:74
+msgid "CloudFront secret access key"
+msgstr ""
+
+#: addons/s3/views/s3-page.php:76
+msgid "Optional, stored encrypted."
+msgstr ""
+
+#: addons/s3/views/s3-page.php:83
+msgid "S3 Deployment"
+msgstr ""
+
+#: addons/s3/views/s3-page.php:87
+msgid "The credentials need only s3:PutObject and s3:DeleteObject on the bucket, plus cloudfront:CreateInvalidation if a distribution is set. An account with more than that is an account that can do more than publish a site."
 msgstr ""
 
 #: addons/sftp/views/sftp-page.php:42
@@ -576,7 +662,7 @@ msgid "Removes the emoji scripts, the wlwmanifest link and the wp-embed and comm
 msgstr ""
 
 #. translators: %s: comma-separated list of add-on slugs.
-#: src/Modules.php:238
+#: src/Modules.php:242
 #, php-format
 msgid "VibeStatic now ships this add-on itself: %s. The separately installed copy is the one running — deactivate it, so the bundled one takes over."
 msgid_plural "VibeStatic now ships these add-ons itself: %s. The separately installed copies are the ones running — deactivate them, so the bundled ones take over."

@@ -57,6 +57,7 @@ class Modules {
             'wp2static-addon-zip' => 'zip',
             'wp2static-addon-netlify' => 'netlify',
             'wp2static-addon-ftp' => 'ftp',
+            'wp2static-addon-s3' => 's3',
         ];
     }
 
@@ -192,6 +193,7 @@ class Modules {
             'wp2static_addon_sftp_options',
             'wp2static_addon_netlify_options',
             'wp2static_addon_ftp_options',
+            'wp2static_addon_s3_options',
         ];
     }
 
@@ -210,6 +212,8 @@ class Modules {
                 return class_exists( 'WP2StaticNetlify\Controller', false );
             case 'ftp':
                 return class_exists( 'WP2StaticFTP\Controller', false );
+            case 's3':
+                return class_exists( 'WP2StaticS3\Controller', false );
             default:
                 return false;
         }

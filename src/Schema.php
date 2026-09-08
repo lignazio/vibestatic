@@ -39,8 +39,9 @@ class Schema {
      *     `crawlProgressReportInterval` and `detectRedirectionPluginURLs`.
      * 7 — `formAction`, `formProvider` and `formRules`.
      * 8 — the FTP module's options table.
+     * 9 — the S3 module's options table.
      */
-    const VERSION = 8;
+    const VERSION = 9;
 
     /**
      * @var string Where the applied version is remembered.

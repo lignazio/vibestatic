@@ -45,6 +45,7 @@ $tables_to_drop = [
     'wp2static_addon_sftp_options',
     'wp2static_addon_netlify_options',
     'wp2static_addon_ftp_options',
+    'wp2static_addon_s3_options',
 ];
 
 foreach ( $tables_to_drop as $table ) {
