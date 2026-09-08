@@ -314,7 +314,7 @@ class Controller {
         // without one, WordPress cannot find it and admin-header.php calls
         // strip_tags( null ).
         \WP2Static\Controller::addHiddenPage(
-            __( 'Directory Deployment Options', 'vibestatic-directory-deployment' ),
+            __( 'Directory Deployment Options', 'vibestatic' ),
             'wp2static-addon-directory-deployment',
             [ $this, 'renderDirectoryDeployerPage' ]
         );

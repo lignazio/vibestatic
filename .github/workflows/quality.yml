@@ -135,27 +135,21 @@ jobs:
       # `POT-Creation-Date` changes on every run by construction, so it is
       # stripped from both sides before the diff: otherwise this step would be
       # red always, and would become noise to ignore.
+      # One file now, the modules included. There used to be a list, and the
+      # sftp add-on's was never on it: its own .pot could drift for as long as
+      # nobody looked. A single domain removes the list and the thing that can
+      # be forgotten from it.
       - name: Regenerate and compare
         run: |
           cp languages/vibestatic.pot /tmp/expected.pot
-          cp addons/directory-deployment/languages/vibestatic-directory-deployment.pot \
-             /tmp/expected-addon.pot
 
           composer run-script i18n
 
           without_date() { grep -v '^"POT-Creation-Date:' "$1"; }
 
-          failed=0
-          for pair in \
-            "/tmp/expected.pot:languages/vibestatic.pot" \
-            "/tmp/expected-addon.pot:addons/directory-deployment/languages/vibestatic-directory-deployment.pot"
-          do
-            before="${pair%%:*}"
-            after="${pair##*:}"
-            if ! diff -u <(without_date "$before") <(without_date "$after"); then
-              echo "::error file=$after::The .pot does not match the code. Run 'composer i18n' and commit."
-              failed=1
-            fi
-          done
-          exit $failed
+          if ! diff -u <(without_date /tmp/expected.pot) \
+                       <(without_date languages/vibestatic.pot); then
+            echo "::error file=languages/vibestatic.pot::The .pot does not match the code. Run 'composer i18n' and commit."
+            exit 1
+          fi
         shell: bash

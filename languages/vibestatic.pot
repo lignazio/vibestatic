@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-08T06:18:21+00:00\n"
+"POT-Creation-Date: 2026-09-08T06:25:46+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vibestatic\n"
@@ -37,6 +37,100 @@ msgstr ""
 #. Author URI of the plugin
 #: vibestatic.php
 msgid "https://lucenti.studio"
+msgstr ""
+
+#: addons/directory-deployment/src/Controller.php:317
+#: addons/directory-deployment/views/directory-deployment-page.php:87
+msgid "Directory Deployment Options"
+msgstr ""
+
+#: addons/directory-deployment/views/directory-deployment-page.php:45
+msgid "Target directory (absolute path)"
+msgstr ""
+
+#: addons/directory-deployment/views/directory-deployment-page.php:46
+msgid "Delete target directory before deployment"
+msgstr ""
+
+#: addons/directory-deployment/views/directory-deployment-page.php:47
+msgid "Additional source directory to include in deployment (absolute path)"
+msgstr ""
+
+#: addons/directory-deployment/views/directory-deployment-page.php:111
+msgid "Leave this off and each deployment copies only the files that changed, removing the ones that are gone. Turn it on and the target directory is emptied before every deployment: that is for starting over, not for daily use — while it empties, the published site is not there."
+msgstr ""
+
+#: addons/directory-deployment/views/directory-deployment-page.php:135
+#: addons/sftp/views/sftp-page.php:153
+msgid "Save Options"
+msgstr ""
+
+#: addons/sftp/views/sftp-page.php:42
+msgid "Remote host"
+msgstr ""
+
+#: addons/sftp/views/sftp-page.php:44
+msgid "Host name of the sFTP server."
+msgstr ""
+
+#: addons/sftp/views/sftp-page.php:47
+msgid "Port"
+msgstr ""
+
+#: addons/sftp/views/sftp-page.php:49
+msgid "Defaults to 22 when left empty."
+msgstr ""
+
+#: addons/sftp/views/sftp-page.php:52
+msgid "Username"
+msgstr ""
+
+#: addons/sftp/views/sftp-page.php:57
+msgid "Password"
+msgstr ""
+
+#: addons/sftp/views/sftp-page.php:59
+msgid "Leave empty when authenticating with a private key."
+msgstr ""
+
+#: addons/sftp/views/sftp-page.php:62
+msgid "Private key path"
+msgstr ""
+
+#: addons/sftp/views/sftp-page.php:64
+msgid "Path on this server to the private key. Takes precedence over the password."
+msgstr ""
+
+#: addons/sftp/views/sftp-page.php:67
+msgid "Private key passphrase"
+msgstr ""
+
+#: addons/sftp/views/sftp-page.php:72
+msgid "Remote root path"
+msgstr ""
+
+#: addons/sftp/views/sftp-page.php:74
+msgid "Where the site is uploaded to. Empty means the login directory."
+msgstr ""
+
+#: addons/sftp/views/sftp-page.php:77
+msgid "Remote directory permissions"
+msgstr ""
+
+#: addons/sftp/views/sftp-page.php:82
+msgid "Remote file permissions"
+msgstr ""
+
+#: addons/sftp/views/sftp-page.php:87
+msgid "Remote owner"
+msgstr ""
+
+#: addons/sftp/views/sftp-page.php:92
+msgid "Remote group"
+msgstr ""
+
+#: addons/sftp/views/sftp-page.php:102
+msgid "sFTP Deployment Options"
 msgstr ""
 
 #: src/Controller.php:215

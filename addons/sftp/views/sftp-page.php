@@ -39,57 +39,57 @@ $nonce_action = $view['nonce_action'];
  */
 $fields = [
     'host' => [
-        __( 'Remote host', 'vibestatic-sftp' ),
+        __( 'Remote host', 'vibestatic' ),
         'text',
-        __( 'Host name of the sFTP server.', 'vibestatic-sftp' ),
+        __( 'Host name of the sFTP server.', 'vibestatic' ),
     ],
     'port' => [
-        __( 'Port', 'vibestatic-sftp' ),
+        __( 'Port', 'vibestatic' ),
         'number',
-        __( 'Defaults to 22 when left empty.', 'vibestatic-sftp' ),
+        __( 'Defaults to 22 when left empty.', 'vibestatic' ),
     ],
     'username' => [
-        __( 'Username', 'vibestatic-sftp' ),
+        __( 'Username', 'vibestatic' ),
         'text',
         '',
     ],
     'password' => [
-        __( 'Password', 'vibestatic-sftp' ),
+        __( 'Password', 'vibestatic' ),
         'password',
-        __( 'Leave empty when authenticating with a private key.', 'vibestatic-sftp' ),
+        __( 'Leave empty when authenticating with a private key.', 'vibestatic' ),
     ],
     'private_key' => [
-        __( 'Private key path', 'vibestatic-sftp' ),
+        __( 'Private key path', 'vibestatic' ),
         'text',
-        __( 'Path on this server to the private key. Takes precedence over the password.', 'vibestatic-sftp' ),
+        __( 'Path on this server to the private key. Takes precedence over the password.', 'vibestatic' ),
     ],
     'passphrase' => [
-        __( 'Private key passphrase', 'vibestatic-sftp' ),
+        __( 'Private key passphrase', 'vibestatic' ),
         'password',
         '',
     ],
     'remote_root' => [
-        __( 'Remote root path', 'vibestatic-sftp' ),
+        __( 'Remote root path', 'vibestatic' ),
         'text',
-        __( 'Where the site is uploaded to. Empty means the login directory.', 'vibestatic-sftp' ),
+        __( 'Where the site is uploaded to. Empty means the login directory.', 'vibestatic' ),
     ],
     'dir_permissions' => [
-        __( 'Remote directory permissions', 'vibestatic-sftp' ),
+        __( 'Remote directory permissions', 'vibestatic' ),
         'text',
         '',
     ],
     'file_permissions' => [
-        __( 'Remote file permissions', 'vibestatic-sftp' ),
+        __( 'Remote file permissions', 'vibestatic' ),
         'text',
         '',
     ],
     'owner' => [
-        __( 'Remote owner', 'vibestatic-sftp' ),
+        __( 'Remote owner', 'vibestatic' ),
         'text',
         '',
     ],
     'group' => [
-        __( 'Remote group', 'vibestatic-sftp' ),
+        __( 'Remote group', 'vibestatic' ),
         'text',
         '',
     ],
@@ -99,7 +99,7 @@ $fields = [
 
 <div class="wrap">
 
-<h2><?php esc_html_e( 'sFTP Deployment Options', 'vibestatic-sftp' ); ?></h2>
+<h2><?php esc_html_e( 'sFTP Deployment Options', 'vibestatic' ); ?></h2>
 
 <form
     name="wp2static-sftp-save-options"
@@ -150,7 +150,7 @@ $fields = [
 
     <br>
 
-    <button class="button btn-primary"><?php esc_html_e( 'Save Options', 'vibestatic-sftp' ); ?></button>
+    <button class="button btn-primary"><?php esc_html_e( 'Save Options', 'vibestatic' ); ?></button>
 </form>
 
 </div>

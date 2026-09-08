@@ -32,21 +32,14 @@ define( 'WP2STATIC_SFTP_VERSION', VIBESTATIC_VERSION );
 
 require_once WP2STATIC_SFTP_PATH . 'autoload.php';
 
-/**
- * Load the module's translations.
- *
- * On `init`, as in the core: since WordPress 6.7, asking for a translation
- * before `after_setup_theme` triggers a `_doing_it_wrong`.
+/*
+ * No textdomain of its own. It had one — `vibestatic-{slug}` — because it was a
+ * plugin in its own right and whoever translated it did not necessarily
+ * translate VibeStatic too. As a module that is no longer true: it ships in the
+ * same zip, on the same release, and asking a translator for three files to
+ * translate one plugin is asking for two of them to fall behind. The strings
+ * are in the core's `vibestatic` domain, which the core loads.
  */
-function vibestatic_sftp_load_textdomain() : void {
-    load_plugin_textdomain(
-        'vibestatic-sftp',
-        false,
-        dirname( plugin_basename( __FILE__ ) ) . '/languages'
-    );
-}
-
-add_action( 'init', 'vibestatic_sftp_load_textdomain' );
 
 /*
  * How this module's options table gets created. Schema::install() calls it,

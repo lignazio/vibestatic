@@ -195,15 +195,14 @@
   <rule ref="WordPress.WP.I18n">
     <properties>
       <property name="text_domain" type="array">
-        <element value="vibestatic"/>
         <!--
-          The adopted add-ons are separate plugins with headers and languages
-          directories of their own, so each has its own domain. Listing them
-          here is what lets the sniff tell "another plugin's domain" from
-          "this plugin's other domain".
+          One domain, and the modules use it too. They each had their own while
+          they were separate plugins; now they ship in the same zip on the same
+          release, and a single entry here is what makes a string wrapped with
+          the wrong domain an error rather than a second domain the sniff has
+          been told to accept.
         -->
-        <element value="vibestatic-sftp"/>
-        <element value="vibestatic-directory-deployment"/>
+        <element value="vibestatic"/>
       </property>
     </properties>
     <exclude-pattern>tests/unit/*</exclude-pattern>

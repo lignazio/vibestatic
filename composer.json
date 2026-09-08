@@ -75,11 +75,7 @@
         "phpcs": "phpcs -s",
         "phpcs-security": "phpcs -s --sniffs=WordPress.DB.PreparedSQL,WordPress.DB.PreparedSQLPlaceholders,WordPress.Security.EscapeOutput,WordPress.Security.NonceVerification,WordPress.Security.ValidatedSanitizedInput",
         "phpcs-i18n": "phpcs -s --sniffs=WordPress.WP.I18n",
-        "i18n": [
-            "wp i18n make-pot . languages/vibestatic.pot --domain=vibestatic --exclude=addons,dev,dist,tests,integration-tests,tools,vendor,vendor-prefixed --headers='{\"Report-Msgid-Bugs-To\":\"https://github.com/lignazio/vibestatic/issues\"}'",
-            "wp i18n make-pot addons/directory-deployment addons/directory-deployment/languages/vibestatic-directory-deployment.pot --domain=vibestatic-directory-deployment --headers='{\"Report-Msgid-Bugs-To\":\"https://github.com/lignazio/vibestatic/issues\"}'",
-            "wp i18n make-pot addons/sftp addons/sftp/languages/vibestatic-sftp.pot --domain=vibestatic-sftp --exclude=vendor --headers='{\"Report-Msgid-Bugs-To\":\"https://github.com/lignazio/vibestatic/issues\"}'"
-        ],
+        "i18n": "wp i18n make-pot . languages/vibestatic.pot --domain=vibestatic --exclude=dev,dist,tests,integration-tests,tools,vendor,vendor-prefixed --headers='{\"Report-Msgid-Bugs-To\":\"https://github.com/lignazio/vibestatic/issues\"}'",
         "phpcbf": "phpcbf",
         "phpcompat": "phpcs -p --standard=./.phpcompat.xml.dist",
         "phpstan": "@php -d memory_limit=-1 ./vendor/bin/phpstan analyse",
@@ -104,7 +100,7 @@
         "phpcs": "WordPress coding standards, in full. Still has 422 violations: documentation and style, which is why it is not in `test`.",
         "phpcs-security": "The five security sniffs only — prepared SQL, nonces, escaping, sanitised input. This one is at zero, and has to stay there.",
         "phpcs-i18n": "The internationalisation sniff only: string wrapped, right text domain, numbered placeholders where there is more than one, translator comment where needed. At zero, and has to stay there: a string left unwrapped does not show until somebody installs a translation.",
-        "i18n": "Regenerates languages/vibestatic.pot and the add-on's. Run it whenever a string changes; the .pot lives in the repository because it is the file translators open.",
+        "i18n": "Regenerates languages/vibestatic.pot, the modules included. One domain and one file: the modules ship in the same zip on the same release, and three files to translate one plugin is two of them falling behind. The .pot lives in the repository because it is the file translators open.",
         "phpcompat": "PHP cross-version compatibility, 8.2 and up.",
         "phpstan": "Static analysis at level max, with the accepted debt in the baseline.",
         "phpunit": "Unit tests. Excludes the suite that makes real network requests.",

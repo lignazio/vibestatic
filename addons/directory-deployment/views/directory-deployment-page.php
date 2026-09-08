@@ -42,9 +42,9 @@ $nonce_action = $view['nonce_action'];
  * outright.
  */
 $labels = [
-    'directoryDeploymentTargetDirectory' => __( 'Target directory (absolute path)', 'vibestatic-directory-deployment' ),
-    'directoryDeploymentDeleteBeforeDeployment' => __( 'Delete target directory before deployment', 'vibestatic-directory-deployment' ),
-    'directoryDeploymentAdditionalSourceDirectory' => __( 'Additional source directory to include in deployment (absolute path)', 'vibestatic-directory-deployment' ),
+    'directoryDeploymentTargetDirectory' => __( 'Target directory (absolute path)', 'vibestatic' ),
+    'directoryDeploymentDeleteBeforeDeployment' => __( 'Delete target directory before deployment', 'vibestatic' ),
+    'directoryDeploymentAdditionalSourceDirectory' => __( 'Additional source directory to include in deployment (absolute path)', 'vibestatic' ),
 ];
 
 /**
@@ -84,7 +84,7 @@ $text_row = function ( $option, string $label ) : void {
 
 <div class="wrap">
 
-<h2><?php esc_html_e( 'Directory Deployment Options', 'vibestatic-directory-deployment' ); ?></h2>
+<h2><?php esc_html_e( 'Directory Deployment Options', 'vibestatic' ); ?></h2>
 
 <form
     name="wp2static-directory-deployment-save-options"
@@ -108,7 +108,7 @@ $text_row = function ( $option, string $label ) : void {
                     <label for="<?php echo esc_attr( $options['directoryDeploymentDeleteBeforeDeployment']->name ); ?>">
                         <?php echo esc_html( $labels['directoryDeploymentDeleteBeforeDeployment'] ); ?>
                     </label>
-                    <p><i><?php esc_html_e( 'Leave this off and each deployment copies only the files that changed, removing the ones that are gone. Turn it on and the target directory is emptied before every deployment: that is for starting over, not for daily use — while it empties, the published site is not there.', 'vibestatic-directory-deployment' ); ?></i></p>
+                    <p><i><?php esc_html_e( 'Leave this off and each deployment copies only the files that changed, removing the ones that are gone. Turn it on and the target directory is emptied before every deployment: that is for starting over, not for daily use — while it empties, the published site is not there.', 'vibestatic' ); ?></i></p>
                 </td>
                 <td>
                     <input
@@ -132,7 +132,7 @@ $text_row = function ( $option, string $label ) : void {
 
     <br>
 
-    <button class="button btn-primary"><?php esc_html_e( 'Save Options', 'vibestatic-directory-deployment' ); ?></button>
+    <button class="button btn-primary"><?php esc_html_e( 'Save Options', 'vibestatic' ); ?></button>
 </form>
 
 </div>
