@@ -12,6 +12,12 @@ which it previously could.
 The `develop` and `master` branches are the upstream project's history, kept for
 reference. Nothing is merged into them.
 
+Changing the version means five files, not one: the header and
+`VIBESTATIC_VERSION` in `vibestatic.php`, `Stable tag` in `readme.txt`, the
+heading in `CHANGELOG.md`, the fallback in `tests/unit/ModulesTest.php` — and
+then `composer i18n`, because `Project-Id-Version` in the `.pot` carries the
+version too and the `pot` job in CI compares it.
+
 ## Before opening a pull request
 
 ```
