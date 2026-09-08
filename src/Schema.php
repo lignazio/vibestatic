@@ -40,8 +40,9 @@ class Schema {
      * 7 — `formAction`, `formProvider` and `formRules`.
      * 8 — the FTP module's options table.
      * 9 — the S3 module's options table.
+     * 10 — the `snipcartApiKey` option.
      */
-    const VERSION = 9;
+    const VERSION = 10;
 
     /**
      * @var string Where the applied version is remembered.

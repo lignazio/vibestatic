@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-08T11:24:44+00:00\n"
+"POT-Creation-Date: 2026-09-08T11:41:47+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vibestatic\n"
@@ -534,130 +534,138 @@ msgid "Also crawl URLs found in the pages as they are crawled, not only the ones
 msgstr ""
 
 #: src/CoreOptions.php:301
-msgid "Form Endpoint"
+msgid "Snipcart public API key"
 msgstr ""
 
 #: src/CoreOptions.php:305
-msgid "Where the published forms should post. A static site cannot run PHP, so a form left pointing at WordPress is a button that does nothing; give it the URL of a form service — Formspree, Basin, Web3Forms — and it will work. Empty means no form is touched at all."
+msgid "For a WooCommerce shop being published as a static site: with a key here, the add-to-cart buttons are rewritten for Snipcart, which is a cart that runs in the browser. WooCommerce's own cart is PHP and cannot be published. Empty means no page is touched. Shown only where WooCommerce is active."
 msgstr ""
 
 #: src/CoreOptions.php:314
-msgid "Form Handling"
+msgid "Form Endpoint"
 msgstr ""
 
 #: src/CoreOptions.php:318
-msgid "\"endpoint\" points forms at the URL above. \"netlify\" instead marks them for Netlify Forms, which is not a URL but two marks on the markup — use it only when the site is deployed to Netlify."
+msgid "Where the published forms should post. A static site cannot run PHP, so a form left pointing at WordPress is a button that does nothing; give it the URL of a form service — Formspree, Basin, Web3Forms — and it will work. Empty means no form is touched at all."
 msgstr ""
 
 #: src/CoreOptions.php:327
-msgid "Form Rules"
+msgid "Form Handling"
 msgstr ""
 
 #: src/CoreOptions.php:331
+msgid "\"endpoint\" points forms at the URL above. \"netlify\" instead marks them for Netlify Forms, which is not a URL but two marks on the markup — use it only when the site is deployed to Netlify."
+msgstr ""
+
+#: src/CoreOptions.php:340
+msgid "Form Rules"
+msgstr ""
+
+#: src/CoreOptions.php:344
 msgid "One rule per line, as \"id = endpoint\", where the id is the form's id or name attribute. It overrides the endpoint above for that one form. Leave the endpoint empty — \"id =\" — to leave that form exactly as it is."
 msgstr ""
 
-#: src/CoreOptions.php:341
+#: src/CoreOptions.php:354
 msgid "Additional Paths to Crawl"
 msgstr ""
 
-#: src/CoreOptions.php:345
+#: src/CoreOptions.php:358
 msgid "One path per line, for what nothing enumerates and nothing links to: a file put on the server by hand, a route a plugin answers without a post behind it. They are added to detection, not to the crawl queue directly — anything the detection does not name is removed from the queue on the next run."
 msgstr ""
 
-#: src/CoreOptions.php:355
+#: src/CoreOptions.php:368
 msgid "Crawl Chunk Size"
 msgstr ""
 
-#: src/CoreOptions.php:359
+#: src/CoreOptions.php:372
 msgid "How many URLs to hold in memory at a time. 0 takes the whole queue at once, which is what it has always done and is fine for most sites; set a few thousand if the crawl runs out of memory on a very large one."
 msgstr ""
 
-#: src/CoreOptions.php:368
+#: src/CoreOptions.php:381
 msgid "Crawl Progress Interval"
 msgstr ""
 
-#: src/CoreOptions.php:372
+#: src/CoreOptions.php:385
 msgid "Write a progress line to the log every this many URLs. 0 turns the running count off and leaves only the line at the end."
 msgstr ""
 
-#: src/CoreOptions.php:381
+#: src/CoreOptions.php:394
 msgid "Detect Redirection plugin URLs"
 msgstr ""
 
-#: src/CoreOptions.php:385
+#: src/CoreOptions.php:398
 msgid "Crawl the source addresses of the redirects the Redirection plugin manages, so the 301s they answer with end up in the static site. Off where that plugin is not installed: it does nothing."
 msgstr ""
 
-#: src/CoreOptions.php:394
+#: src/CoreOptions.php:407
 msgid "Completion Email"
 msgstr ""
 
-#: src/CoreOptions.php:398
+#: src/CoreOptions.php:411
 msgid "Email to send deployment completion notification to."
 msgstr ""
 
-#: src/CoreOptions.php:407
+#: src/CoreOptions.php:420
 msgid "Completion Webhook"
 msgstr ""
 
-#: src/CoreOptions.php:411
+#: src/CoreOptions.php:424
 msgid "Webhook to send deployment completion notification to."
 msgstr ""
 
-#: src/CoreOptions.php:420
+#: src/CoreOptions.php:433
 msgid "Completion Webhook Method"
 msgstr ""
 
-#: src/CoreOptions.php:424
+#: src/CoreOptions.php:437
 msgid "How to send completion webhook payload (GET|POST)."
 msgstr ""
 
-#: src/CoreOptions.php:435
+#: src/CoreOptions.php:448
 msgid "Crawl Concurrency"
 msgstr ""
 
-#: src/CoreOptions.php:439
+#: src/CoreOptions.php:452
 msgid "The maximum number of files that will be crawled at the same time."
 msgstr ""
 
-#: src/CoreOptions.php:448
+#: src/CoreOptions.php:461
 msgid "File Extensions to Ignore"
 msgstr ""
 
-#: src/CoreOptions.php:452
+#: src/CoreOptions.php:465
 msgid "Files with these extensions will be ignored while crawling."
 msgstr ""
 
-#: src/CoreOptions.php:490
+#: src/CoreOptions.php:503
 msgid "Directory and File Names to Ignore"
 msgstr ""
 
-#: src/CoreOptions.php:494
+#: src/CoreOptions.php:507
 msgid "Directories and files with these names will be ignored while crawling."
 msgstr ""
 
-#: src/CoreOptions.php:561
+#: src/CoreOptions.php:574
 msgid "Hosts to Rewrite"
 msgstr ""
 
-#: src/CoreOptions.php:565
+#: src/CoreOptions.php:578
 msgid "Hosts to rewrite to the deployment URL."
 msgstr ""
 
-#: src/CoreOptions.php:575
+#: src/CoreOptions.php:588
 msgid "Skip URL Rewrite"
 msgstr ""
 
-#: src/CoreOptions.php:579
+#: src/CoreOptions.php:592
 msgid "Do not rewrite any URLs. This may give a slight speed-up when the deployment URL is the same as the WordPress URL."
 msgstr ""
 
-#: src/CoreOptions.php:589
+#: src/CoreOptions.php:602
 msgid "Remove WordPress emoji and RSD output"
 msgstr ""
 
-#: src/CoreOptions.php:593
+#: src/CoreOptions.php:606
 msgid "Removes the emoji scripts, the wlwmanifest link and the wp-embed and comment-reply scripts. This changes your LIVE site as well as the exported one, on purpose: a static copy should look like what your visitors actually get."
 msgstr ""
 
@@ -669,7 +677,7 @@ msgid_plural "VibeStatic now ships these add-ons itself: %s. The separately inst
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/WordPressAdmin.php:389
+#: src/WordPressAdmin.php:400
 msgid "Invalid request method."
 msgstr ""
 

@@ -296,6 +296,19 @@ class CoreOptions {
             ),
             self::makeOptionSpec(
                 'string',
+                'snipcartApiKey',
+                '',
+                __(
+                    'Snipcart public API key',
+                    'vibestatic'
+                ),
+                __(
+                    'For a WooCommerce shop being published as a static site: with a key here, the add-to-cart buttons are rewritten for Snipcart, which is a cart that runs in the browser. WooCommerce\'s own cart is PHP and cannot be published. Empty means no page is touched. Shown only where WooCommerce is active.',
+                    'vibestatic'
+                )
+            ),
+            self::makeOptionSpec(
+                'string',
                 'formAction',
                 '',
                 __(
@@ -961,7 +974,7 @@ class CoreOptions {
                     [ 'value' => isset( $_POST['addURLsWhileCrawling'] ) ? 1 : 0 ]
                 );
 
-                foreach ( [ 'formAction', 'formProvider' ] as $form_option ) {
+                foreach ( [ 'formAction', 'formProvider', 'snipcartApiKey' ] as $form_option ) {
                     self::repository()->update(
                         $form_option,
                         [ 'value' => sanitize_text_field( strval( filter_input( INPUT_POST, $form_option ) ) ) ]

@@ -58,6 +58,11 @@ parameters:
         - %currentWorkingDirectory%/vendor-prefixed/autoload.php
 
     scanFiles:
+        # WooCommerce's own symbols. The alternative was to put every call the
+        # Snipcart module makes into the baseline, which would have left the
+        # one part of the core that talks to another plugin's API as the one
+        # part nothing checks — the same hole addons/ had.
+        - %currentWorkingDirectory%/vendor/php-stubs/woocommerce-stubs/woocommerce-stubs.php
         - %currentWorkingDirectory%/tests/phpstan/bootstrap.php
         # TODO: replace with php-stubs/wp-cli-stubs, which is maintained.
         # These are stuck at WP-CLI 2.2.0, from 2019.

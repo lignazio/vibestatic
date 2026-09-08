@@ -64,6 +64,17 @@ class WordPressAdmin {
         // configured, FormConverter opens no file and touches no form.
         FormConverter::registerHooks();
 
+        /*
+         * On `plugins_loaded`, and the reason is the same one that put the
+         * modules there: this line runs while the plugin file is being
+         * included, plugin files are included alphabetically, and `vibestatic`
+         * comes before `woocommerce`. Asked here, `class_exists( 'WooCommerce' )`
+         * is false on a site that has WooCommerce — so the module registered
+         * nothing, always, and the only sign of it was a cart page that kept
+         * being published.
+         */
+        add_action( 'plugins_loaded', [ WooCommerce\Snipcart::class, 'registerHooks' ], 5 );
+
         // Updates for anyone who installed from a zip. This registers filters
         // only: the call to GitHub happens when WordPress checks, not now.
         Updater::registerHooks();
