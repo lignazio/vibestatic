@@ -55,6 +55,9 @@
         }
     },
     "config": {
+        "platform": {
+            "php": "8.2"
+        },
         "preferred-install": {
             "*": "dist"
         },
