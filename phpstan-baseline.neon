@@ -19,30 +19,6 @@ parameters:
 			path: src/Controller.php
 
 		-
-			rawMessage: 'Method WP2Static\CoreOptions::getValue() should return string but returns mixed.'
-			identifier: return.type
-			count: 1
-			path: src/CoreOptions.php
-
-		-
-			rawMessage: 'Parameter #1 $hook_name of function apply_filters expects non-empty-string, string given.'
-			identifier: argument.type
-			count: 4
-			path: src/CoreOptions.php
-
-		-
-			rawMessage: 'Parameter #1 $maybeint of function absint expects array|bool|float|int|resource|string|null, mixed given.'
-			identifier: argument.type
-			count: 2
-			path: src/CoreOptions.php
-
-		-
-			rawMessage: 'Parameter #2 $string of static method WP2Static\CoreOptions::encrypt_decrypt() expects string, mixed given.'
-			identifier: argument.type
-			count: 1
-			path: src/CoreOptions.php
-
-		-
 			rawMessage: 'Part $port_override (mixed) of encapsed string cannot be cast to string.'
 			identifier: encapsedStringPart.nonString
 			count: 1
@@ -59,24 +35,6 @@ parameters:
 			identifier: binaryOp.invalid
 			count: 1
 			path: src/DetectCategoryPaginationURLs.php
-
-		-
-			rawMessage: 'Parameter #1 $post of function get_post_permalink expects int|WP_Post, string|null given.'
-			identifier: argument.type
-			count: 1
-			path: src/DetectCustomPostTypeURLs.php
-
-		-
-			rawMessage: 'Parameter #1 $post of function get_page_link expects int|WP_Post, string|null given.'
-			identifier: argument.type
-			count: 1
-			path: src/DetectPageURLs.php
-
-		-
-			rawMessage: 'Parameter #1 $post of function get_permalink expects int|WP_Post, string|null given.'
-			identifier: argument.type
-			count: 1
-			path: src/DetectPostURLs.php
 
 		-
 			rawMessage: 'Argument of an invalid type list<stdClass>|null supplied for foreach, only iterables are supported.'
@@ -205,6 +163,12 @@ parameters:
 			path: src/URLDetector.php
 
 		-
+			rawMessage: 'Parameter #1 $ids of static method WP2Static\CrawlQueue::rmUrlsById() expects array<int>, list<string> given.'
+			identifier: argument.type
+			count: 1
+			path: src/URLDetector.php
+
+		-
 			rawMessage: 'Parameter #2 $filenames_to_ignore of static method WP2Static\FilesHelper::getListOfLocalFilesByDir() expects array<string>, mixed given.'
 			identifier: argument.type
 			count: 1
@@ -215,48 +179,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: src/URLDetector.php
-
-		-
-			rawMessage: 'Parameter #1 $str of function sanitize_text_field expects string, bool|float|int|string given.'
-			identifier: argument.type
-			count: 1
-			path: src/URLHelper.php
-
-		-
-			rawMessage: 'Parameter #1 $callback of function array_map expects (callable(mixed): mixed)|null, ''absint'' given.'
-			identifier: argument.type
-			count: 1
-			path: src/ViewRenderer.php
-
-		-
-			rawMessage: 'Parameter #1 $haystack of function stripos expects string, mixed given.'
-			identifier: argument.type
-			count: 1
-			path: src/ViewRenderer.php
-
-		-
-			rawMessage: 'Parameter #1 $ids of static method WP2Static\CrawlCache::rmUrlsById() expects array<string>, array<int> given.'
-			identifier: argument.type
-			count: 1
-			path: src/ViewRenderer.php
-
-		-
-			rawMessage: 'Parameter #1 $ids of static method WP2Static\CrawlQueue::rmUrlsById() expects array<string>, array<int> given.'
-			identifier: argument.type
-			count: 1
-			path: src/ViewRenderer.php
-
-		-
-			rawMessage: 'Parameter #1 $key of function sanitize_key expects string, mixed given.'
-			identifier: argument.type
-			count: 1
-			path: src/ViewRenderer.php
-
-		-
-			rawMessage: 'Parameter #1 $str of function sanitize_text_field expects string, bool|float|int|string given.'
-			identifier: argument.type
-			count: 2
-			path: src/ViewRenderer.php
 
 		-
 			rawMessage: 'Method WP2Static\WsLog::getAll() should return array<mixed> but returns list<stdClass>|null.'

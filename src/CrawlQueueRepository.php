@@ -115,7 +115,7 @@ class CrawlQueueRepository {
     /**
      * Remove multiple URLs at once
      *
-     * @param array<string> $ids Row ids.
+     * @param array<int> $ids Row ids.
      */
     public function rmUrlsById( array $ids ) : void {
         $ids = array_map( 'absint', $ids );

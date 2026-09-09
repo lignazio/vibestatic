@@ -23,7 +23,17 @@ class DetectCustomPostTypeURLs {
         );
 
         foreach ( $post_ids as $post_id ) {
-            $permalink = get_post_permalink( $post_id );
+            /*
+             * `get_col()` answers strings, and a null among them is possible.
+             * `get_post_permalink( 0 )` does not mean "no post": it means the one in the
+             * global $post, which during a detector run is whatever was left
+             * there.
+             */
+            if ( ! is_numeric( $post_id ) ) {
+                continue;
+            }
+
+            $permalink = get_post_permalink( (int) $post_id );
 
             if ( ! is_string( $permalink ) ) {
                 continue;

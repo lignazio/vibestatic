@@ -20,7 +20,7 @@ class URLHelper {
             return '';
         }
 
-        return sanitize_text_field( wp_unslash( $_SERVER[ $key ] ) );
+        return sanitize_text_field( wp_unslash( (string) $_SERVER[ $key ] ) );
     }
 
     /**

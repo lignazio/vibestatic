@@ -91,7 +91,7 @@ class CrawlCache {
     /**
      * Remove multiple URLs at once
      *
-     * @param array<string> $ids
+     * @param array<int> $ids
      * @return void
      */
     public static function rmUrlsById( array $ids ) : void {

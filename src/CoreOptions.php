@@ -627,6 +627,28 @@ class CoreOptions {
     }
 
     /**
+     * Run an option's filter, when it has a name to run.
+     *
+     * `apply_filters()` wants a non-empty hook name, and `filter_name` comes
+     * out of the option specification as `mixed`: four call sites cast it to
+     * string, which turns a missing name into `''` and then fires a filter
+     * called nothing. An option without a filter name simply has no filter.
+     *
+     * @param array<string, mixed> $opt_spec The option's specification.
+     * @param mixed                $value    What to filter.
+     * @return mixed The filtered value, or the value unchanged.
+     */
+    private static function applyOptionFilter( array $opt_spec, $value ) {
+        $hook = $opt_spec['filter_name'] ?? '';
+
+        if ( ! is_string( $hook ) || '' === $hook ) {
+            return $value;
+        }
+
+        return apply_filters( $hook, $value );
+    }
+
+    /**
      * Get option value
      *
      * @throws WP2StaticException
@@ -680,7 +702,26 @@ class CoreOptions {
             }
         }
 
-        $option_value = apply_filters( (string) $opt_spec['filter_name'], $option_value );
+        $option_value = self::applyOptionFilter( $opt_spec, $option_value );
+
+        /*
+         * Declared to return a string, and the last thing that touched the
+         * value was somebody else's filter. Casting quietly would turn an array
+         * into "Array"; this says what happened and falls back to the default,
+         * which is a value the plugin chose.
+         */
+        if ( ! is_string( $option_value ) ) {
+            if ( is_scalar( $option_value ) ) {
+                return (string) $option_value;
+            }
+
+            WsLog::l(
+                "A filter on the '$name' option returned " . gettype( $option_value ) .
+                '; using the default.'
+            );
+
+            return (string) $opt_spec['default_value'];
+        }
 
         return $option_value;
     }
@@ -797,7 +838,7 @@ class CoreOptions {
         }
 
         $option->unfiltered_value = $option->value;
-        $option->value = apply_filters( (string) $opt_spec['filter_name'], $option->value );
+        $option->value = self::applyOptionFilter( $opt_spec, $option->value );
 
         return (object) array_merge( $opt_spec, (array) $option );
     }
@@ -823,20 +864,17 @@ class CoreOptions {
                 $opt = array_merge( $opt_spec );
                 $opt['unfiltered_value'] = $opt_spec['default_value'];
                 $opt['blob_value'] = $opt_spec['default_blob_value'];
-                $opt['value'] = apply_filters(
-                    (string) $opt_spec['filter_name'],
-                    $opt_spec['default_value']
-                );
+                $opt['value'] = self::applyOptionFilter( $opt_spec, $opt_spec['default_value'] );
                 $ret[ $name ] = $opt;
             } else {
                 $val = $opt['value'];
 
-                if ( $opt_spec['type'] === 'password' ) {
+                if ( $opt_spec['type'] === 'password' && is_string( $val ) ) {
                     $val = self::encrypt_decrypt( 'decrypt', $val );
                 }
 
                 $opt['unfiltered_value'] = $val;
-                $opt['value'] = apply_filters( (string) $opt_spec['filter_name'], $val );
+                $opt['value'] = self::applyOptionFilter( $opt_spec, $val );
                 $ret[ $name ] = (object) array_merge( $opt_spec, $opt );
             }
         }
@@ -1046,7 +1084,8 @@ class CoreOptions {
                  * @var int $process_queue_interval
                  */
                 $process_queue_interval = isset( $_POST['processQueueInterval'] )
-                    ? absint( wp_unslash( $_POST['processQueueInterval'] ) )
+                    && is_scalar( $_POST['processQueueInterval'] )
+                    ? absint( wp_unslash( (string) $_POST['processQueueInterval'] ) )
                     : 0;
 
                 self::repository()->update(
@@ -1079,7 +1118,8 @@ class CoreOptions {
                 break;
             case 'advanced':
                 $crawl_concurrency = isset( $_POST['crawlConcurrency'] )
-                    ? absint( wp_unslash( $_POST['crawlConcurrency'] ) )
+                    && is_scalar( $_POST['crawlConcurrency'] )
+                    ? absint( wp_unslash( (string) $_POST['crawlConcurrency'] ) )
                     : 1;
                 self::repository()->update(
                     'crawlConcurrency',

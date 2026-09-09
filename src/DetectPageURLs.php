@@ -23,7 +23,17 @@ class DetectPageURLs {
         );
 
         foreach ( $page_ids as $page_id ) {
-            $permalink = get_page_link( $page_id );
+            /*
+             * `get_col()` answers strings, and a null among them is possible.
+             * `get_page_link( 0 )` does not mean "no post": it means the one in the
+             * global $post, which during a detector run is whatever was left
+             * there.
+             */
+            if ( ! is_numeric( $page_id ) ) {
+                continue;
+            }
+
+            $permalink = get_page_link( (int) $page_id );
 
             if ( strpos( $permalink, '?post_type' ) !== false ) {
                 continue;

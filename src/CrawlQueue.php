@@ -69,7 +69,7 @@ class CrawlQueue {
     /**
      * Remove multiple URLs at once
      *
-     * @param array<string> $ids Row ids.
+     * @param array<int> $ids Row ids.
      * @return void
      */
     public static function rmUrlsById( array $ids ) : void {

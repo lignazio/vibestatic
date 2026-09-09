@@ -21,8 +21,13 @@ class ViewRenderer {
         // authorise: on an ordinary visit to the page there is no nonce, and
         // demanding authorize() on every load would make the page
         // unreachable. It touches nothing, and the line after it verifies.
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing
-        $action = isset( $_POST['action'] ) ? sanitize_key( wp_unslash( $_POST['action'] ) ) : '';
+        // disable/enable rather than ignore: the read now spans three lines,
+        // and `phpcs:ignore` covers one.
+        // phpcs:disable WordPress.Security.NonceVerification.Missing
+        $action = isset( $_POST['action'] ) && is_scalar( $_POST['action'] )
+            ? sanitize_key( wp_unslash( (string) $_POST['action'] ) )
+            : '';
+        // phpcs:enable WordPress.Security.NonceVerification.Missing
 
         if ( $action !== 'remove' ) {
             return;
@@ -34,11 +39,19 @@ class ViewRenderer {
         // it because WPCS discards calls preceded by :: — see
         // has_object_operator_before() in NonceVerificationSniff — so no guard
         // that is a static method can ever be declared to it.
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing
+        // ValidatedSanitizedInput as well: absint() inside the closure is the
+        // sanitisation, and the sniff looks for it on the expression that reads
+        // the superglobal rather than on what happens to each element.
+        // phpcs:disable WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
         $ids = isset( $_POST['id'] )
-            // phpcs:ignore WordPress.Security.NonceVerification.Missing
-            ? array_map( 'absint', (array) wp_unslash( $_POST['id'] ) )
+            ? array_map(
+                static function ( $id ) : int {
+                    return absint( is_scalar( $id ) ? $id : 0 );
+                },
+                (array) wp_unslash( $_POST['id'] )
+            )
             : [];
+        // phpcs:enable WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
         $ids = array_values( array_filter( $ids ) );
 
         if ( ! $ids ) {
@@ -58,11 +71,11 @@ class ViewRenderer {
         // a write.
         // phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing
         if ( isset( $_POST[ $key ] ) && is_scalar( $_POST[ $key ] ) ) {
-            return sanitize_text_field( wp_unslash( $_POST[ $key ] ) );
+            return sanitize_text_field( wp_unslash( (string) $_POST[ $key ] ) );
         }
 
         if ( isset( $_GET[ $key ] ) && is_scalar( $_GET[ $key ] ) ) {
-            return sanitize_text_field( wp_unslash( $_GET[ $key ] ) );
+            return sanitize_text_field( wp_unslash( (string) $_GET[ $key ] ) );
         }
         // phpcs:enable WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing
 
@@ -217,7 +230,9 @@ class ViewRenderer {
             $urls = array_filter(
                 $urls,
                 function ( $url ) use ( $search_term ) {
-                    return stripos( $url->url ?? '', $search_term ) !== false;
+                    $haystack = $url->url ?? '';
+
+                    return is_string( $haystack ) && false !== stripos( $haystack, $search_term );
                 }
             );
         }

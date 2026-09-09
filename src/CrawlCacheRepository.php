@@ -205,7 +205,7 @@ class CrawlCacheRepository {
     }
 
     /**
-     * @param array<string> $ids
+     * @param array<int> $ids
      */
     public function rmUrlsById( array $ids ) : void {
         $ids = array_map( 'absint', $ids );
