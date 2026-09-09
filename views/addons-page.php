@@ -43,12 +43,21 @@ $settings_pages = $view['settings_pages'];
 ?>
 
 <div class="wrap">
-    <br>
+    <h1><?php esc_html_e( 'VibeStatic Add-ons', 'vibestatic' ); ?></h1>
+
+    <p>
+        <?php
+        esc_html_e(
+            'Only one deployer runs at a time: enabling one turns off whichever was enabled before. Add-ons of other kinds are independent.',
+            'vibestatic'
+        );
+        ?>
+    </p>
 
     <table class="widefat striped">
         <thead>
             <tr>
-                <th><?php esc_html_e( 'Enabled', 'vibestatic' ); ?></th>
+                <th><?php esc_html_e( 'Status', 'vibestatic' ); ?></th>
                 <th><?php esc_html_e( 'Name', 'vibestatic' ); ?></th>
                 <th><?php esc_html_e( 'Type', 'vibestatic' ); ?></th>
                 <th><?php esc_html_e( 'Documentation URL', 'vibestatic' ); ?></th>
@@ -84,12 +93,42 @@ $settings_pages = $view['settings_pages'];
                         <input name="action" type="hidden" value="wp2static_toggle_addon" />
                         <input name="addon_slug" type="hidden" value="<?php echo esc_attr( $addon->slug ); ?>" />
 
-                        <button>
+                        <p>
+                            <?php if ( $addon->enabled ) : ?>
+                                <strong><?php esc_html_e( 'Enabled', 'vibestatic' ); ?></strong>
+                            <?php else : ?>
+                                <?php esc_html_e( 'Disabled', 'vibestatic' ); ?>
+                            <?php endif; ?>
+                        </p>
+
+                        <?php
+                        /*
+                         * The button says what pressing it does, and the state
+                         * is the line above it. It used to say the state and do
+                         * the opposite — a button reading "Enabled" that
+                         * disabled the add-on — which is the one thing a
+                         * control must not do. WordPress's own Plugins screen
+                         * is the model: the row shows the state, the control
+                         * offers the action.
+                         *
+                         * class="button" is not decoration either: without it
+                         * WordPress styles nothing and the browser's default
+                         * chrome comes through, which is what it looked like.
+                         *
+                         * The add-on's name is in the accessible name, so a
+                         * screen reader announces "Enable S3" rather than six
+                         * buttons all called "Enable" — the same thing the
+                         * documentation and settings icons in this table
+                         * already do.
+                         */
+                        ?>
+                        <button type="submit" class="button">
                             <?php
                             echo $addon->enabled
-                                ? esc_html__( 'Enabled', 'vibestatic' )
-                                : esc_html__( 'Disabled', 'vibestatic' );
+                                ? esc_html__( 'Disable', 'vibestatic' )
+                                : esc_html__( 'Enable', 'vibestatic' );
                             ?>
+                            <span class="screen-reader-text"><?php echo esc_html( $addon->name ); ?></span>
                         </button>
 
                         </form>
