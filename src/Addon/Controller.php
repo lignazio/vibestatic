@@ -101,6 +101,24 @@ abstract class Controller {
     }
 
     /**
+     * Whether this add-on has ever deployed to the real service.
+     *
+     * **False until somebody has watched it work against the actual API**, not
+     * against a test double. An add-on whose endpoints are written to the
+     * documented shapes and whose logic is covered by unit tests is not the
+     * same thing as one that has sent a byte to a real bucket, and the person
+     * about to type production credentials into its form is the person who
+     * should be told which of the two this is.
+     *
+     * It lives here so the wording is written once and the add-on carries one
+     * line. When an add-on is verified, that line changes to `true` and the
+     * notice goes; nobody has to remember what the sentence said.
+     */
+    public function fieldTested() : bool {
+        return true;
+    }
+
+    /**
      * Warnings to show above the form, as `[ level, message ]` pairs.
      *
      * Level is WordPress's own: `error`, `warning`, `success`, `info`.
@@ -254,6 +272,25 @@ abstract class Controller {
     }
 
     final public function renderSettingsPage() : void {
+        $notices = $this->notices();
+
+        if ( ! $this->fieldTested() ) {
+            array_unshift(
+                $notices,
+                [
+                    'info',
+                    sprintf(
+                        /* translators: %s: the add-on's name. */
+                        __(
+                            '%s has not been tested against the real service. Its requests are written to the documented API and its logic is covered by tests, but no deploy has been watched end to end. Try it against a throwaway account before pointing it at a site that matters.',
+                            'vibestatic'
+                        ),
+                        $this->name()
+                    ),
+                ]
+            );
+        }
+
         SettingsPage::render(
             $this->name(),
             $this->nonceAction(),
@@ -262,7 +299,7 @@ abstract class Controller {
             $this->options(),
             $this->fields(),
             $this->intro(),
-            $this->notices()
+            $notices
         );
     }
 
