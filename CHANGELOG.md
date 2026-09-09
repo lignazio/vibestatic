@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## VibeStatic 9.1.0 (2026-09-09)
 
 ### Changed
 
@@ -44,6 +44,81 @@
 - `wp2static_modify_initial_crawl_list`, the filter add-ons use to add URLs, has
   its result narrowed to the strings it is documented to return. So do the two
   "ignore" lists and the webhook's three filters.
+
+### Added
+
+- **A second build target: `tools/build_release.sh --wporg`,** the package for
+  the wordpress.org plugin directory. One build of one tree, with three
+  differences and only three:
+
+  - `src/Updater.php` is left out. Guideline 8 of the directory forbids a plugin
+    hosted there from "serving updates or otherwise installing plugins, themes,
+    or add-ons from servers other than WordPress.org's", and `Update URI` is the
+    thing the directory's own Plugin Check names by name.
+  - `src/Addon/Updater.php` is **replaced** by an inert shim rather than
+    removed. That distinction was measured, not reasoned about: with the file
+    simply deleted, every add-on published at 1.0.0 died with
+    `Uncaught Error: Class "WP2Static\Addon\Updater" not found` during
+    `plugins_loaded` — a white screen with no admin left to fix it from. The
+    shim accepts the call and does nothing at all.
+  - the `Update URI` header is deleted from the plugin's own headers.
+
+  The GitHub package keeps all three, because there they are the only way a
+  site installed from a zip receives so much as a security fix. `Addon\Updater`
+  is deprecated in this release and due for removal in 10.0: from 1.1.0 every
+  add-on carries its own.
+
+- A `readme.txt` fit for the directory: a real changelog, upgrade notices, and a
+  section naming every external service the plugin can be made to contact — the
+  destination you configure, and Snipcart's CDN if you enter a Snipcart key —
+  with links to each one's terms. The plugin contacts nothing on its own, and
+  now says so where it can be checked.
+
+### Fixed
+
+- The filesystem and URL calls WordPress asks plugins to prefer: `wp_parse_url`
+  in fifteen places, `wp_delete_file` in four, `wp_mkdir_p` in three and
+  `wp_is_writable`. The swap is not cosmetic in one spot — `wp_delete_file()`
+  returns nothing where `unlink()` returned a bool, so `FilesHelper` now asks
+  whether the file is gone; a straight substitution would have reported every
+  path as removed, including the ones that were not.
+- The direct calls that stay — `rmdir`, `fopen` for a streamed upload, `chmod`
+  on a temporary archive — say where they are why they stay. WP_Filesystem
+  abstracts over FTP and sFTP as much as over the local disk, and on a site
+  configured for one of those it would open a network connection to touch a file
+  that is already on this machine. The two `phpcs:ignore` comments that were
+  already there named sniffs that do not exist (`chmod_chmod`,
+  `rename_rename`), so they suppressed nothing.
+- An exception message written **in Italian**, and not translatable: the one
+  thing a user sees when `AUTH_KEY` and `AUTH_SALT` are missing from
+  `wp-config.php`.
+- Every file that runs something when it is included — a `define()`, a function
+  declaration, an `spl_autoload_register()` — now refuses to be requested
+  directly. Eight files; the sixty that only declare a class do nothing when
+  included and are left alone.
+- `views/.htaccess` removed. It was `Order deny,allow`, Apache 2.2 syntax that
+  2.4 ignores without `mod_access_compat`, duplicating a guard all thirteen
+  views already carry — and a hidden file, which the directory refuses outright.
+- Dead debug code in `SiteInfo`: a `debug()` method whose whole body was a
+  `var_export()` with no return, called from nowhere.
+
+### Verified
+
+- **The wordpress.org package, on lucenti.studio, on real data.** 2,860 URLs
+  crawled, 1,914 skipped as unchanged, 96 files deployed, 149 pages published,
+  and all 4,299 internal references of those pages checked against the files on
+  disk: none broken. Every admin page and every module settings page rendered
+  with the site's real options — one `h1` each, no PHP notices, no exceptions —
+  and all six add-on gears resolved to a page WordPress has actually
+  registered.
+- A transient `HTTP 503` for `/2026/` during that run, and the log says
+  `not saved`: the 8.0.0 fix doing its job on a real site, where before it would
+  have published the error page over the good one.
+- The directory's own Plugin Check reports **zero errors** on the package.
+  Everything it flagged is either fixed above or annotated where it is with the
+  reason it is not a defect — three of them are the address of the S3 bucket and
+  the CloudFront distribution the *user* typed in, which the check reads as a
+  plugin offloading its own assets.
 
 ## VibeStatic 9.0.0 (2026-09-09)
 
