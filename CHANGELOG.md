@@ -12,6 +12,21 @@
   allowed to access this page" — for every add-on, the six bundled modules
   included. The link is now built the way the page is registered.
 
+- **The LICENSE file said Unlicense while everything else said GPL.** The plugin
+  header, `readme.txt` and `composer.json` have declared GPL-2.0-or-later since
+  the fork began, and the plugin header explains why: WP2Static is public domain
+  and this fork ships under the GPL, which is what WordPress plugins are
+  distributed under. The `LICENSE` file was upstream's and had never been
+  changed — and `tools/build_release.sh` copies it into the zip, so it was the
+  licence text reaching users. It now carries the GPL-2.0 notice, the full
+  licence text, and the attribution to the public-domain original.
+
+  The six bundled modules each carried their own copy of the Unlicense too, left
+  over from when they were separate plugins. Since they are not separate any
+  more and their code has been rewritten, a file next to them claiming public
+  domain described something no longer there. Each now points at the plugin's
+  LICENSE and keeps the attribution.
+
 ---
 
 ## VibeStatic 8.1.0 (2026-09-08)

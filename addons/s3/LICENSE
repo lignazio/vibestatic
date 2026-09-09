@@ -1,0 +1,16 @@
+S3 deployment - a bundled module of VibeStatic
+
+Licensed under the GNU General Public License, version 2 or later, the same as
+the plugin it ships inside. The full text is in ../../LICENSE.
+
+This module used to be a separate plugin and carried its own copy of the
+Unlicense here. It is not separate any more - see WP2Static\Modules for why -
+and the code in this directory has been rewritten, so a file claiming it is
+public domain would have been describing something that is no longer here.
+
+ATTRIBUTION
+
+The module this replaces was written by Leon Stafford and released into the
+public domain under the Unlicense. That original remains public domain wherever
+it stands; nothing here withdraws anything from it. What changed, and why, is in
+module.php and in the plugin's CHANGELOG.
