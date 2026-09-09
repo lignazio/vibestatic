@@ -12,6 +12,7 @@
 !.htaccess
 !.phpcs.xml.dist
 !.phpcompat.xml.dist
+!.wordpress-org
 
 /integration-tests/bedrock/
 /integration-tests/mariadb/data/

@@ -1,0 +1,79 @@
+<style>
+  /* 1544x500. Griglia a 12 colonne dentro un margine di 96px: la colonna e' 90.67,
+     il gutter 24. Il blocco di testo occupa nove colonne (1008px), il marchio
+     sta sulle ultime due, allineato in alto all'altezza delle maiuscole del
+     logotipo.
+
+     La fascia bassa da 104px resta vuota di proposito: nel pannello dettagli di
+     wp-admin WordPress sovrappone lì il nome del plugin, e un titolo sopra del
+     testo e' un titolo illeggibile.
+
+     Un solo accento, e non e' un pallino ma il primo tratto della linea: il
+     rosso e' la stessa cella che nell'icona segna quello che e' cambiato. */
+  :root {
+    --carbone:  #16181A;
+    --fondo:    #F2F1EE;
+    --grigio:   #6B6E70;
+    --rosso:    #E30613;
+    --margine:  96px;
+    --colonne9: 1008px;
+    --cella:    60px;
+    --gutter:   13px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1544px; height: 500px; }
+  body {
+    background: var(--fondo);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: var(--carbone);
+    -webkit-font-smoothing: antialiased;
+  }
+  .testo {
+    position: absolute;
+    left: var(--margine);
+    top: 116px;
+    width: var(--colonne9);
+  }
+  h1 {
+    font-size: 108px;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    line-height: 1;
+  }
+  .regola {
+    display: flex;
+    height: 3px;
+    margin: 36px 0 28px;
+  }
+  .regola i { background: var(--rosso); width: 120px; flex: 0 0 auto; }
+  .regola b { background: var(--carbone); flex: 1 1 auto; }
+  p {
+    font-size: 32px;
+    font-weight: 500;
+    letter-spacing: -0.012em;
+    line-height: 1.38;
+  }
+  p.due { font-weight: 400; color: var(--grigio); }
+  .mark {
+    position: absolute;
+    right: var(--margine);
+    top: 122px;
+    display: grid;
+    grid-template-columns: repeat(3, var(--cella));
+    grid-template-rows: repeat(3, var(--cella));
+    gap: var(--gutter);
+  }
+  .c { background: var(--carbone); }
+  .c.on { background: var(--rosso); }
+</style>
+<div class="testo">
+  <h1>VibeStatic</h1>
+  <div class="regola"><i></i><b></b></div>
+  <p>Static site generation for WordPress</p>
+  <p class="due">Incremental deployment &mdash; only what changed</p>
+</div>
+<div class="mark">
+  <div class="c"></div><div class="c"></div><div class="c"></div>
+  <div class="c"></div><div class="c"></div><div class="c on"></div>
+  <div class="c"></div><div class="c"></div><div class="c"></div>
+</div>

@@ -1,0 +1,32 @@
+<style>
+  /* Griglia 3x3 su fondo carbone: otto celle neutre e una rossa. Il senso e'
+     quello del plugin — si ripubblica solo quello che e' cambiato — e la forma
+     regge anche a 64px, perche' sono nove pieni e non nove contorni. */
+  :root {
+    --carbone: #16181A;
+    --neutro:  #F2F1EE;
+    --rosso:   #E30613;
+    --cella: 56px;
+    --gutter: 12px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 256px; height: 256px; }
+  body {
+    background: var(--carbone);
+    display: grid;
+    place-items: center;
+  }
+  .mark {
+    display: grid;
+    grid-template-columns: repeat(3, var(--cella));
+    grid-template-rows: repeat(3, var(--cella));
+    gap: var(--gutter);
+  }
+  .c { background: var(--neutro); }
+  .c.on { background: var(--rosso); }
+</style>
+<div class="mark">
+  <div class="c"></div><div class="c"></div><div class="c"></div>
+  <div class="c"></div><div class="c"></div><div class="c on"></div>
+  <div class="c"></div><div class="c"></div><div class="c"></div>
+</div>
