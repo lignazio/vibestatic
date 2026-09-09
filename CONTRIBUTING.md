@@ -3,7 +3,7 @@
 ## Branches and versioning
 
 Work happens on `vibestatic`, which carries a `-dev` version in the plugin
-header (currently `9.0.0-rc1`). A release is a `v*` tag whose number matches
+header (currently `9.0.0`). A release is a `v*` tag whose number matches
 that header exactly — `release.yml` refuses to publish if they disagree, and
 `tools/build_release.sh` refuses if the header and `VIBESTATIC_VERSION`
 disagree. Between them the version cannot diverge in three places silently,

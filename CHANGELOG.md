@@ -1,6 +1,6 @@
 # Changelog
 
-## VibeStatic 9.0.0-rc1 (2026-09-09)
+## VibeStatic 9.0.0 (2026-09-09)
 
 ### Verified
 
