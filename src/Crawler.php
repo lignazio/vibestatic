@@ -91,7 +91,16 @@ class Crawler {
 
         $base_uri = $this->site_path;
 
-        if ( $port_override ) {
+        // Interpolated below, and it comes from a filter: anything that is
+        // not a scalar would be an "Array to string conversion" in the middle
+        // of building a base URL.
+        if ( is_scalar( $port_override ) && $port_override ) {
+            $port_override = (string) $port_override;
+        } else {
+            $port_override = '';
+        }
+
+        if ( '' !== $port_override ) {
             $base_uri = "{$base_uri}:{$port_override}";
         }
 

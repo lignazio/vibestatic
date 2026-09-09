@@ -58,35 +58,39 @@ class SitemapParser {
     /**
      * Configuration options
      *
-     * @var mixed[]
+     * @var array<string, mixed>
      */
     protected $config = [];
 
     /**
      * Sitemaps discovered
      *
-     * @var mixed[]
+     * Keyed by URL, so `array_keys()` on it is a list of sitemap URLs.
+     *
+     * @var array<string, mixed>
      */
     protected $sitemaps = [];
 
     /**
      * URLs discovered
      *
-     * @var mixed[]
+     * Keyed by URL.
+     *
+     * @var array<string, mixed>
      */
     protected $urls = [];
 
     /**
      * Sitemap URLs discovered but not yet parsed
      *
-     * @var mixed[]
+     * @var list<string>
      */
     protected $queue = [];
 
     /**
      * Parsed URLs history
      *
-     * @var mixed[]
+     * @var list<string>
      */
     protected $history = [];
 
@@ -101,7 +105,7 @@ class SitemapParser {
      * Constructor
      *
      * @param string $user_agent User-Agent to send with every HTTP(S) request
-     * @param mixed[] $config Configuration options
+     * @param array<string, mixed> $config Configuration options
      */
     public function __construct( $user_agent = self::DEFAULT_USER_AGENT, array $config = [] ) {
         $this->user_agent = $user_agent;
@@ -129,8 +133,19 @@ class SitemapParser {
                 // Keep crawling
                 continue;
             }
-            $this->sitemaps = array_merge_recursive( $sitemaps, $this->sitemaps );
-            $this->urls = array_merge_recursive( $urls, $this->urls );
+            /*
+             * array_merge_recursive() renumbers integer keys, so its return is
+             * a plain array as far as any analysis goes. Both of these are
+             * keyed by URL and stay that way — every writer keys them by
+             * string — so the shape is restored rather than widened.
+             */
+            /** @var array<string, mixed> $merged_sitemaps */
+            $merged_sitemaps = array_merge_recursive( $sitemaps, $this->sitemaps );
+            $this->sitemaps = $merged_sitemaps;
+
+            /** @var array<string, mixed> $merged_urls */
+            $merged_urls = array_merge_recursive( $urls, $this->urls );
+            $this->urls = $merged_urls;
         }
     }
 

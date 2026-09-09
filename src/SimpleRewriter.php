@@ -50,10 +50,17 @@ class SimpleRewriter {
             CoreOptions::getValue( 'deploymentURL' )
         );
 
+        $default_site_url = untrailingslashit( SiteInfo::getUrl( 'site' ) );
+
         $wordpress_site_url = apply_filters(
             'wp2static_set_wordpress_site_url',
-            untrailingslashit( SiteInfo::getUrl( 'site' ) )
+            $default_site_url
         );
+
+        // A filter can answer anything; what follows treats this as a URL.
+        if ( ! is_string( $wordpress_site_url ) || '' === $wordpress_site_url ) {
+            $wordpress_site_url = $default_site_url;
+        }
 
         $wordpress_site_url = untrailingslashit( $wordpress_site_url );
         $destination_url = untrailingslashit( $destination_url );

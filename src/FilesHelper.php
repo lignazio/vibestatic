@@ -295,29 +295,49 @@ class FilesHelper {
     }
 
     /**
+     * Apply a filter that is meant to answer a list of strings.
+     *
+     * `apply_filters()` answers whatever the last callback returned, and these
+     * two lists are handed straight to methods declared to take `array<string>`
+     * — a filter returning a string, or an array with an object in it, would
+     * reach a `str_replace()` or an `in_array()` as itself. The elements are
+     * kept only if they are strings, which is the only shape the callers use.
+     *
+     * @param non-empty-string $hook    Filter name.
+     * @param array<string>    $default What to filter, and what to fall back to.
+     * @return list<string> The filtered list.
+     */
+    private static function filteredStringList( string $hook, array $default ) : array {
+        $filtered = apply_filters( $hook, $default );
+
+        if ( ! is_array( $filtered ) ) {
+            WsLog::l(
+                "A $hook filter returned " . gettype( $filtered ) .
+                ' instead of an array; using the unfiltered list.'
+            );
+
+            return array_values( $default );
+        }
+
+        return array_values( array_filter( $filtered, 'is_string' ) );
+    }
+
+    /**
      * Ensure a given filepath has an allowed filename and extension.
      *
      * @return bool  True if the given file does not have a disallowed filename
      *               or extension.
      */
     public static function filePathLooksCrawlable( string $file_name ) : bool {
-        $filenames_to_ignore = CoreOptions::getLineDelimitedBlobValue( 'filenamesToIgnore' );
-
-        $filenames_to_ignore =
-            apply_filters(
-                'wp2static_filenames_to_ignore',
-                $filenames_to_ignore
-            );
-
-        $file_extensions_to_ignore = CoreOptions::getLineDelimitedBlobValue(
-            'fileExtensionsToIgnore'
+        $filenames_to_ignore = self::filteredStringList(
+            'wp2static_filenames_to_ignore',
+            CoreOptions::getLineDelimitedBlobValue( 'filenamesToIgnore' )
         );
 
-        $file_extensions_to_ignore =
-            apply_filters(
-                'wp2static_file_extensions_to_ignore',
-                $file_extensions_to_ignore
-            );
+        $file_extensions_to_ignore = self::filteredStringList(
+            'wp2static_file_extensions_to_ignore',
+            CoreOptions::getLineDelimitedBlobValue( 'fileExtensionsToIgnore' )
+        );
 
         return self::pathLooksCrawlable(
             $file_name,

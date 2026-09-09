@@ -19,12 +19,6 @@ parameters:
 			path: src/Controller.php
 
 		-
-			rawMessage: 'Part $port_override (mixed) of encapsed string cannot be cast to string.'
-			identifier: encapsedStringPart.nonString
-			count: 1
-			path: src/Crawler.php
-
-		-
 			rawMessage: Possibly invalid array key type mixed.
 			identifier: offsetAccess.invalidOffset
 			count: 4
@@ -73,28 +67,10 @@ parameters:
 			path: src/DetectPostsPaginationURLs.php
 
 		-
-			rawMessage: 'Part $port_override (mixed) of encapsed string cannot be cast to string.'
-			identifier: encapsedStringPart.nonString
-			count: 1
-			path: src/DetectSitemapsURLs.php
-
-		-
 			rawMessage: Binary operation "." between string and mixed results in an error.
 			identifier: binaryOp.invalid
 			count: 1
 			path: src/DetectVendorFiles.php
-
-		-
-			rawMessage: 'Parameter #2 $filenames_to_ignore of static method WP2Static\FilesHelper::pathLooksCrawlable() expects array<string>, mixed given.'
-			identifier: argument.type
-			count: 1
-			path: src/FilesHelper.php
-
-		-
-			rawMessage: 'Parameter #3 $file_extensions_to_ignore of static method WP2Static\FilesHelper::pathLooksCrawlable() expects array<string>, mixed given.'
-			identifier: argument.type
-			count: 1
-			path: src/FilesHelper.php
 
 		-
 			rawMessage: Possibly invalid array key type mixed.
@@ -105,7 +81,7 @@ parameters:
 		-
 			rawMessage: 'Parameter #1 $value of function untrailingslashit expects string, mixed given.'
 			identifier: argument.type
-			count: 2
+			count: 1
 			path: src/SimpleRewriter.php
 
 		-
@@ -121,27 +97,9 @@ parameters:
 			path: src/SitemapParser.php
 
 		-
-			rawMessage: 'Parameter #1 $array of function array_diff expects an array of values castable to string, array<mixed> given.'
-			identifier: argument.type
-			count: 1
-			path: src/SitemapParser.php
-
-		-
-			rawMessage: 'Parameter #1 $array of function array_unique expects an array of values castable to string, array<mixed> given.'
-			identifier: argument.type
-			count: 1
-			path: src/SitemapParser.php
-
-		-
 			rawMessage: 'Parameter #1 $value of function strval expects bool|float|GMP|int|resource|string|null, mixed given.'
 			identifier: argument.type
 			count: 3
-			path: src/SitemapParser.php
-
-		-
-			rawMessage: 'Parameter #2 $arrays of function array_diff expects an array of values castable to string, array<mixed> given.'
-			identifier: argument.type
-			count: 1
 			path: src/SitemapParser.php
 
 		-
@@ -167,21 +125,3 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: src/URLDetector.php
-
-		-
-			rawMessage: 'Parameter #2 $filenames_to_ignore of static method WP2Static\FilesHelper::getListOfLocalFilesByDir() expects array<string>, mixed given.'
-			identifier: argument.type
-			count: 1
-			path: src/URLDetector.php
-
-		-
-			rawMessage: 'Parameter #3 $file_extensions_to_ignore of static method WP2Static\FilesHelper::getListOfLocalFilesByDir() expects array<string>, mixed given.'
-			identifier: argument.type
-			count: 1
-			path: src/URLDetector.php
-
-		-
-			rawMessage: 'Method WP2Static\WsLog::getAll() should return array<mixed> but returns list<stdClass>|null.'
-			identifier: return.type
-			count: 1
-			path: src/WsLog.php
