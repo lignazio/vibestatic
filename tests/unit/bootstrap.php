@@ -46,6 +46,38 @@ if ( ! function_exists( 'trailingslashit' ) ) {
     }
 }
 
+/*
+ * The four filesystem and URL wrappers WordPress asks plugins to prefer over
+ * the bare PHP functions, and which the plugin directory's Plugin Check treats
+ * as errors when they are missing. Each is the real one's behaviour, not a
+ * stand-in that always succeeds: wp_delete_file() returns nothing — that is why
+ * FilesHelper has to look at the file afterwards — and wp_mkdir_p() creates
+ * recursively.
+ */
+if ( ! function_exists( 'wp_parse_url' ) ) {
+    function wp_parse_url( $url, $component = -1 ) {
+        return parse_url( $url, $component );
+    }
+}
+
+if ( ! function_exists( 'wp_delete_file' ) ) {
+    function wp_delete_file( $file ) {
+        @unlink( $file );
+    }
+}
+
+if ( ! function_exists( 'wp_mkdir_p' ) ) {
+    function wp_mkdir_p( $target ) {
+        return is_dir( $target ) || mkdir( $target, 0777, true );
+    }
+}
+
+if ( ! function_exists( 'wp_is_writable' ) ) {
+    function wp_is_writable( $path ) {
+        return is_writable( $path );
+    }
+}
+
 /**
  * Gives a \WPDB mock a prepare() that behaves like the real one.
  *

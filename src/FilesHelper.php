@@ -28,9 +28,19 @@ class FilesHelper {
             foreach ( $files as $file ) {
                 ( is_dir( "$dir/$file" ) ) ?
                 self::deleteDirWithFiles( "$dir/$file" ) :
-                unlink( "$dir/$file" );
+                wp_delete_file( "$dir/$file" );
             }
 
+            /*
+             * `rmdir` and not WP_Filesystem, in this method and in the one
+             * below. WP_Filesystem abstracts over FTP and sFTP as much as over
+             * the local disk, and on a site configured for one of those it
+             * would open a network connection to remove a directory that is on
+             * this machine — inside wp-content/uploads, written by this plugin
+             * a moment ago. There is no wp_rmdir(): wp_delete_file() covers
+             * files and has no counterpart for directories.
+             */
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- a directory in uploads/ this plugin created; see above.
             rmdir( $dir );
         }
     }
@@ -184,7 +194,16 @@ class FilesHelper {
         $emptied = [];
 
         foreach ( $to_remove as $filename => $path ) {
-            if ( unlink( (string) $filename ) ) {
+            /*
+             * wp_delete_file() answers nothing at all — it is a void wrapper
+             * around unlink() plus the `wp_delete_file` filter — so the file
+             * has to be asked about afterwards. The previous form read
+             * `if ( unlink( ... ) )`, and a straight swap would have recorded
+             * every path as removed, including the ones that were not.
+             */
+            wp_delete_file( (string) $filename );
+
+            if ( ! file_exists( (string) $filename ) ) {
                 $removed[] = $path;
                 $emptied[ dirname( (string) $filename ) ] = true;
             }
@@ -200,6 +219,7 @@ class FilesHelper {
         krsort( $emptied );
 
         foreach ( array_keys( $emptied ) as $directory ) {
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- see deleteDirWithFiles() above.
             while ( 0 === strpos( $directory, $dir . '/' ) && @rmdir( $directory ) ) {
                 $directory = dirname( $directory );
             }

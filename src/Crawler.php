@@ -168,11 +168,11 @@ class Crawler {
     public function crawlSite( string $static_site_path ) : void {
         WsLog::l( 'Starting to crawl detected URLs.' );
 
-        // parse_url() answers false on a malformed URL and null on a URL with
+        // wp_parse_url() answers false on a malformed URL and null on a URL with
         // no host: both mean there is nothing here to crawl, and saying so is
         // better than carrying the ambiguity into every request.
-        $site_host = (string) parse_url( $this->site_path, PHP_URL_HOST );
-        $site_port = parse_url( $this->site_path, PHP_URL_PORT );
+        $site_host = (string) wp_parse_url( $this->site_path, PHP_URL_HOST );
+        $site_port = wp_parse_url( $this->site_path, PHP_URL_PORT );
         $site_host = $site_port ? $site_host . ':' . (string) $site_port : $site_host;
 
         if ( '' === $site_host ) {
@@ -520,7 +520,7 @@ class Crawler {
                                 $suffix = ltrim( $transformed_path, '/' );
                                 $full_path = trailingslashit( $dir ) . $suffix;
                                 if ( file_exists( $full_path ) && ! is_dir( $full_path ) ) {
-                                    unlink( $full_path );
+                                    wp_delete_file( $full_path );
                                 }
                             },
                             [ StaticSite::getPath(), ProcessedSite::getPath() ]

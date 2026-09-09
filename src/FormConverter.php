@@ -272,9 +272,9 @@ class FormConverter {
     private static function reasonToLeaveAlone( array $attributes ) : ?string {
         $action = $attributes['action'] ?? '';
 
-        $host = '' !== $action ? parse_url( $action, PHP_URL_HOST ) : null;
+        $host = '' !== $action ? wp_parse_url( $action, PHP_URL_HOST ) : null;
 
-        if ( is_string( $host ) && $host !== parse_url( SiteInfo::getUrl( 'site' ), PHP_URL_HOST ) ) {
+        if ( is_string( $host ) && $host !== wp_parse_url( SiteInfo::getUrl( 'site' ), PHP_URL_HOST ) ) {
             return 'form(s) that already post to another site';
         }
 

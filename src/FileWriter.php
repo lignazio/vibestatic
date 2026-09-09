@@ -42,7 +42,7 @@ class FileWriter {
         // Fix pathinfo failing with non-latin characters
         setlocale( LC_CTYPE, 'en_US.UTF-8' );
 
-        $url_info = parse_url( $this->url );
+        $url_info = wp_parse_url( $this->url );
 
         if ( ! is_array( $url_info ) ) {
             return;

@@ -55,7 +55,7 @@ trait URLParser {
     protected function urlValidate( $url ) {
         return (
             filter_var( $url, FILTER_VALIDATE_URL ) &&
-            ( $parsed = parse_url( $url ) ) !== false &&
+            ( $parsed = wp_parse_url( $url ) ) !== false &&
             isset( $parsed['host'] ) &&
             isset( $parsed['scheme'] ) &&
             $this->urlValidateHost( $parsed['host'] ) &&

@@ -188,7 +188,7 @@ class SiteInfo {
          */
         $uploads_dir = self::$info['uploads_path'];
 
-        return file_exists( $uploads_dir ) && is_writeable( $uploads_dir );
+        return file_exists( $uploads_dir ) && wp_is_writable( $uploads_dir );
     }
 
     public static function permalinksAreCompatible() : bool {
@@ -232,7 +232,7 @@ class SiteInfo {
          */
         $site_url = self::$info['site_url'];
 
-        $url_host = parse_url( $site_url, PHP_URL_HOST );
+        $url_host = wp_parse_url( $site_url, PHP_URL_HOST );
 
         if ( ! is_string( $url_host ) ) {
             $err = 'Failed to get hostname from Site URL';

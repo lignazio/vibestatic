@@ -25,6 +25,16 @@ class Deployer extends \WP2Static\PlanDrivenDeployer {
      */
     const CLOUDFRONT_REGION = 'us-east-1';
 
+    /*
+     * The three amazonaws.com strings in this file are the addresses of
+     * the bucket and the distribution the user typed into the settings
+     * page. "Offloading" is about a plugin serving its own assets from
+     * somewhere else; here the site being published is the payload and
+     * the user chose where it goes, which is the case guideline 6 —
+     * software as a service — exists for. Nothing belonging to the
+     * plugin is ever fetched from either host.
+     */
+    // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- the destination the user configured, which is what this module is; nothing of the plugin's own is loaded from it.
     const CLOUDFRONT_HOST = 'cloudfront.amazonaws.com';
 
     const CLOUDFRONT_API = '2020-05-31';
@@ -92,6 +102,7 @@ class Deployer extends \WP2Static\PlanDrivenDeployer {
             }
         }
 
+        // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- the destination the user configured, which is what this module is; nothing of the plugin's own is loaded from it.
         $this->host = $bucket . '.s3.' . $region . '.amazonaws.com';
         $this->signer = new Signer( $access_key, $secret_key, $region, 's3' );
         $this->invalidate = [];
@@ -352,6 +363,7 @@ class Deployer extends \WP2Static\PlanDrivenDeployer {
          * of the day invalidated nothing.
          */
         return '<?xml version="1.0" encoding="UTF-8"?>'
+            // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- the destination the user configured, which is what this module is; nothing of the plugin's own is loaded from it.
             . '<InvalidationBatch xmlns="http://cloudfront.amazonaws.com/doc/'
             . self::CLOUDFRONT_API . '/">'
             . '<Paths><Quantity>' . count( $paths ) . '</Quantity>'

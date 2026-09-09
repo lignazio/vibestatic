@@ -211,7 +211,7 @@ class SitemapParser {
             return;
         }
 
-        if ( parse_url( $this->current_url, PHP_URL_PATH ) === self::ROBOTSTXT_PATH ) {
+        if ( wp_parse_url( $this->current_url, PHP_URL_PATH ) === self::ROBOTSTXT_PATH ) {
             $this->parseRobotstxt( $response );
             return;
         }
@@ -489,7 +489,7 @@ class SitemapParser {
      * @return bool
      */
     protected function isSitemapURL( $url ) {
-        $path = parse_url( $this->urlEncode( $url ), PHP_URL_PATH );
+        $path = wp_parse_url( $this->urlEncode( $url ), PHP_URL_PATH );
         return $this->urlValidate( $url ) && (
                 substr(
                     (string) $path,

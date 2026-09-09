@@ -265,6 +265,16 @@ class Snipcart {
             return $html;
         }
 
+        /*
+         * Written into the HTML, not enqueued, and wp_enqueue_style() is not
+         * the alternative here — it has nothing to enqueue into. This string
+         * goes into a *file on disk*: a page of the static copy, which will be
+         * served by some other web server with no WordPress behind it. There is
+         * no wp_head() left to run in it. Nothing is added to the live site's
+         * output; a visitor to the WordPress installation loads neither of
+         * these.
+         */
+        // phpcs:disable WordPress.WP.EnqueuedResources -- markup for the exported static page, not for wp_head(); see above. disable/enable and not ignore: the two offending lines are consecutive, and `ignore` reaches only the next one.
         $markup = sprintf(
             '<link rel="stylesheet" href="%1$s%2$s/default/snipcart.css">'
             . '<script async src="%1$s%2$s/default/snipcart.js"></script>'
@@ -273,6 +283,7 @@ class Snipcart {
             self::VERSION,
             htmlspecialchars( $key, ENT_QUOTES )
         );
+        // phpcs:enable WordPress.WP.EnqueuedResources
 
         $at = strripos( $html, '</body>' );
 

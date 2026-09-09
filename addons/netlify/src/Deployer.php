@@ -264,6 +264,14 @@ class Deployer {
     ) : bool {
         $local = $processed_site_path . $remote_path;
 
+        /*
+         * A handle and not the file's contents: Netlify wants the bytes as a
+         * stream, and reading a whole upload into memory first would make the
+         * largest publishable file a function of PHP's memory_limit. WP_Filesystem
+         * has no streaming read to offer instead — `get_contents()` is the only
+         * thing it has, and that is the version being avoided.
+         */
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- a stream is the point; see above.
         $handle = fopen( $local, 'r' );
 
         if ( false === $handle ) {

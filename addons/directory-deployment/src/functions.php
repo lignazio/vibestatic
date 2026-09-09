@@ -53,11 +53,15 @@ function rrmdir( string $path ) : void {
 /**
  * Recursively copy a directory.
  *
+ * The `$permissions` parameter is gone with the switch to `wp_mkdir_p()`, which
+ * takes the permissions from the parent directory rather than from an argument.
+ * That is the better answer for a document root, and the parameter was only
+ * ever the default: the one call from outside this file never passed it.
+ *
  * @param string $source      Source directory.
  * @param string $destination Destination directory.
- * @param int    $permissions Permissions for directories created.
  */
-function xcopy( string $source, string $destination, int $permissions = 0755 ) : bool {
+function xcopy( string $source, string $destination ) : bool {
     if ( is_link( $source ) ) {
         return symlink( (string) readlink( $source ), $destination );
     }
@@ -86,8 +90,7 @@ function xcopy( string $source, string $destination, int $permissions = 0755 ) :
         return false;
     }
 
-    if ( ! is_dir( $destination ) && ! mkdir( $destination, $permissions, true )
-        && ! is_dir( $destination ) ) {
+    if ( ! is_dir( $destination ) && ! wp_mkdir_p( $destination ) ) {
         return false;
     }
 
@@ -98,7 +101,7 @@ function xcopy( string $source, string $destination, int $permissions = 0755 ) :
             continue;
         }
 
-        xcopy( "$source/$entry", "$destination/$entry", $permissions );
+        xcopy( "$source/$entry", "$destination/$entry" );
     }
 
     return true;

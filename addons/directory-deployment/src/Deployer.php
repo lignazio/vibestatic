@@ -76,7 +76,7 @@ class Deployer extends \WP2Static\PlanDrivenDeployer {
             WsLog::l( 'Cleaning ' . $target );
 
             rrmdir( $target );
-            mkdir( $target, 0755, true );
+            wp_mkdir_p( $target );
 
             DeployCache::truncate( self::DEFAULT_NAMESPACE );
         }
@@ -95,7 +95,7 @@ class Deployer extends \WP2Static\PlanDrivenDeployer {
     protected function put( string $local, string $destination ) : bool {
         $directory = dirname( $destination );
 
-        if ( ! is_dir( $directory ) && ! mkdir( $directory, 0755, true ) && ! is_dir( $directory ) ) {
+        if ( ! is_dir( $directory ) && ! wp_mkdir_p( $directory ) ) {
             WsLog::l( 'Could not create directory: ' . $directory );
 
             return false;

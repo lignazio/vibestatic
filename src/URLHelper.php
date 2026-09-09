@@ -113,7 +113,7 @@ class URLHelper {
         }
 
         // Parse the url into pieces
-        $url_array = (array) parse_url( $url );
+        $url_array = (array) wp_parse_url( $url );
 
         // The original URL had a query string, modify it.
         if ( array_key_exists( 'query', $url_array ) ) {
@@ -229,13 +229,13 @@ class URLHelper {
             return null;
         }
 
-        $host = parse_url( $line, PHP_URL_HOST );
+        $host = wp_parse_url( $line, PHP_URL_HOST );
 
-        if ( is_string( $host ) && $host !== parse_url( $site_url, PHP_URL_HOST ) ) {
+        if ( is_string( $host ) && $host !== wp_parse_url( $site_url, PHP_URL_HOST ) ) {
             return null;
         }
 
-        $path = parse_url( $line, PHP_URL_PATH );
+        $path = wp_parse_url( $line, PHP_URL_PATH );
 
         if ( ! is_string( $path ) || '' === $path ) {
             return null;
@@ -264,7 +264,7 @@ class URLHelper {
             }
         }
 
-        $url_host = parse_url( $url, PHP_URL_HOST );
+        $url_host = wp_parse_url( $url, PHP_URL_HOST );
 
         if ( $url_host === $site_url_host ) {
             return true;

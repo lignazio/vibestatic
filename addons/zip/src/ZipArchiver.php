@@ -46,9 +46,18 @@ class ZipArchiver {
 
         $zip_archive->close();
 
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename -- local file.
+        /*
+         * Direct calls, and they stay. WP_Filesystem is an abstraction over
+         * FTP and sFTP as much as over the local disk: on a site configured for
+         * one of those, `WP_Filesystem::move()` would send this archive over
+         * the network to reach a path that is already on this machine. The file
+         * being renamed is a temporary file this class wrote, inside the
+         * uploads directory, and the permissions are the ones WordPress gives
+         * its own uploads.
+         */
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename,WordPress.WP.AlternativeFunctions.file_system_operations_rename -- a temporary file this class just wrote.
         rename( $temp_zip, $zip_path );
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.chmod_chmod -- local file.
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.chmod_chmod,WordPress.WP.AlternativeFunctions.file_system_operations_chmod -- the same file, one line above.
         chmod( $zip_path, 0644 );
 
         WsLog::l( "Completed deployable ZIP file generation: $added entries." );
