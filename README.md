@@ -101,6 +101,29 @@ on 9 May 2020, while sftp, s3 and netlify kept registering on it. Those three
 add-ons install, activate, hook into the deploy, and have nowhere to put their
 credentials. The filter is fired again here, with the same contract as before.
 
+### Writing one
+
+From 9.0 there is a base to extend, `WP2Static\Addon\`: a Controller that
+handles registration, the settings page, the authorised save and the deploy
+dispatch; an Options that holds the add-on's table; a SettingsPage that renders
+a form from a declaration of fields so nothing escapes being escaped; an
+OptionsCommand for `wp2static <add-on> options`; and an Updater for add-ons
+installed from a zip. An add-on says what it is called, which options it has and
+what it does with them.
+
+**It is API, with the same promise as the hooks**: it does not change under an
+add-on without a major version. The other half of that promise is the add-on's,
+and it has to be written in its main file rather than shared — a Controller that
+`extends` the base cannot even be autoloaded on a core that lacks it. The ten
+add-ons in
+[`lignazio/vibestatic-addons`](https://github.com/lignazio/vibestatic-addons)
+each carry the twenty lines that do it, and `vibestatic-addon-boilerplate` is
+there to be copied.
+
+An add-on that would rather not extend anything still works: the thirty hooks are
+untouched, and `zip` — bundled in this plugin — is an example of one that does not
+extend the base, because it has no settings at all.
+
 ## Installation
 
 - from this source: `git clone`, then `composer install` in the plugin
