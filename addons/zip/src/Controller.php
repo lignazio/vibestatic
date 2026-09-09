@@ -82,7 +82,7 @@ class Controller {
             self::SLUG,
             'deploy',
             'ZIP',
-            'https://github.com/lignazio/vibestatic#zip',
+            'https://github.com/lignazio/vibestatic/blob/vibestatic/addons/zip/README.md',
             'Packs the generated site into a downloadable ZIP archive'
         );
     }

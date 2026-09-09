@@ -37,7 +37,7 @@ class Controller extends \WP2Static\Addon\Controller {
     }
 
     public function docsUrl() : string {
-        return 'https://github.com/lignazio/vibestatic#sftp';
+        return 'https://github.com/lignazio/vibestatic/blob/vibestatic/addons/sftp/README.md';
     }
 
     /**

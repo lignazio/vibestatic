@@ -43,7 +43,7 @@ class Controller extends \WP2Static\Addon\Controller {
     }
 
     public function docsUrl() : string {
-        return 'https://github.com/lignazio/vibestatic#netlify';
+        return 'https://github.com/lignazio/vibestatic/blob/vibestatic/addons/netlify/README.md';
     }
 
     public function options() : Options {

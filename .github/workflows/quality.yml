@@ -73,6 +73,15 @@ jobs:
       - name: PHPStan
         run: composer run-script phpstan
 
+      # Non-blocking, and it reaches the network. The Add-ons page shows a
+      # documentation link per add-on, and until now nothing checked where any
+      # of them went: every bundled module pointed at an anchor the README does
+      # not have, which does not 404 — the page opens at the top and looks like
+      # it worked.
+      - name: Documentation links (non-blocking)
+        continue-on-error: true
+        run: composer run-script check-links
+
   tests:
     name: Tests, PHP ${{ matrix.php }}
     runs-on: ubuntu-latest

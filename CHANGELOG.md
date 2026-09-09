@@ -80,6 +80,19 @@ keeping, and because one bundled module's settings page moved.
 
 ### Fixed
 
+- **Every module's documentation link led nowhere, and did not look like it.**
+  `docs_url` was `…/vibestatic#s3`, `#ftp`, `#netlify` and so on — anchors the
+  README does not have. An anchor that is not there does not 404: GitHub opens
+  the repository at the top and it appears to have worked, which is why six
+  broken links survived. They point at each module's own README now, a file
+  path rather than an anchor, because an anchor moves when somebody rewrites a
+  heading.
+
+  The five modules that had no README have one. And `tools/check_links.php`
+  asks every documentation URL, plugin URI and update URI in the plugin whether
+  it exists, anchors included; `composer check-links` runs it, and CI does too,
+  without blocking on it.
+
 - **The Enabled/Disabled control on the Add-ons page said the state and did the
   opposite.** A button reading "Enabled" that disabled the add-on. The state is
   now text and the button says the action — Enable or Disable — which is how

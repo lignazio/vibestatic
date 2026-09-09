@@ -37,7 +37,7 @@ class Controller extends \WP2Static\Addon\Controller {
     }
 
     public function docsUrl() : string {
-        return 'https://github.com/lignazio/vibestatic#directory-deployment';
+        return 'https://github.com/lignazio/vibestatic/blob/vibestatic/addons/directory-deployment/README.md';
     }
 
     /**

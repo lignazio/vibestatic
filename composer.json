@@ -96,7 +96,8 @@
             "@phpcs-security",
             "@phpcs-i18n"
         ],
-        "build": "tools/build_release.sh"
+        "build": "tools/build_release.sh",
+        "check-links": "@php tools/check_links.php"
     },
     "scripts-descriptions": {
         "prefix": "Rewrites third-party dependencies into vendor-prefixed/ under WP2Static\\Vendor\\. Runs by itself after every install and update: there is no need to call it by hand.",
@@ -109,7 +110,8 @@
         "phpstan": "Static analysis at level max, with the accepted debt in the baseline.",
         "phpunit": "Unit tests. Excludes the suite that makes real network requests.",
         "test": "Everything that runs in CI and blocks, phpcs excluded: that is a step of its own so style debt cannot hide a security regression. When the remaining style violations reach zero, `@phpcs` comes back here and `@phpcs-security` becomes redundant.",
-        "build": "Builds the distributable zip into dist/, from the version declared in the plugin header."
+        "build": "Builds the distributable zip into dist/, from the version declared in the plugin header.",
+        "check-links": "Every documentation link the plugin shows, asked whether it exists - anchors included, because an anchor that is not there does not 404. Non-blocking in CI: a link that rots is worth knowing about and is not worth stopping a release for."
     },
     "extra": {
         "strauss": {
