@@ -244,10 +244,6 @@ class SiteInfo {
     }
 
 
-    public function debug() : void {
-        var_export( self::$info );
-    }
-
     /**
      *  Get all WP site info
      *
