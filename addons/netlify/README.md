@@ -31,3 +31,20 @@ all.
 `wp2static-addon-netlify`. Its settings page echoed ten values with no escaping
 at all, one of them the decrypted personal access token straight into a `value`
 attribute — a token holding an apostrophe closed the attribute early.
+
+## Partly verified
+
+No throwaway Netlify site was available, so what could be checked was checked,
+on 9 September 2026. Pointed at a real API with an invalid token, the deployer
+**reached Netlify** — `POST https://api.netlify.com/api/v1/sites/<id>/deploys`
+— and logged the answer:
+
+    401 Unauthorized: {"code":401,"message":"Access Denied"}
+
+Nothing was recorded in the deploy cache. Unconfigured, it says `Netlify site ID
+is not set.` and stops.
+
+**What that does not prove** is the digest exchange: Netlify's deploy API is
+offered the whole site as paths and SHA-1 hashes and answers with the subset it
+does not have, and that conversation has not been had. It needs one deploy to a
+real site, which is free.

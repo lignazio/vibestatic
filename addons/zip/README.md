@@ -33,3 +33,8 @@ table and a settings form, and this one has neither.
   global `$plugin_page` so the menu would stay highlighted — a workaround for a
   parent that was wrong to begin with, and one that left the page with no title,
   so `admin-header.php` called `strip_tags( null )`.
+
+## Verified
+
+Against a real export, on 9 September 2026: 1,808 entries, and the archive
+opened and tested clean with `unzip -t`.

@@ -33,3 +33,19 @@ wp2static ftp options list
 `wp2static-addon-ftp`. It used its own deploy-cache namespace of `default`,
 shared with every other deployer: two modules pointing at different servers each
 read the other's uploads as their own and skipped files they had never sent.
+
+## Verified
+
+Against a real FTP server, on 9 September 2026 — a local `pyftpdlib` speaking
+the actual protocol, not a test double.
+
+| | |
+|---|---|
+| First deploy | 1,808 files, 82 MB |
+| File integrity | a PNG and an HTML page compared by SHA-1 against the source: identical |
+| Second deploy, nothing changed | **0 sent** |
+| A post deleted in WordPress | 1 removed from the server |
+
+The integrity row exists because transferring a binary in ASCII mode is the
+oldest FTP defect there is, and it does not announce itself: the file arrives,
+it is simply broken.

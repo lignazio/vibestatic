@@ -55,3 +55,17 @@ is registered under and the key its options are saved under.
 ### Licence
 
 GPL-2.0-or-later, as part of VibeStatic.
+
+## Verified
+
+Against a real export, on 9 September 2026: a WordPress of 1,819 URLs deployed
+to a directory on the same machine.
+
+| | |
+|---|---|
+| First deploy | 1,809 files |
+| Second deploy, nothing changed | **0 sent**, 1,809 unchanged |
+| A post deleted in WordPress | 1 removed — the file *and* its now-empty directory |
+
+The middle row is the one worth having. Its ancestor re-copied everything every
+time, because it had no notion of what was already there.

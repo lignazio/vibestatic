@@ -45,3 +45,26 @@ plugin's zip with nothing added to it.
   cost money.
 - The slug, the options table and the option names are the original's, so an
   installation that had the add-on keeps its bucket and its credentials.
+
+## Partly verified
+
+There is no throwaway S3 to run this against for free, so what could be checked
+was checked, on 9 September 2026. The deployer was pointed at a real bucket name
+in a real region with deliberately invalid credentials, and it **reached AWS**:
+the endpoint was built, the request signed, and Amazon answered
+
+    403 InvalidAccessKeyId — The AWS Access Key Id you provided does not exist
+    in our records
+
+which means the request and its `Authorization` header were well-formed enough
+for AWS to parse and to identify which key was being claimed. A malformed
+signature answers `SignatureDoesNotMatch` or `AuthorizationHeaderMalformed`
+instead.
+
+**What that does not prove** is that the signature itself is right: AWS looks
+the key up before it verifies anything. That needs one deploy to a real bucket,
+which costs about a penny.
+
+What it does prove is the part its ancestor got wrong: 1,806 files failed, and
+**not one of them was recorded as deployed**. Unconfigured, it says `S3 bucket
+is not set.` and stops.

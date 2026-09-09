@@ -39,3 +39,16 @@ wp2static sftp options list
 - phpseclib 2 could not read a key in OpenSSH format, which is what
   `ssh-keygen` has produced by default since 2021. Version 3's
   `PublicKeyLoader` works the format out itself.
+
+## Verified
+
+Against a real sFTP server, on 9 September 2026 — a local `paramiko` server
+speaking SSH and SFTP, not a test double.
+
+| | |
+|---|---|
+| First deploy | 1,807 files, 82 MB |
+| File integrity | a PNG compared by SHA-1 against the source: identical |
+| Permissions | `0644` on files and `0755` on directories, as configured |
+| Second deploy, nothing changed | **0 sent** |
+| A post deleted in WordPress | 1 removed from the server |
