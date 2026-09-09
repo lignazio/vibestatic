@@ -46,25 +46,22 @@ plugin's zip with nothing added to it.
 - The slug, the options table and the option names are the original's, so an
   installation that had the add-on keeps its bucket and its credentials.
 
-## Partly verified
+## Verified
 
-There is no throwaway S3 to run this against for free, so what could be checked
-was checked, on 9 September 2026. The deployer was pointed at a real bucket name
-in a real region with deliberately invalid credentials, and it **reached AWS**:
-the endpoint was built, the request signed, and Amazon answered
+Against a real bucket, on 9 September 2026: a WordPress of 1,819 URLs deployed
+to `eu-north-1`.
 
-    403 InvalidAccessKeyId — The AWS Access Key Id you provided does not exist
-    in our records
+| | |
+|---|---|
+| First deploy | **1,807 sent, 0 failed** — every SigV4 signature accepted |
+| File integrity | `index.html` and a PNG compared against S3's ETag, which for a single-part upload is the object's MD5: identical both times |
+| Content type | `html` and `png`, from the module's own table |
+| Second deploy, nothing changed | **0 sent**, 1,807 unchanged |
+| A post deleted in WordPress | 1 removed, and its prefix is empty in the bucket |
 
-which means the request and its `Authorization` header were well-formed enough
-for AWS to parse and to identify which key was being claimed. A malformed
-signature answers `SignatureDoesNotMatch` or `AuthorizationHeaderMalformed`
-instead.
+The whole test cost about a penny: S3 charges $0.005 per thousand PUTs, deletes
+are free, and 82 MB for an hour rounds to nothing.
 
-**What that does not prove** is that the signature itself is right: AWS looks
-the key up before it verifies anything. That needs one deploy to a real bucket,
-which costs about a penny.
-
-What it does prove is the part its ancestor got wrong: 1,806 files failed, and
-**not one of them was recorded as deployed**. Unconfigured, it says `S3 bucket
-is not set.` and stops.
+The credentials were an IAM user with `s3:PutObject` and `s3:DeleteObject` on
+that bucket and nothing else — which is the point of the permissions note above,
+now confirmed rather than assumed.

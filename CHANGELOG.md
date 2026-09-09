@@ -6,14 +6,14 @@
 
 The six bundled modules were run against real targets before this candidate,
 and each module's README says what happened. In short: `directory-deployment`
-and `zip` end to end; `ftp` against a real FTP server and `sftp` against a real
-sFTP one, both with the files compared byte for byte against the source and the
-permissions checked; `s3` and `netlify` as far as their real APIs with invalid
-credentials, which proves the request reaches the service and — the part their
-ancestors got wrong — that a refusal is recorded as a failure and not as a
+and `zip` end to end; `ftp` against a real FTP server, `sftp` against a real
+sFTP one and **`s3` against a real bucket**, all three with the files compared
+byte for byte against the source; `netlify` as far as its real API with an
+invalid token, which proves the request reaches the service and — the part its
+ancestor got wrong — that a refusal is recorded as a failure and not as a
 deploy.
 
-For each of the four that could be run end to end, the three things that matter:
+For each of the five that could be run end to end, the three things that matter:
 a second deploy with nothing changed sends **nothing**, a post deleted in
 WordPress **disappears** from the published site, and an error appears in the log
 as an error.
