@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- **The Configure link on the Add-ons page led nowhere.** It pointed at
+  `admin.php?page=<add-on slug>` — `wp2static-addon-netlify` — but an add-on
+  gets its page through `wp2static_add_menu_items`, whose contract is
+  `key => callable` and whose key the core registers as `wp2static-<key>`. No
+  page by the first name exists, so the gear icon answered "Sorry, you are not
+  allowed to access this page" — for every add-on, the six bundled modules
+  included. The link is now built the way the page is registered.
+
+---
+
 ## VibeStatic 8.1.0 (2026-09-08)
 
 ### Added
