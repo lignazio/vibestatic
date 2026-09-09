@@ -460,6 +460,18 @@ class Crawler {
                 'fulfilled' => function ( ResponseInterface $response, $index ) use (
                     $urls, $use_crawl_cache, $site_urls, $site_host
                 ) {
+                    /*
+                     * Guzzle's Pool hands back the key of the request that
+                     * produced this response. The generator above yields
+                     * without keys, so it is the position — but the parameter
+                     * cannot be declared `int` without narrowing the callable
+                     * Pool is typed to accept, so it is narrowed here, where a
+                     * key that is not in $urls is also worth surviving.
+                     */
+                    if ( ! is_int( $index ) || ! isset( $urls[ $index ] ) ) {
+                        return;
+                    }
+
                     $root_relative_path = $urls[ $index ]['path'];
                     $crawled_contents = (string) $response->getBody();
                     $status_code = $response->getStatusCode();
@@ -598,6 +610,10 @@ class Crawler {
                  * ended in a TypeError inside a promise, where nobody sees it.
                  */
                 'rejected' => function ( $reason, $index ) use ( $urls ) {
+                    if ( ! is_int( $index ) || ! isset( $urls[ $index ] ) ) {
+                        return;
+                    }
+
                     $root_relative_path = $urls[ $index ]['path'];
                     WsLog::l( 'Failed ' . $root_relative_path );
                 },

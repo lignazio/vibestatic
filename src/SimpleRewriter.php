@@ -63,7 +63,7 @@ class SimpleRewriter {
         }
 
         $wordpress_site_url = untrailingslashit( $wordpress_site_url );
-        $destination_url = untrailingslashit( $destination_url );
+        $destination_url = untrailingslashit( is_string( $destination_url ) ? $destination_url : '' );
         $destination_url_rel = URLHelper::getProtocolRelativeURL( $destination_url );
         $destination_url_rel_c = addcslashes( $destination_url_rel, '/' );
 

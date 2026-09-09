@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-09T13:28:54+00:00\n"
+"POT-Creation-Date: 2026-09-09T13:37:10+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vibestatic\n"
@@ -312,86 +312,86 @@ msgstr ""
 msgid "Save Options"
 msgstr ""
 
-#: src/Controller.php:220
+#: src/Controller.php:232
 msgid "Run"
 msgstr ""
 
-#: src/Controller.php:224
+#: src/Controller.php:236
 msgid "Options"
 msgstr ""
 
-#: src/Controller.php:228
+#: src/Controller.php:240
 msgid "Jobs"
 msgstr ""
 
-#: src/Controller.php:232
+#: src/Controller.php:244
 msgid "Caches"
 msgstr ""
 
-#: src/Controller.php:236
+#: src/Controller.php:248
 msgid "Diagnostics"
 msgstr ""
 
-#: src/Controller.php:240
+#: src/Controller.php:252
 msgid "Logs"
 msgstr ""
 
-#: src/Controller.php:244
+#: src/Controller.php:256
 msgid "Add-ons"
 msgstr ""
 
-#: src/Controller.php:248
+#: src/Controller.php:260
 msgid "Advanced"
 msgstr ""
 
-#: src/Controller.php:267
+#: src/Controller.php:279
 #: views/crawl-queue-page.php:40
 msgid "Crawl Queue"
 msgstr ""
 
-#: src/Controller.php:271
+#: src/Controller.php:283
 #: views/caches-page.php:115
 #: views/crawl-cache-page.php:40
 msgid "Crawl Cache"
 msgstr ""
 
-#: src/Controller.php:275
+#: src/Controller.php:287
 #: views/caches-page.php:210
 #: views/caches-page.php:218
 #: views/deploy-cache-page.php:37
 msgid "Deploy Cache"
 msgstr ""
 
-#: src/Controller.php:279
+#: src/Controller.php:291
 #: views/caches-page.php:139
 #: views/static-site-paths-page.php:37
 msgid "Generated Static Site"
 msgstr ""
 
-#: src/Controller.php:283
+#: src/Controller.php:295
 #: views/caches-page.php:171
 #: views/post-processed-site-paths-page.php:37
 msgid "Post-processed Static Site"
 msgstr ""
 
 #. translators: %s: name of the admin page, e.g. "Jobs".
-#: src/Controller.php:346
+#: src/Controller.php:358
 #, php-format
 msgid "VibeStatic %s"
 msgstr ""
 
-#: src/Controller.php:485
-#: src/Controller.php:506
+#: src/Controller.php:497
+#: src/Controller.php:518
 msgid "You do not have permission to manage VibeStatic."
 msgstr ""
 
 #. translators: %s: the site title.
-#: src/Controller.php:1027
+#: src/Controller.php:1040
 #, php-format
 msgid "VibeStatic deployment complete on site: %s"
 msgstr ""
 
-#: src/Controller.php:1031
+#: src/Controller.php:1044
 msgid "VibeStatic deployment complete!"
 msgstr ""
 

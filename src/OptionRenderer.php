@@ -48,8 +48,16 @@ class OptionRenderer {
      * @return string Already-escaped HTML
      */
     public static function optionInput( array $option ) : string {
+        $type = $option['type'] ?? '';
+
+        // The option's declared type picks the renderer. It comes out of a
+        // mixed array, and a key that is not a string is not one of the four.
+        if ( ! is_string( $type ) || ! isset( self::INPUT_TYPE_FNS[ $type ] ) ) {
+            return '';
+        }
+
         $option_input = call_user_func(
-            [ 'WP2Static\OptionRenderer', self::INPUT_TYPE_FNS[ $option['type'] ] ],
+            [ 'WP2Static\OptionRenderer', self::INPUT_TYPE_FNS[ $type ] ],
             $option
         );
 

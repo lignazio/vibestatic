@@ -197,12 +197,31 @@ class URLDetector {
 
         $url_queue = FilesHelper::cleanDetectedURLs( $url_queue );
 
-        $url_queue = apply_filters(
+        $filtered_queue = apply_filters(
             'wp2static_modify_initial_crawl_list',
             $url_queue
         );
 
-        $unique_urls = array_unique( $url_queue );
+        /*
+         * The one filter an add-on is most likely to use — it is how
+         * advanced-crawling and algolia add their URLs — and it is declared to
+         * hand back a list of URL strings. Anything else, and what follows
+         * would put it in the crawl queue: the elements that are not strings
+         * are dropped, and a filter that answered no array at all leaves the
+         * unfiltered queue.
+         */
+        if ( ! is_array( $filtered_queue ) ) {
+            WsLog::l(
+                'A wp2static_modify_initial_crawl_list filter returned ' .
+                gettype( $filtered_queue ) . ' instead of an array; ignoring it.'
+            );
+
+            $filtered_queue = $url_queue;
+        }
+
+        $unique_urls = array_values(
+            array_unique( array_filter( $filtered_queue, 'is_string' ) )
+        );
 
         $total_detected = (string) count( $unique_urls );
 
@@ -336,7 +355,7 @@ class URLDetector {
          * that need encoding the two do not match and the row would not go. The
          * id does not have that problem.
          */
-        CrawlQueue::rmUrlsById( array_map( 'strval', array_keys( $stale ) ) );
+        CrawlQueue::rmUrlsById( array_map( 'intval', array_keys( $stale ) ) );
         CrawlCache::rmUrls( array_values( $stale ) );
 
         WsLog::l(

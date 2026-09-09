@@ -89,7 +89,13 @@ class Controller {
             );
 
             foreach ( $site_ids as $site_id ) {
-                switch_to_blog( $site_id );
+                // get_col() answers strings, and switch_to_blog() takes an int:
+                // a null among them would become 0, which is not a site.
+                if ( ! is_numeric( $site_id ) ) {
+                    continue;
+                }
+
+                switch_to_blog( (int) $site_id );
                 self::deactivateForSingleSite();
             }
 
@@ -119,7 +125,13 @@ class Controller {
             );
 
             foreach ( $site_ids as $site_id ) {
-                switch_to_blog( $site_id );
+                // get_col() answers strings, and switch_to_blog() takes an int:
+                // a null among them would become 0, which is not a site.
+                if ( ! is_numeric( $site_id ) ) {
+                    continue;
+                }
+
+                switch_to_blog( (int) $site_id );
                 self::activateForSingleSite();
             }
 
@@ -838,6 +850,7 @@ class Controller {
             );
 
             $locked = is_object( $lock_row ) && isset( $lock_row->lck )
+                && is_scalar( $lock_row->lck )
                 ? intval( $lock_row->lck )
                 : 0;
 
@@ -1059,15 +1072,27 @@ class Controller {
 
         $body = $http_method === 'POST' ? $message : [ 'message' => $message ];
 
+        /*
+         * Three filters feed this request, and what they answer goes straight
+         * into WP_Http's arguments: a user agent has to be a string, headers an
+         * array, and a body one or the other. A filter that answers something
+         * else is a broken integration, and the shape below says so rather than
+         * handing it on.
+         */
+        $user_agent = apply_filters( 'wp2static_deploy_webhook_user_agent', 'VibeStatic' );
+        $filtered_body = apply_filters( 'wp2static_deploy_webhook_body', $body );
+        $headers = apply_filters( 'wp2static_deploy_webhook_headers', [] );
+
         $webhook_response = wp_remote_request(
             $webhook_url,
             [
-                'method' => CoreOptions::getValue( 'completionWebhookMethod' ),
+                'method' => (string) CoreOptions::getValue( 'completionWebhookMethod' ),
                 'timeout' => 30,
-                'user-agent' =>
-                    apply_filters( 'wp2static_deploy_webhook_user_agent', 'VibeStatic' ),
-                'body' => apply_filters( 'wp2static_deploy_webhook_body', $body ),
-                'headers' => apply_filters( 'wp2static_deploy_webhook_headers', [] ),
+                'user-agent' => is_string( $user_agent ) ? $user_agent : 'VibeStatic',
+                'body' => is_string( $filtered_body ) || is_array( $filtered_body )
+                    ? $filtered_body
+                    : $body,
+                'headers' => is_array( $headers ) ? $headers : [],
             ]
         );
 

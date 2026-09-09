@@ -59,8 +59,11 @@ class DetectVendorFiles {
                 )
             );
 
-            if ( $posts ) {
-                foreach ( $posts as $post ) {
+            /** @var list<object{meta_value: string}> $rows */
+            $rows = $posts ?? [];
+
+            if ( $rows ) {
+                foreach ( $rows as $post ) {
                     $custom_permalinks[] = $wp_site_url . $post->meta_value;
                 }
 

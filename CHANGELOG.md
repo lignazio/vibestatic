@@ -1,5 +1,50 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **The PHPStan baseline is gone, and so are the 155 things in it.** The note
+  above it said a baseline is a list of things to fix rather than a way of not
+  seeing them; this is that list, fixed. The file no longer exists, and a new
+  one appearing is a debt being opened rather than a step in a workflow.
+
+  Most of it was type looseness, but four of the entries were hiding something
+  that would have happened:
+
+  - `SiteInfo`, `ProcessedSite::getPath()` and `StaticSite::getPath()` returned
+    `apply_filters()` straight out. A plugin filtering `wp2static_siteinfo` and
+    forgetting the return — the commonest filter mistake there is — left every
+    path and URL in the plugin reading from null; the other two are declared to
+    return a string, so the same mistake was a TypeError. The filters are
+    checked now, and a filter that answers the wrong shape is logged and
+    ignored.
+  - `wp2staticProcessQueue()` read `->lck` off `get_row()` without checking it.
+    `get_row()` answers null when the query fails — a lost connection, a server
+    that went away — and that is a fatal error in the loop that runs on every
+    export.
+  - Ten places did `$wpdb->query( $wpdb->prepare( … ) )`. `prepare()` answers
+    null when the placeholders and the arguments disagree, and `query( null )`
+    is a TypeError on PHP 8. They go through `Utils::runPrepared()`, which logs
+    it: the repositories cast to string instead, which avoids the crash by
+    running an empty query and calling it a day.
+  - `ensureIndex()` was declared to return `bool` and returned whatever
+    `query()` gave it — and a successful `CREATE INDEX` affects no rows, so it
+    answered `0`.
+
+  The 34 `$_POST` and `$_GET` uses were not defects but a decision, and are now
+  an exemption **per method** rather than a baseline entry: a new superglobal
+  anywhere else in those same files still fails.
+
+- `get_terms()` is called with its current signature. The pre-4.5 shape still
+  works — WordPress detects it and moves the arguments across — but it was the
+  reason two calls carried ignore comments, and neither checked for the
+  `WP_Error` that an unknown taxonomy answers.
+
+- `wp2static_modify_initial_crawl_list`, the filter add-ons use to add URLs, has
+  its result narrowed to the strings it is documented to return. So do the two
+  "ignore" lists and the webhook's three filters.
+
 ## VibeStatic 9.0.0 (2026-09-09)
 
 ### Verified

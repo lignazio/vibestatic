@@ -28,7 +28,10 @@ class DetectPostsPaginationURLs {
             )
         );
 
-        foreach ( $posts as $post ) {
+        /** @var list<object{post_type: string}> $rows */
+        $rows = $posts ?? [];
+
+        foreach ( $rows as $post ) {
             // capture all post types
             $unique_post_types[] = $post->post_type;
         }
@@ -36,7 +39,19 @@ class DetectPostsPaginationURLs {
         // get all pagination links for each post_type
         $post_types = array_unique( $unique_post_types );
         $pagination_base = URLHelper::paginationBase();
-        $default_posts_per_page = get_option( 'posts_per_page' );
+
+        /*
+         * `posts_per_page` is an option, so it is whatever is in the database
+         * or whatever a filter made of it, and it divides a total below.
+         * WordPress's own default is 10, and a zero or a negative would be a
+         * division by zero rather than a page count.
+         */
+        $posts_per_page = get_option( 'posts_per_page' );
+        $default_posts_per_page = is_numeric( $posts_per_page ) ? (int) $posts_per_page : 10;
+
+        if ( $default_posts_per_page < 1 ) {
+            $default_posts_per_page = 10;
+        }
 
         $urls_to_include = [];
 
@@ -63,14 +78,22 @@ class DetectPostsPaginationURLs {
             // cast WP's object back to array
             $post_type_labels = (array) $post_type_obj->labels;
 
-            $plural_form = strtolower( $post_type_labels['name'] );
+            $label = $post_type_labels['name'] ?? '';
+
+            // A post type's labels object is whatever registered it built, and
+            // a plugin can put anything on it.
+            if ( ! is_string( $label ) ) {
+                continue;
+            }
+
+            $plural_form = strtolower( $label );
 
             // skip post type names containing spaces
             if ( strpos( $plural_form, ' ' ) !== false ) {
                 continue;
             }
 
-            $total_pages = ceil( $post_type_total / $default_posts_per_page );
+            $total_pages = (int) ceil( (int) $post_type_total / $default_posts_per_page );
 
             /*
              * Outside the page loop. The posts page is read from the settings

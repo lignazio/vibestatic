@@ -127,7 +127,7 @@ class SitemapParser {
             $sitemaps = $this->sitemaps;
             $urls = $this->urls;
             try {
-                $this->parse( strval( $todo[0] ) );
+                $this->parse( $todo[0] );
             } catch ( WP2StaticException $e ) {
                 WsLog::w( $e->getMessage() );
                 // Keep crawling
@@ -156,6 +156,13 @@ class SitemapParser {
      */
     public function addToQueue( array $url_array ) : void {
         foreach ( $url_array as $url ) {
+            // Whatever the caller passed. strval() on an array is a notice and
+            // the string "Array", which then fails validation anyway — this
+            // just says so instead of doing it.
+            if ( ! is_scalar( $url ) ) {
+                continue;
+            }
+
             $url = $this->urlEncode( strval( $url ) );
             if ( $this->urlValidate( $url ) ) {
                 $this->queue[] = $url;
@@ -166,10 +173,11 @@ class SitemapParser {
     /**
      * Sitemap URLs discovered but not yet parsed
      *
-     * @return mixed[]
+     * @return list<string>
      */
-    public function getQueue() {
-        $this->queue = array_values(
+    public function getQueue() : array {
+        /** @var list<string> $queue */
+        $queue = array_values(
             array_diff(
                 array_unique(
                     array_merge( $this->queue, array_keys( $this->sitemaps ) )
@@ -177,6 +185,8 @@ class SitemapParser {
                 $this->history
             )
         );
+
+        $this->queue = $queue;
         return $this->queue;
     }
 
@@ -264,9 +274,19 @@ class SitemapParser {
                 return null;
             }
 
-            if ( ! isset( $guzzle_config['headers']['User-Agent'] ) ) {
-                $guzzle_config['headers']['User-Agent'] = $this->user_agent;
+            $headers = $guzzle_config['headers'] ?? [];
+
+            if ( ! is_array( $headers ) ) {
+                WsLog::w( 'Guzzle headers config is not in expected array format' );
+
+                $headers = [];
             }
+
+            if ( ! isset( $headers['User-Agent'] ) ) {
+                $headers['User-Agent'] = $this->user_agent;
+            }
+
+            $guzzle_config['headers'] = $headers;
 
             $this->config['guzzle'] = $guzzle_config;
 
@@ -363,6 +383,10 @@ class SitemapParser {
         if ( ! isset( $array['loc'] ) ) {
             return false;
         }
+        if ( ! is_scalar( $array['loc'] ) ) {
+            return false;
+        }
+
         $array['loc'] = $this->urlEncode( trim( strval( $array['loc'] ) ) );
         if ( $this->urlValidate( $array['loc'] ) ) {
             switch ( $type ) {
@@ -390,6 +414,13 @@ class SitemapParser {
      */
     protected function fixMissingTags( array $tags, array $array ) {
         foreach ( $tags as $tag ) {
+            // The tag names are this class's own constants, but the parameter
+            // is a plain array: anything that cannot be an array key is not a
+            // tag.
+            if ( ! is_string( $tag ) && ! is_int( $tag ) ) {
+                continue;
+            }
+
             if ( empty( $array[ $tag ] ) ) {
                 $array[ $tag ] = null;
             }
@@ -482,6 +513,13 @@ class SitemapParser {
         if ( ! isset( $json->$type ) ) {
             return false;
         }
+        // Decoded JSON from somebody else's sitemap: `$json->$type` is
+        // whatever was in the file, and only an array or an object can be
+        // walked.
+        if ( ! is_iterable( $json->$type ) ) {
+            return false;
+        }
+
         foreach ( $json->$type as $url ) {
             $this->addArray( $type, (array) $url );
         }

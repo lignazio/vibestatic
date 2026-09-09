@@ -2,15 +2,13 @@ includes:
     - vendor/phpstan/phpstan/conf/bleedingEdge.neon
     - vendor/thecodingmachine/phpstan-strict-rules/phpstan-strict-rules.neon
     - vendor/szepeviktor/phpstan-wordpress/extension.neon
-    # The accepted debt lives here, not scattered through the file. It used to
-    # be some fifteen `ignoreErrors` blocks each with an exact `count:`, which
-    # made PHPStan impossible to upgrade: the count only has to shift by one and
-    # the analysis fails, without saying why. That is why this project sat on
-    # PHPStan 1.9 for three years.
-    # Regenerate with `composer phpstan-baseline`, but only after looking at
-    # what is going into it: a baseline is a list of things to fix, not a way of
-    # not seeing them.
-    - phpstan-baseline.neon
+    # **There is no baseline.** There was one, with 155 entries in it, and the
+    # note here said a baseline is a list of things to fix rather than a way of
+    # not seeing them. It has been fixed.
+    #
+    # Nothing replaces it: `composer phpstan-baseline` still exists for the day
+    # something large lands, but a new file appearing under this line is a debt
+    # being opened, not a step in a workflow.
 
 parameters:
     level: max

@@ -21,7 +21,18 @@ class DetectCategoryPaginationURLs {
         $urls_to_include = [];
         $taxonomies = get_taxonomies( $args, 'objects' );
         $pagination_base = URLHelper::paginationBase();
-        $default_posts_per_page = get_option( 'posts_per_page' );
+        /*
+         * An option, so it is whatever is in the database or whatever a filter
+         * made of it, and it divides a total below: a zero or a negative would
+         * be a division by zero rather than a page count. Ten is WordPress's
+         * own default.
+         */
+        $posts_per_page = get_option( 'posts_per_page' );
+        $default_posts_per_page = is_numeric( $posts_per_page ) ? (int) $posts_per_page : 10;
+
+        if ( $default_posts_per_page < 1 ) {
+            $default_posts_per_page = 10;
+        }
 
         foreach ( $taxonomies as $taxonomy ) {
             /*
