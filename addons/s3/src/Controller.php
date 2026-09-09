@@ -1,25 +1,59 @@
 <?php
+/**
+ * S3 — bundled module.
+ *
+ * **No AWS SDK.** The add-on this replaces required `aws/aws-sdk-php`: twenty-
+ * four megabytes, seven and a half once the unused services are stripped, and
+ * the reason the roadmap had this one staying outside the plugin as a separate
+ * install. What the deployer asks of it is three signed requests, and a
+ * signature is a hundred lines — so it is a hundred lines, in Signer.
+ *
+ * @package WP2StaticS3
+ */
 
 namespace WP2StaticS3;
 
-class Controller {
+use WP2Static\Addon\Options;
+
+class Controller extends \WP2Static\Addon\Controller {
 
     /**
      * The slug this module is known by, in the add-ons table and in the value
      * the core passes to `wp2static_deploy`.
+     *
+     * It stays `wp2static-addon-s3`: it keys the row in the add-ons table, the
+     * options table's name and the deploy-cache namespace.
      */
     const SLUG = 'wp2static-addon-s3';
 
     const TABLE = 'wp2static_addon_s3_options';
 
     /**
-     * Option name => default.
-     *
-     * **The names are the original add-on's, and that is deliberate.** The
+     * @var Options|null
+     */
+    private $options = null;
+
+    public function slug() : string {
+        return self::SLUG;
+    }
+
+    public function name() : string {
+        return 'S3';
+    }
+
+    public function description() : string {
+        return 'Uploads the generated site to Amazon S3, and tells CloudFront what changed';
+    }
+
+    public function docsUrl() : string {
+        return 'https://github.com/lignazio/vibestatic#s3';
+    }
+
+    /**
+     * The option names are the original add-on's, and that is deliberate: the
      * options table has the same name too, so an installation that had the old
      * add-on keeps its bucket, its region and its credentials instead of
-     * finding the module unconfigured. It is the same argument as keeping the
-     * slug: what keys somebody's configuration is not ours to rename.
+     * finding the module unconfigured.
      *
      * `cfMaxPathsToInvalidate` has a real default rather than zero, and that is
      * the fix for the defect that cost money: with it unset the original ended
@@ -29,161 +63,108 @@ class Controller {
      * S3 ones. They exist because the original had them: a separate IAM user
      * for CloudFront is unusual, but somebody configured one, and taking the
      * option away would break their deploy without saying so.
-     *
-     * @var array<string, string>
      */
-    const DEFAULTS = [
-        'cfAccessKeyID' => '',
-        'cfDistributionID' => '',
-        'cfMaxPathsToInvalidate' => '1000',
-        'cfSecretAccessKey' => '',
-        's3AccessKeyID' => '',
-        's3Bucket' => '',
-        's3CacheControl' => '',
-        's3ObjectACL' => '',
-        's3Region' => 'us-east-1',
-        's3RemotePath' => '',
-        's3SecretAccessKey' => '',
-    ];
+    public function options() : Options {
+        if ( null === $this->options ) {
+            $this->options = new Options(
+                self::TABLE,
+                [
+                    's3Bucket' => [ 'string', '' ],
+                    's3Region' => [ 'string', 'us-east-1' ],
+                    's3RemotePath' => [ 'string', '' ],
+                    's3AccessKeyID' => [ 'string', '' ],
+                    's3SecretAccessKey' => [ 'password', '' ],
+                    's3ObjectACL' => [ 'string', '' ],
+                    's3CacheControl' => [ 'string', '' ],
+                    'cfDistributionID' => [ 'string', '' ],
+                    'cfMaxPathsToInvalidate' => [ 'int', '1000' ],
+                    'cfAccessKeyID' => [ 'string', '' ],
+                    'cfSecretAccessKey' => [ 'password', '' ],
+                ]
+            );
+        }
+
+        return $this->options;
+    }
 
     /**
-     * The options held encrypted rather than in the clear.
-     *
-     * @var string[]
+     * @return array<string, array{0: string, 1: string}>
      */
-    const SECRETS = [ 's3SecretAccessKey', 'cfSecretAccessKey' ];
+    protected function fields() : array {
+        return [
+            's3Bucket' => [ __( 'Bucket', 'vibestatic' ), '' ],
+            's3Region' => [
+                __( 'Region', 'vibestatic' ),
+                __(
+                    'The region the bucket is in, for example eu-south-1. It is part of the signature, so a wrong one is refused rather than redirected.',
+                    'vibestatic'
+                ),
+            ],
+            's3RemotePath' => [
+                __( 'Path in the bucket', 'vibestatic' ),
+                __( 'A folder inside the bucket. Leave empty to publish at its root.', 'vibestatic' ),
+            ],
+            's3AccessKeyID' => [ __( 'Access key ID', 'vibestatic' ), '' ],
+            's3SecretAccessKey' => [
+                __( 'Secret access key', 'vibestatic' ),
+                __( 'Stored encrypted. Leave blank to keep the saved one.', 'vibestatic' ),
+            ],
+            's3ObjectACL' => [
+                __( 'Object ACL', 'vibestatic' ),
+                __(
+                    'Leave empty unless the bucket needs one. A bucket created since 2023 has ACLs disabled and refuses a request that carries one; older buckets serving a public site want public-read.',
+                    'vibestatic'
+                ),
+            ],
+            's3CacheControl' => [
+                __( 'Cache-Control', 'vibestatic' ),
+                __(
+                    'Optional, sent with every object, for example max-age=3600. There is no safe default: what suits a hashed asset is the opposite of what suits a page.',
+                    'vibestatic'
+                ),
+            ],
+            'cfDistributionID' => [
+                __( 'CloudFront distribution ID', 'vibestatic' ),
+                __(
+                    'Optional. With one set, the paths that changed are invalidated after each deploy.',
+                    'vibestatic'
+                ),
+            ],
+            'cfMaxPathsToInvalidate' => [
+                __( 'Most paths to invalidate', 'vibestatic' ),
+                __(
+                    'Above this many changes it invalidates everything instead, which is one request rather than thousands. CloudFront gives a thousand paths a month free and charges beyond that.',
+                    'vibestatic'
+                ),
+            ],
+            'cfAccessKeyID' => [
+                __( 'CloudFront access key ID', 'vibestatic' ),
+                __( 'Optional. Leave empty to invalidate with the S3 credentials above.', 'vibestatic' ),
+            ],
+            'cfSecretAccessKey' => [
+                __( 'CloudFront secret access key', 'vibestatic' ),
+                __( 'Optional, stored encrypted. Leave blank to keep the saved one.', 'vibestatic' ),
+            ],
+        ];
+    }
 
-    public function run() : void {
-        add_action(
-            'admin_post_wp2static_s3_save_options',
-            [ $this, 'saveOptionsFromUI' ],
-            15,
-            1
+    protected function intro() : string {
+        return __(
+            'The credentials need only s3:PutObject and s3:DeleteObject on the bucket, plus cloudfront:CreateInvalidation if a distribution is set. An account with more than that is an account that can do more than publish a site.',
+            'vibestatic'
         );
+    }
 
-        add_action( 'wp2static_deploy', [ $this, 'deploy' ], 15, 2 );
-
-        add_action( 'init', [ $this, 'registerAddon' ] );
-
-        add_filter( 'wp2static_add_menu_items', [ self::class, 'addSubmenuPage' ] );
-
-        if ( defined( 'WP_CLI' ) ) {
+    protected function registerHooks() : void {
+        if ( defined( 'WP_CLI' ) && constant( 'WP_CLI' ) ) {
             \WP_CLI::add_command( 'wp2static s3', [ CLI::class, 's3' ] );
         }
     }
 
-    public function registerAddon() : void {
-        do_action(
-            'wp2static_register_addon',
-            self::SLUG,
-            'deploy',
-            'S3',
-            'https://github.com/lignazio/vibestatic#s3',
-            'Uploads the generated site to Amazon S3, and tells CloudFront what changed'
-        );
-    }
+    protected function runDeploy( string $processed_site_path ) : void {
+        \WP2Static\WsLog::l( 'S3 Addon deploying' );
 
-    /**
-     * @param mixed $submenu_pages Pages registered so far.
-     * @return mixed[] The same, plus this one.
-     */
-    public static function addSubmenuPage( $submenu_pages ) : array {
-        $pages = is_array( $submenu_pages ) ? $submenu_pages : [];
-
-        $pages['s3'] = [ self::class, 'renderS3Page' ];
-
-        return $pages;
-    }
-
-    private static function tableName() : string {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-
-        return $wpdb->prefix . self::TABLE;
-    }
-
-    /**
-     * @return mixed[] All options, keyed by name.
-     */
-    public static function getOptions() : array {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-
-        /** @var list<object{name: string, value: string}>|null $rows */
-        $rows = $wpdb->get_results(
-            $wpdb->prepare( 'SELECT * FROM %i', self::tableName() )
-        );
-
-        $options = [];
-
-        foreach ( $rows ?? [] as $row ) {
-            $options[ $row->name ] = $row;
-        }
-
-        return $options;
-    }
-
-    public static function seedOptions() : void {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-
-        foreach ( self::DEFAULTS as $name => $value ) {
-            $wpdb->query(
-                $wpdb->prepare(
-                    'INSERT IGNORE INTO %i (name, value) VALUES (%s, %s)',
-                    self::tableName(),
-                    $name,
-                    $value
-                )
-            );
-        }
-    }
-
-    /**
-     * @param mixed $value Option value to save.
-     */
-    public static function saveOption( string $name, $value ) : void {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-
-        /*
-         * One upsert. The sFTP module reached this the long way — an UPDATE and
-         * then an INSERT when nothing was updated — and MySQL reports zero
-         * affected rows when an UPDATE writes the same value back, so re-saving
-         * an unchanged field looked like "no such row" and produced a
-         * duplicate-key error per field on every save.
-         */
-        $wpdb->query(
-            $wpdb->prepare(
-                'INSERT INTO %i (name, value) VALUES (%s, %s)
-                 ON DUPLICATE KEY UPDATE value = %s',
-                self::tableName(),
-                $name,
-                $value,
-                $value
-            )
-        );
-    }
-
-    public static function getValue( string $name ) : string {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-
-        $value = $wpdb->get_var(
-            $wpdb->prepare(
-                'SELECT value FROM %i WHERE name = %s LIMIT 1',
-                self::tableName(),
-                $name
-            )
-        );
-
-        /*
-         * The string is returned as it is, '0' included. Testing the value for
-         * truth instead — `! $value ? default : $value` — is how the core came
-         * to have thirteen options that could not be turned off: '0' is falsy
-         * in PHP, and `use_tls` is a flag whose whole purpose is to be zero.
-         */
-        return is_string( $value ) ? $value : '';
+        ( new Deployer() )->deploy( $processed_site_path );
     }
 
     /**
@@ -192,86 +173,6 @@ class Controller {
      * Called by WP2Static\Modules::installTables(), from Schema::install().
      */
     public static function installTables() : void {
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-
-        $table_name = self::tableName();
-        $charset_collate = $wpdb->get_charset_collate();
-
-        // VARCHAR(191) and a unique key on `name`: 191 because that is the
-        // longest a utf8mb4 column can be and still be indexed, and the key
-        // because without one saveOption() could not be an upsert.
-        $sql = "CREATE TABLE $table_name (
-            id mediumint(9) NOT NULL AUTO_INCREMENT,
-            name VARCHAR(191) NOT NULL,
-            value VARCHAR(255) NOT NULL,
-            PRIMARY KEY  (id),
-            UNIQUE KEY name (name)
-        ) $charset_collate;";
-
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-        dbDelta( $sql );
-
-        self::seedOptions();
-    }
-
-    public static function renderS3Page() : void {
-        $view = [
-            'nonce_action' => 'wp2static-s3-options',
-            'options' => self::getOptions(),
-        ];
-
-        require __DIR__ . '/../views/s3-page.php';
-    }
-
-    /**
-     * @param string $processed_site_path The processed site's directory.
-     * @param string $enabled_deployer    Slug of the deployer the user selected.
-     */
-    public function deploy( string $processed_site_path, string $enabled_deployer = '' ) : void {
-        if ( self::SLUG !== $enabled_deployer ) {
-            return;
-        }
-
-        \WP2Static\WsLog::l( 'S3 Addon deploying' );
-
-        ( new Deployer() )->deploy( $processed_site_path );
-    }
-
-    public static function saveOptionsFromUI() : void {
-        /*
-         * Capability as well as nonce, and before anything is written. What is
-         * saved here are the credentials of an AWS account: a nonce says where
-         * a request came from, not who sent it.
-         */
-        \WP2Static\Controller::authorize( 'wp2static-s3-options' );
-
-        // phpcs:disable WordPress.Security.NonceVerification.Missing -- verified by \WP2Static\Controller::authorize() above; WPCS discards guards reached through ::.
-        foreach ( array_keys( self::DEFAULTS ) as $name ) {
-            if ( in_array( $name, self::SECRETS, true ) ) {
-                continue;
-            }
-
-            $value = isset( $_POST[ $name ] )
-                ? sanitize_text_field( wp_unslash( $_POST[ $name ] ) )
-                : '';
-
-            self::saveOption( $name, $value );
-        }
-
-        foreach ( self::SECRETS as $name ) {
-            $secret = isset( $_POST[ $name ] )
-                ? sanitize_text_field( wp_unslash( $_POST[ $name ] ) )
-                : '';
-
-            self::saveOption(
-                $name,
-                \WP2Static\CoreOptions::encrypt_decrypt( 'encrypt', $secret )
-            );
-        }
-        // phpcs:enable WordPress.Security.NonceVerification.Missing
-
-        wp_safe_redirect( admin_url( 'admin.php?page=wp2static-s3' ) );
-        exit;
+        self::instance()->options()->install();
     }
 }

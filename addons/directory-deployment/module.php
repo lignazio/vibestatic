@@ -49,4 +49,4 @@ WP2Static\Modules::registerInstaller(
     [ 'WP2StaticDirectoryDeployer\Controller', 'installTables' ]
 );
 
-( new WP2StaticDirectoryDeployer\Controller() )->run();
+WP2StaticDirectoryDeployer\Controller::boot();

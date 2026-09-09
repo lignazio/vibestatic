@@ -52,4 +52,4 @@ WP2Static\Modules::registerInstaller(
     [ 'WP2StaticSFTP\Controller', 'installTables' ]
 );
 
-( new WP2StaticSFTP\Controller() )->run();
+WP2StaticSFTP\Controller::boot();

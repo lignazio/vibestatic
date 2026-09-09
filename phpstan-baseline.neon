@@ -1,54 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			rawMessage: 'Argument of an invalid type list<stdClass>|null supplied for foreach, only iterables are supported.'
-			identifier: foreach.nonIterable
-			count: 1
-			path: addons/directory-deployment/src/Controller.php
-
-		-
-			rawMessage: 'In method "WP2StaticDirectoryDeployer\Controller::saveOptionsFromUI", you should not use the $_POST superglobal.'
-			identifier: thecodingmachine.superglobalUsed
-			count: 2
-			path: addons/directory-deployment/src/Controller.php
-
-		-
-			rawMessage: 'Parameter #1 $query of method wpdb::query() expects string, string|null given.'
-			identifier: argument.type
-			count: 4
-			path: addons/directory-deployment/src/Controller.php
-
-		-
-			rawMessage: 'Parameter #1 $str of function sanitize_text_field expects string, mixed given.'
-			identifier: argument.type
-			count: 1
-			path: addons/directory-deployment/src/Controller.php
-
-		-
-			rawMessage: Possibly invalid array key type mixed.
-			identifier: offsetAccess.invalidOffset
-			count: 1
-			path: addons/directory-deployment/src/Controller.php
-
-		-
-			rawMessage: 'In method "WP2StaticFTP\Controller::saveOptionsFromUI", you should not use the $_POST superglobal.'
-			identifier: thecodingmachine.superglobalUsed
-			count: 5
-			path: addons/ftp/src/Controller.php
-
-		-
-			rawMessage: 'Parameter #1 $query of method wpdb::query() expects string, string|null given.'
-			identifier: argument.type
-			count: 2
-			path: addons/ftp/src/Controller.php
-
-		-
-			rawMessage: 'Parameter #1 $str of function sanitize_text_field expects string, mixed given.'
-			identifier: argument.type
-			count: 2
-			path: addons/ftp/src/Controller.php
-
-		-
 			rawMessage: 'Method WP2StaticFTP\Deployer::openConnection() never returns resource so it can be removed from the return type.'
 			identifier: return.unusedType
 			count: 1
@@ -83,54 +35,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: addons/ftp/src/Deployer.php
-
-		-
-			rawMessage: 'In method "WP2StaticS3\Controller::saveOptionsFromUI", you should not use the $_POST superglobal.'
-			identifier: thecodingmachine.superglobalUsed
-			count: 4
-			path: addons/s3/src/Controller.php
-
-		-
-			rawMessage: 'Parameter #1 $query of method wpdb::query() expects string, string|null given.'
-			identifier: argument.type
-			count: 2
-			path: addons/s3/src/Controller.php
-
-		-
-			rawMessage: 'Parameter #1 $str of function sanitize_text_field expects string, mixed given.'
-			identifier: argument.type
-			count: 2
-			path: addons/s3/src/Controller.php
-
-		-
-			rawMessage: 'Argument of an invalid type list<stdClass>|null supplied for foreach, only iterables are supported.'
-			identifier: foreach.nonIterable
-			count: 1
-			path: addons/sftp/src/Controller.php
-
-		-
-			rawMessage: 'In method "WP2StaticSFTP\Controller::saveOptionsFromUI", you should not use the $_POST superglobal.'
-			identifier: thecodingmachine.superglobalUsed
-			count: 4
-			path: addons/sftp/src/Controller.php
-
-		-
-			rawMessage: 'Parameter #1 $query of method wpdb::query() expects string, string|null given.'
-			identifier: argument.type
-			count: 2
-			path: addons/sftp/src/Controller.php
-
-		-
-			rawMessage: 'Parameter #1 $str of function sanitize_text_field expects string, mixed given.'
-			identifier: argument.type
-			count: 2
-			path: addons/sftp/src/Controller.php
-
-		-
-			rawMessage: Possibly invalid array key type mixed.
-			identifier: offsetAccess.invalidOffset
-			count: 1
-			path: addons/sftp/src/Controller.php
 
 		-
 			rawMessage: 'Method WP2Static\Addons::getAll() should return array<mixed> but returns list<stdClass>|null.'

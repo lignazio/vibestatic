@@ -74,13 +74,31 @@ final class DirectoryDeploymentDeployerTest extends TestCase {
             'directoryDeploymentAdditionalSourceDirectory' => '',
         ];
 
-        $controller = Mockery::mock( 'alias:WP2StaticDirectoryDeployer\Controller' );
+        /*
+         * The Deployer reads through Controller::instance()->options() now that
+         * the module sits on WP2Static\Addon\Controller, so the mock is two
+         * objects rather than a bag of static getValue() calls: an Options that
+         * answers get()/bool(), and a Controller that hands it over.
+         *
+         * bool() rather than get() for the delete flag, because that is what
+         * the Deployer asks — and the previous shape, `0 !== intval( ... )`,
+         * is the one the Options type system replaced.
+         */
+        $addon_options = Mockery::mock( 'WP2Static\Addon\Options' );
 
         foreach ( $options as $name => $value ) {
-            $controller->shouldReceive( 'getValue' )
+            $addon_options->shouldReceive( 'get' )
                 ->with( $name )
-                ->andReturn( $value );
+                ->andReturn( (string) $value );
+
+            $addon_options->shouldReceive( 'bool' )
+                ->with( $name )
+                ->andReturn( '' !== (string) $value && '0' !== (string) $value );
         }
+
+        $controller = Mockery::mock( 'alias:WP2StaticDirectoryDeployer\Controller' );
+        $controller->shouldReceive( 'instance' )->andReturn( $controller );
+        $controller->shouldReceive( 'options' )->andReturn( $addon_options );
 
         Mockery::mock( 'alias:WP2Static\WsLog' )
             ->shouldReceive( 'l' )

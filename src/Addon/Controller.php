@@ -101,6 +101,23 @@ abstract class Controller {
     }
 
     /**
+     * Warnings to show above the form, as `[ level, message ]` pairs.
+     *
+     * Level is WordPress's own: `error`, `warning`, `success`, `info`.
+     * Messages are already translated and are escaped when rendered.
+     *
+     * This is for what the add-on can only know at render time — the FTP
+     * module checks that PHP was built with ext-ftp and with TLS support,
+     * because without them its settings are a form the user can fill in and
+     * that cannot work. Static prose belongs in intro() instead.
+     *
+     * @return list<array{0: string, 1: string}>
+     */
+    protected function notices() : array {
+        return [];
+    }
+
+    /**
      * Do the deploy. Only called when this add-on is the enabled deployer.
      *
      * A `crawl`- or `post_deploy`-type add-on leaves this alone.
@@ -244,7 +261,8 @@ abstract class Controller {
             'wp2static-' . $this->key(),
             $this->options(),
             $this->fields(),
-            $this->intro()
+            $this->intro(),
+            $this->notices()
         );
     }
 

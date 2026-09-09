@@ -67,7 +67,7 @@ class Deployer extends \WP2Static\PlanDrivenDeployer {
      * the log saying it had all gone fine.
      */
     protected function root() : string {
-        return rtrim( Controller::getValue( 'remote_root' ), '/' );
+        return rtrim( Controller::instance()->options()->get( 'remote_root' ), '/' );
     }
 
     protected function connect() : bool {
@@ -95,7 +95,7 @@ class Deployer extends \WP2Static\PlanDrivenDeployer {
      *                                       incomplete or the login fails.
      */
     private function openConnection() {
-        $host = Controller::getValue( 'host' );
+        $host = Controller::instance()->options()->get( 'host' );
 
         if ( '' === $host ) {
             WsLog::l( 'FTP host is not set.' );
@@ -103,10 +103,10 @@ class Deployer extends \WP2Static\PlanDrivenDeployer {
             return null;
         }
 
-        $port = (int) Controller::getValue( 'port' );
+        $port = Controller::instance()->options()->int( 'port' );
         $port = $port > 0 ? $port : 21;
 
-        $explicit_tls = '0' !== Controller::getValue( 'use_tls' );
+        $explicit_tls = Controller::instance()->options()->bool( 'use_tls' );
 
         /*
          * `ftp_ssl_connect` is explicit TLS — the connection starts in the
@@ -131,11 +131,11 @@ class Deployer extends \WP2Static\PlanDrivenDeployer {
             return null;
         }
 
-        $username = Controller::getValue( 'username' );
-        $password = (string) \WP2Static\CoreOptions::encrypt_decrypt(
-            'decrypt',
-            Controller::getValue( 'password' )
-        );
+        $options = Controller::instance()->options();
+
+        $username = $options->get( 'username' );
+        // plain() decrypts; get() would hand back the ciphertext.
+        $password = $options->plain( 'password' );
 
         if ( ! @ftp_login( $connection, $username, $password ) ) {
             WsLog::l( 'FTP login failed for ' . $username . '@' . $host );

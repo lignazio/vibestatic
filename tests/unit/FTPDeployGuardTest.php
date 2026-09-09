@@ -76,19 +76,45 @@ final class FTPDeployGuardTest extends TestCase {
      * test says so rather than a comment.
      */
     public function testTheConnectionIsEncryptedUnlessAskedOtherwise() : void {
-        $this->assertSame( '1', Controller::DEFAULTS['use_tls'] );
+        $this->assertSame( '1', $this->declaredOption( 'use_tls' )[1] );
     }
 
     /**
-     * The password is not among the fields written back as plain text.
+     * The password is declared as a secret, which is what makes it encrypted.
+     *
+     * This used to read the Controller's own source looking for the
+     * `encrypt_decrypt( 'encrypt', $password )` call, because the encryption
+     * was written out in the module. It is in WP2Static\Addon\Options now, so
+     * the question worth asking of this module is the one it still answers for
+     * itself: which of its options is a secret. The encryption is tested where
+     * it lives, in AddonOptionsTest.
      */
-    public function testThePasswordIsNotStoredInTheClear() : void {
-        $source = file_get_contents( __DIR__ . '/../../addons/ftp/src/Controller.php' );
+    public function testThePasswordIsDeclaredAsASecret() : void {
+        $this->assertSame( 'password', $this->declaredOption( 'password' )[0] );
+    }
 
-        $this->assertIsString( $source );
-        $this->assertStringContainsString(
-            "encrypt_decrypt( 'encrypt', \$password )",
-            (string) $source
+    /**
+     * One option's declaration, read from the Controller's source.
+     *
+     * options() builds an Options, which reaches for $wpdb in its constructor;
+     * these tests have no database and want none. What is asserted here is the
+     * declaration, so the declaration is what is read.
+     *
+     * @return array{0: string, 1: string} Type and default.
+     */
+    private function declaredOption( string $name ) : array {
+        $source = (string) file_get_contents(
+            __DIR__ . '/../../addons/ftp/src/Controller.php'
         );
+
+        $found = preg_match(
+            "/'" . preg_quote( $name, '/' ) . "' => \[ '([a-z]+)', '([^']*)' \]/",
+            $source,
+            $matches
+        );
+
+        $this->assertSame( 1, $found, "Option '$name' is not declared." );
+
+        return [ $matches[1], $matches[2] ];
     }
 }

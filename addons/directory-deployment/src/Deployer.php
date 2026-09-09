@@ -37,7 +37,7 @@ class Deployer extends \WP2Static\PlanDrivenDeployer {
     }
 
     protected function root() : string {
-        return rtrim( (string) Controller::getValue( 'directoryDeploymentTargetDirectory' ), '/' );
+        return rtrim( Controller::instance()->options()->get( 'directoryDeploymentTargetDirectory' ), '/' );
     }
 
     /**
@@ -72,7 +72,7 @@ class Deployer extends \WP2Static\PlanDrivenDeployer {
          * is why the cache is emptied afterwards as well — otherwise the plan
          * would report "all unchanged" for an empty directory.
          */
-        if ( 0 !== intval( Controller::getValue( 'directoryDeploymentDeleteBeforeDeployment' ) ) ) {
+        if ( Controller::instance()->options()->bool( 'directoryDeploymentDeleteBeforeDeployment' ) ) {
             WsLog::l( 'Cleaning ' . $target );
 
             rrmdir( $target );
@@ -123,7 +123,7 @@ class Deployer extends \WP2Static\PlanDrivenDeployer {
      * @param string $target Root of the destination.
      */
     private function copyAdditionalSource( string $target ) : void {
-        $extra = (string) Controller::getValue( 'directoryDeploymentAdditionalSourceDirectory' );
+        $extra = Controller::instance()->options()->get( 'directoryDeploymentAdditionalSourceDirectory' );
 
         if ( '' === $extra ) {
             return;

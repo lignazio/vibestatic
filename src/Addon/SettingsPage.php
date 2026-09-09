@@ -30,6 +30,7 @@ class SettingsPage {
      * @param Options                                    $options      The declared options.
      * @param array<string, array{0: string, 1: string}> $fields Name => [ label, hint ].
      * @param string                                     $intro        Optional paragraph above the table.
+     * @param list<array{0: string, 1: string}>          $notices      Optional `[ level, message ]` warnings.
      */
     public static function render(
         string $title,
@@ -38,18 +39,34 @@ class SettingsPage {
         string $page_slug,
         Options $options,
         array $fields,
-        string $intro = ''
+        string $intro = '',
+        array $notices = []
     ) : void {
         $values = $options->all();
 
         ?>
 <div class="wrap">
 
-    <h2><?php echo esc_html( $title ); ?></h2>
+    <?php
+    /*
+     * h1, not h2. This is the page's title and an admin page is expected to
+     * have exactly one h1 inside `.wrap`: it is what a screen reader announces
+     * on arrival, and what WordPress hangs `.wp-header-end` off when it decides
+     * where admin notices go. The add-on pages inherited an h2 from the views
+     * they replace, which left every one of them without a top-level heading.
+     */
+    ?>
+    <h1><?php echo esc_html( $title ); ?></h1>
 
         <?php if ( '' !== $intro ) : ?>
     <p><?php echo esc_html( $intro ); ?></p>
         <?php endif; ?>
+
+        <?php foreach ( $notices as $notice ) : ?>
+    <div class="notice notice-<?php echo esc_attr( $notice[0] ); ?>">
+        <p><?php echo esc_html( $notice[1] ); ?></p>
+    </div>
+        <?php endforeach; ?>
 
     <form
         name="<?php echo esc_attr( $page_slug ); ?>-save-options"

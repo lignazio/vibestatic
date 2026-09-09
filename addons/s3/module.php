@@ -29,4 +29,4 @@ WP2Static\Modules::registerInstaller(
     [ 'WP2StaticS3\Controller', 'installTables' ]
 );
 
-( new WP2StaticS3\Controller() )->run();
+WP2StaticS3\Controller::boot();

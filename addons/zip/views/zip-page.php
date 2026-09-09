@@ -35,7 +35,7 @@ $zip_created = $view['zip_created'];
 
 <div class="wrap">
 
-<h2><?php esc_html_e( 'ZIP Deployment', 'vibestatic' ); ?></h2>
+<h1><?php esc_html_e( 'ZIP Deployment', 'vibestatic' ); ?></h1>
 
 <p>
     <?php

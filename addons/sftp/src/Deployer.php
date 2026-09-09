@@ -71,7 +71,7 @@ class Deployer extends \WP2Static\PlanDrivenDeployer {
      * the home directory, which is what the server gives us anyway.
      */
     protected function root() : string {
-        return rtrim( (string) Controller::getValue( 'remote_root' ), '/' );
+        return rtrim( Controller::instance()->options()->get( 'remote_root' ), '/' );
     }
 
     protected function connect() : bool {
@@ -94,7 +94,9 @@ class Deployer extends \WP2Static\PlanDrivenDeployer {
      * @return SFTP|null Null when the options are incomplete or login fails.
      */
     private function openConnection() : ?SFTP {
-        $host = (string) Controller::getValue( 'host' );
+        $options = Controller::instance()->options();
+
+        $host = $options->get( 'host' );
 
         if ( '' === $host ) {
             WsLog::l( 'No sFTP host set. See WP2Static > Addons > sFTP > Configure.' );
@@ -104,15 +106,15 @@ class Deployer extends \WP2Static\PlanDrivenDeployer {
 
         /*
          * The port used to be read only when a password was set:
-         * `Controller::getValue( 'password' ) ? (int) getValue( 'port' ) : 22`.
+         * `getValue( 'password' ) ? (int) getValue( 'port' ) : 22`.
          * Whoever configured a non-standard port and authenticated any other
          * way silently got 22, and the deploy failed against a host that was
          * listening one line above in the same form.
          */
-        $port = (int) Controller::getValue( 'port' );
+        $port = $options->int( 'port' );
         $connection = new SFTP( $host, $port > 0 ? $port : 22 );
 
-        $username = (string) Controller::getValue( 'username' );
+        $username = $options->get( 'username' );
 
         if ( '' === $username ) {
             WsLog::l( 'No sFTP username set. See WP2Static > Addons > sFTP > Configure.' );
@@ -154,13 +156,13 @@ class Deployer extends \WP2Static\PlanDrivenDeployer {
      * @return PrivateKey|string|null Null when nothing usable is configured.
      */
     private function credential() {
-        $key_path = (string) Controller::getValue( 'private_key' );
+        $options = Controller::instance()->options();
+
+        $key_path = $options->get( 'private_key' );
 
         if ( '' === $key_path ) {
-            return \WP2Static\CoreOptions::encrypt_decrypt(
-                'decrypt',
-                Controller::getValue( 'password' )
-            );
+            // plain() decrypts; get() would hand back the ciphertext.
+            return $options->plain( 'password' );
         }
 
         if ( ! is_readable( $key_path ) ) {
@@ -169,10 +171,7 @@ class Deployer extends \WP2Static\PlanDrivenDeployer {
             return null;
         }
 
-        $passphrase = \WP2Static\CoreOptions::encrypt_decrypt(
-            'decrypt',
-            Controller::getValue( 'passphrase' )
-        );
+        $passphrase = $options->plain( 'passphrase' );
 
         /*
          * PublicKeyLoader works out the format itself, and that is the reason

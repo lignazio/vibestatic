@@ -32,4 +32,4 @@ WP2Static\Modules::registerInstaller(
     [ 'WP2StaticFTP\Controller', 'installTables' ]
 );
 
-( new WP2StaticFTP\Controller() )->run();
+WP2StaticFTP\Controller::boot();

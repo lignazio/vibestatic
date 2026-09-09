@@ -1,4 +1,23 @@
 <?php
+/**
+ * ZIP — bundled module.
+ *
+ * **The one module that does not extend WP2Static\Addon\Controller**, and the
+ * reason is that the base is for an add-on with settings: it requires an
+ * options table, renders a form from a declaration of fields, and authorises
+ * and saves what that form posts. This module has no options at all — it is not
+ * in Modules::tables() either — and its page is not a form but an archive with
+ * a download and a delete. Bending the base into accepting an add-on with no
+ * options, so that this one could inherit twelve lines of registration, would
+ * be paying for the abstraction where it does not fit.
+ *
+ * What it does share is the page slug rule: the settings page is reached
+ * through the Add-ons list, and Controller::addonSettingsPage() knows about
+ * both registration conventions — this one, which is a hidden page under the
+ * whole slug, and the base's.
+ *
+ * @package WP2StaticZip
+ */
 
 namespace WP2StaticZip;
 

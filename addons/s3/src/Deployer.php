@@ -66,20 +66,20 @@ class Deployer extends \WP2Static\PlanDrivenDeployer {
      * A prefix inside the bucket, or nothing for its root.
      */
     protected function root() : string {
-        $prefix = trim( Controller::getValue( 's3RemotePath' ), '/' );
+        $prefix = trim( Controller::instance()->options()->get( 's3RemotePath' ), '/' );
 
         return '' === $prefix ? '' : '/' . $prefix;
     }
 
     protected function connect() : bool {
-        $bucket = Controller::getValue( 's3Bucket' );
-        $region = Controller::getValue( 's3Region' );
-        $access_key = Controller::getValue( 's3AccessKeyID' );
+        $options = Controller::instance()->options();
 
-        $secret_key = (string) \WP2Static\CoreOptions::encrypt_decrypt(
-            'decrypt',
-            Controller::getValue( 's3SecretAccessKey' )
-        );
+        $bucket = $options->get( 's3Bucket' );
+        $region = $options->get( 's3Region' );
+        $access_key = $options->get( 's3AccessKeyID' );
+
+        // plain() decrypts; get() would hand back the ciphertext.
+        $secret_key = $options->plain( 's3SecretAccessKey' );
 
         foreach (
             [ 'bucket' => $bucket, 'region' => $region, 'access key' => $access_key,
@@ -128,13 +128,13 @@ class Deployer extends \WP2Static\PlanDrivenDeployer {
          * the old one. Cache-Control has no safe default either: what belongs
          * on a hashed asset and what belongs on a page are opposites.
          */
-        $acl = Controller::getValue( 's3ObjectACL' );
+        $acl = Controller::instance()->options()->get( 's3ObjectACL' );
 
         if ( '' !== $acl ) {
             $headers['x-amz-acl'] = $acl;
         }
 
-        $cache_control = Controller::getValue( 's3CacheControl' );
+        $cache_control = Controller::instance()->options()->get( 's3CacheControl' );
 
         if ( '' !== $cache_control ) {
             $headers['Cache-Control'] = $cache_control;
@@ -246,14 +246,14 @@ class Deployer extends \WP2Static\PlanDrivenDeployer {
      * genuinely are more changes than it is worth listing.
      */
     private function invalidateCloudFront() : void {
-        $distribution = Controller::getValue( 'cfDistributionID' );
+        $distribution = Controller::instance()->options()->get( 'cfDistributionID' );
 
         if ( '' === $distribution || ! $this->invalidate ) {
             return;
         }
 
         $paths = array_values( array_unique( $this->invalidate ) );
-        $maximum = (int) Controller::getValue( 'cfMaxPathsToInvalidate' );
+        $maximum = Controller::instance()->options()->int( 'cfMaxPathsToInvalidate' );
         $maximum = $maximum > 0 ? $maximum : 1000;
 
         if ( count( $paths ) > $maximum ) {
@@ -278,18 +278,18 @@ class Deployer extends \WP2Static\PlanDrivenDeployer {
          * not wrong — and dropping the option would break their deploy without
          * saying why.
          */
-        $access_key = Controller::getValue( 'cfAccessKeyID' );
+        $options = Controller::instance()->options();
+
+        $access_key = $options->get( 'cfAccessKeyID' );
         $secret_option = 'cfSecretAccessKey';
 
         if ( '' === $access_key ) {
-            $access_key = Controller::getValue( 's3AccessKeyID' );
+            $access_key = $options->get( 's3AccessKeyID' );
             $secret_option = 's3SecretAccessKey';
         }
 
-        $secret_key = (string) \WP2Static\CoreOptions::encrypt_decrypt(
-            'decrypt',
-            Controller::getValue( $secret_option )
-        );
+        // plain() decrypts; get() would hand back the ciphertext.
+        $secret_key = $options->plain( $secret_option );
 
         $signer = new Signer( $access_key, $secret_key, self::CLOUDFRONT_REGION, 'cloudfront' );
 
