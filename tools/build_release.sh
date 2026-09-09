@@ -2,11 +2,30 @@
 #
 # Builds the distributable plugin ZIP into dist/.
 #
-#   tools/build_release.sh [filename-without-extension]
+#   tools/build_release.sh [--wporg] [filename-without-extension]
 #
 # With no argument the name comes from the version declared in the plugin's main
 # file, which is the single source of truth: it used to be passed by hand, and
 # nothing stopped you producing a zip that said 7.1 with 7.2 inside it.
+#
+# --wporg builds the package for the wordpress.org directory, which is the same
+# plugin minus the ability to update itself. Guideline 8 forbids a plugin hosted
+# there from "serving updates or otherwise installing plugins, themes, or
+# add-ons from servers other than WordPress.org's". Three differences, and only
+# three:
+#
+#   - `src/Updater.php` deleted;
+#   - `src/Addon/Updater.php` replaced by the inert shim in tools/wporg/, not
+#     deleted — an add-on published at 1.0.0 calls it from `plugins_loaded`, and
+#     a missing class there is a white screen. Testing the package is what
+#     established that, not reasoning about it;
+#   - the `Update URI` header removed, which is the thing the directory's Plugin
+#     Check actually names.
+#
+# There is no second copy of the source: this is one build of one tree.
+#
+# The GitHub package keeps all three, because there they are the only way a site
+# installed from a zip receives so much as a security fix.
 #
 # Compared with the previous version:
 #   - the destination is dist/, not a hardcoded $HOME/Downloads;
@@ -30,6 +49,17 @@
 set -euo pipefail
 
 command -v zip > /dev/null || { echo "Serve 'zip'. Installalo e riprova." >&2; exit 1; }
+
+WPORG=0
+ARGS=()
+for arg in "$@"; do
+    case "$arg" in
+        --wporg) WPORG=1 ;;
+        -*) echo "Opzione non riconosciuta: $arg" >&2; exit 1 ;;
+        *) ARGS+=("$arg") ;;
+    esac
+done
+set -- ${ARGS+"${ARGS[@]}"}
 
 # Composer, but not the one found on the PATH. When this script is started by
 # `composer run-script build`, Composer prepends vendor/bin/ to the PATH — and
@@ -59,7 +89,11 @@ if [ "$VERSION" != "$CONSTANT_VERSION" ]; then
 fi
 
 SLUG="vibestatic"
-NAME="${1:-$SLUG-$VERSION}"
+if [ "$WPORG" -eq 1 ]; then
+    NAME="${1:-$SLUG-$VERSION-wporg}"
+else
+    NAME="${1:-$SLUG-$VERSION}"
+fi
 BUILD="$(mktemp -d)"
 
 # Whatever happens, the project comes back with its dev dependencies.
@@ -129,6 +163,77 @@ cp "$ROOT"/*.php "$BUILD/$SLUG/"
 # macOS leaves one of these in every directory it has been looked at in, and
 # they were going into the zip.
 find "$BUILD" -name '.DS_Store' -delete
+
+# Hidden files are refused outright by the directory's Plugin Check, in either
+# build: there is nothing in this package that has any business being invisible.
+find "$BUILD/$SLUG" -name '.*' -not -name '.' -delete
+
+if [ "$WPORG" -eq 1 ]; then
+    # The core's own Updater, out. Nothing calls it unconditionally —
+    # WordPressAdmin asks class_exists() first — so its absence is a plugin that
+    # does not look for updates, not a plugin that breaks.
+    rm -f "$BUILD/$SLUG/src/Updater.php"
+
+    # The add-ons' Updater, replaced rather than removed, and the difference was
+    # measured: deleting it made every add-on published at 1.0.0 fatal with
+    # `Class "WP2Static\Addon\Updater" not found` during plugins_loaded, because
+    # each one calls register() from there. The shim accepts the call and does
+    # nothing — no request, no filter, no update served.
+    cp "$ROOT/tools/wporg/addon-updater-noop.php" "$BUILD/$SLUG/src/Addon/Updater.php"
+
+    grep -q 'api.github.com' "$BUILD/$SLUG/src/Addon/Updater.php" && {
+        echo "Lo shim dell'Addon Updater parla ancora con GitHub." >&2
+        exit 1
+    }
+
+    # And the header, which is the thing Plugin Check actually names. Deleting
+    # the line rather than blanking the value: an empty `Update URI` is still an
+    # `Update URI`, and WordPress reads the presence of the header, not its
+    # content, when deciding whether to skip wordpress.org.
+    sed -i.bak '/^ \* Update URI:/d' "$BUILD/$SLUG/vibestatic.php"
+    rm -f "$BUILD/$SLUG/vibestatic.php.bak"
+
+    # Anchored to the header line. An unanchored 'Update URI' also matches the
+    # docblock prose that explains the header, which is not a header and which
+    # the first version of this check failed the build over.
+    grep -qE '^ \* Update URI:' "$BUILD/$SLUG/vibestatic.php" && {
+        echo "L'header Update URI e' ancora nel pacchetto wordpress.org." >&2
+        exit 1
+    }
+
+    # The classmap was generated while both files were still there, and the map
+    # is authoritative: `class_exists( Updater::class )` would send the
+    # autoloader straight to a `require` of a file that is not in the zip. A
+    # fatal error, raised by the very check meant to establish the class is
+    # absent. So the two entries come out of both generated maps.
+    #
+    # Filtered on the file path rather than the class name, so that what is
+    # removed and what is verified are the same string. The first version
+    # matched the class name with `\(Addon\)\?`, which is a GNU sed extension:
+    # BSD sed, which is the sed on the machine this is built on, matched nothing
+    # and the build failed on its own check.
+    for map in autoload_classmap.php autoload_static.php; do
+        file="$BUILD/$SLUG/vendor/composer/$map"
+
+        grep -v "/src/Updater.php'" "$file" > "$file.new"
+        mv "$file.new" "$file"
+
+        if grep -q "'/src/Updater.php'" "$file"; then
+            echo "$map nomina ancora src/Updater.php." >&2
+            exit 1
+        fi
+
+        # And Addon/Updater.php had better still be in there: the shim is at
+        # that path, and an authoritative classmap that does not name it means
+        # the add-ons' call finds nothing after all.
+        if ! grep -q "/src/Addon/Updater.php'" "$file"; then
+            echo "$map non nomina piu' src/Addon/Updater.php." >&2
+            exit 1
+        fi
+
+        php -l "$file" > /dev/null
+    done
+fi
 
 find "$BUILD" -type d -exec chmod 755 {} \;
 find "$BUILD" -type f -exec chmod 644 {} \;

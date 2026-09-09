@@ -97,6 +97,7 @@
             "@phpcs-i18n"
         ],
         "build": "tools/build_release.sh",
+        "build-wporg": "tools/build_release.sh --wporg",
         "check-links": "@php tools/check_links.php"
     },
     "scripts-descriptions": {

@@ -75,9 +75,20 @@ class WordPressAdmin {
          */
         add_action( 'plugins_loaded', [ WooCommerce\Snipcart::class, 'registerHooks' ], 5 );
 
-        // Updates for anyone who installed from a zip. This registers filters
-        // only: the call to GitHub happens when WordPress checks, not now.
-        Updater::registerHooks();
+        /*
+         * Updates for anyone who installed from a zip. This registers filters
+         * only: the call to GitHub happens when WordPress checks, not now.
+         *
+         * Asked whether the class is there, because in the wordpress.org
+         * package it is not. Guideline 8 forbids a plugin hosted in the
+         * directory from serving its own updates, so `tools/build_release.sh
+         * --wporg` leaves `src/Updater.php` out and strips the `Update URI`
+         * header — and there the update comes from wordpress.org, which is the
+         * whole point. One line, and no second copy of the source.
+         */
+        if ( class_exists( Updater::class ) ) {
+            Updater::registerHooks();
+        }
 
         add_filter(
             // phpcs:ignore WordPress.WP.CronInterval -- namespaces not yet fully supported

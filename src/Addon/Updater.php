@@ -1,6 +1,18 @@
 <?php
 /**
- * Updates for add-ons installed from a zip.
+ * Updates for add-ons installed from a zip. **Deprecated since 9.1.0.**
+ *
+ * It stays for one reason only: an add-on published at 1.0.0 calls
+ * `Updater::register()` from its own `plugins_loaded`, and taking the class
+ * away is a fatal error there — measured, not guessed. From 1.1.0 every add-on
+ * carries its own copy, generated from `tools/updater-template.php` in the
+ * add-ons repository, which is now the live version of this code; this file is
+ * frozen and should not be edited again. The package for the wordpress.org
+ * directory replaces it with an inert shim, because the directory forbids a
+ * plugin hosted there from serving updates for anything.
+ *
+ * Due for removal in 10.0, by which point an add-on still at 1.0.0 has had a
+ * major version to update itself.
  *
  * The core has an Updater of its own and this is deliberately not it. The
  * core's asks GitHub for `/releases/latest`, which is the newest release **of a

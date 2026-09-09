@@ -21,8 +21,15 @@
  *
  * `Requires at least: 6.5` is not caution: the queries use `$wpdb->prepare()`'s
  * `%i` placeholder, which exists from WordPress 6.2, and the i18n sniffs are
- * configured for 6.5. `Update URI` tells WordPress not to look for updates on
- * wordpress.org for a slug that is not ours over there.
+ * configured for 6.5.
+ *
+ * The `Update URI` header above belongs to the GitHub package and to that one
+ * only. There it tells WordPress not to look for updates on wordpress.org, for
+ * a slug that is not ours over there, and points it at `src/Updater.php`
+ * instead — without which a site installed from a zip would never receive so
+ * much as a security fix. `tools/build_release.sh --wporg` removes the header
+ * and both Updater classes, because in the directory the slug *is* ours and
+ * guideline 8 forbids a plugin hosted there from serving its own updates.
  *
  * VibeStatic is a fork of WP2Static, created by Leon Stafford and later
  * maintained by Strattic by Elementor until 2024. The original is released into
