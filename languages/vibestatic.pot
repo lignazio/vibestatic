@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: VibeStatic 8.1.0\n"
+"Project-Id-Version: VibeStatic 8.1.1\n"
 "Report-Msgid-Bugs-To: https://github.com/lignazio/vibestatic/issues\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-08T19:33:33+00:00\n"
+"POT-Creation-Date: 2026-09-09T06:16:30+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vibestatic\n"
@@ -685,51 +685,51 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: views/addons-page.php:37
-#: views/addons-page.php:76
+#: views/addons-page.php:54
+#: views/addons-page.php:93
 msgid "Enabled"
 msgstr ""
 
-#: views/addons-page.php:38
+#: views/addons-page.php:55
 #: views/diagnostics-page.php:215
 #: views/diagnostics-page.php:256
 msgid "Name"
 msgstr ""
 
-#: views/addons-page.php:39
+#: views/addons-page.php:56
 msgid "Type"
 msgstr ""
 
-#: views/addons-page.php:40
+#: views/addons-page.php:57
 msgid "Documentation URL"
 msgstr ""
 
-#: views/addons-page.php:41
+#: views/addons-page.php:58
 msgid "Configure"
 msgstr ""
 
 #. translators: %s: link to the project page, with the link text as its own string.
-#: views/addons-page.php:51
+#: views/addons-page.php:68
 #, php-format
 msgid "No add-ons are installed. %s"
 msgstr ""
 
-#: views/addons-page.php:53
+#: views/addons-page.php:70
 msgid "Get add-ons"
 msgstr ""
 
-#: views/addons-page.php:77
+#: views/addons-page.php:94
 msgid "Disabled"
 msgstr ""
 
 #. translators: %s: add-on name.
-#: views/addons-page.php:97
+#: views/addons-page.php:114
 #, php-format
 msgid "Documentation for %s"
 msgstr ""
 
 #. translators: %s: add-on name.
-#: views/addons-page.php:111
+#: views/addons-page.php:128
 #, php-format
 msgid "Configure %s"
 msgstr ""

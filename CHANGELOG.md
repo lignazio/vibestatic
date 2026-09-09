@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## VibeStatic 8.1.1 (2026-09-09)
 
 ### Fixed
 
