@@ -1,5 +1,91 @@
 # Changelog
 
+## Unreleased — 9.0.0
+
+A major because the add-on API gains a public surface it is now committed to
+keeping, and because one bundled module's settings page moved.
+
+### Added
+
+- **`WP2Static\Addon\` — the base every add-on can extend.** `Controller`,
+  `Options`, `SettingsPage` and `OptionsCommand`. An add-on says what it is
+  called, which options it has and what it does with them; announcing itself to
+  the core, registering its settings page, authorising the save and dispatching
+  the deploy happen in the base.
+
+  They were four files each separate add-on carried a copy of — nine hundred and
+  seventy-six lines, byte-identical to the namespace line, in ten repositories —
+  while the six bundled modules had no abstraction at all and hand-wrote the same
+  methods again. The same scaffolding written sixteen times, which is the root
+  cause ADDONS.md diagnosed in upstream, reproduced.
+
+  The argument for keeping them out of the core was that an add-on should not
+  depend on the core's internals. It does not survive reading the files: they
+  already call `\WP2Static\Controller::authorize()` and
+  `\WP2Static\CoreOptions::encrypt_decrypt()`. An add-on on a core without those
+  dies anyway.
+
+  **This is now public API**, with the promise already made about the thirty
+  hooks: it does not change under an add-on without a major version. The other
+  side of that promise belongs to the add-on and cannot be kept from here — a
+  concrete Controller `extends` this class, so autoloading it on a core too old
+  to have the file is a fatal error during `plugins_loaded`. The guard has to sit
+  in the add-on's main file, in plain PHP, before its own classes are touched.
+
+- **`Controller::addonSettingsPage()`** answers where an add-on's Configure link
+  should go, or null when it has no page — see 8.1.1.
+
+- **`Addon\Controller::notices()`**, for what an add-on can only know at render
+  time. The FTP module uses it to say that this PHP build has no ext-ftp or no
+  FTPS, rather than offering a form that cannot work.
+
+### Changed
+
+- **The six bundled modules sit on the base.** 1,677 lines of hand-written
+  Controller and 809 of hand-written view become a declaration of options and of
+  fields — about two thousand lines fewer — except `zip`, which has no options at
+  all and whose page is an archive with a download and a delete rather than a
+  form. The PHPStan baseline drops from 112 entries to 93, and none of the six
+  that remain in a module is in the scaffolding any more.
+
+  Slugs, table names and option names are untouched, so an installation keeps its
+  bucket, its credentials and its deploy cache. Verified by upgrading a
+  configured install rather than by installing a clean one.
+
+- **A password left blank no longer wipes the saved one.** ftp, s3 and sftp
+  re-encrypted the empty string and wrote it over the stored value.
+
+- **The `directory-deployment` settings page is now `wp2static-directory-deployment`**,
+  registered like the other deployers and visible in the menu, where it used to
+  be a hidden page under `wp2static-addon-directory-deployment`. A bookmark to
+  the old address stops working; the gear on the Add-ons page finds it either
+  way. `zip` keeps its hidden page.
+
+- `directory-deployment` no longer runs `dbDelta()` on every load of its settings
+  page, nor computes two view values no view has read since it was rewritten.
+
+- **The add-on pages have an `<h1>`** instead of an `<h2>`. An admin page is
+  expected to carry exactly one top-level heading inside `.wrap`: it is what a
+  screen reader announces on arrival, and what WordPress hangs `.wp-header-end`
+  off when deciding where admin notices go.
+
+### Fixed
+
+- **The Enabled/Disabled control on the Add-ons page said the state and did the
+  opposite.** A button reading "Enabled" that disabled the add-on. The state is
+  now text and the button says the action — Enable or Disable — which is how
+  WordPress's own Plugins screen works. It also had no `class`, so WordPress
+  styled nothing and the browser's default chrome came through; and all six
+  buttons had the same accessible name, so a screen reader announced "Enabled,
+  Disabled, Disabled…" with no way to tell which add-on. The add-on's name is in
+  the accessible name now.
+
+- **The Add-ons page did not say that deployers are exclusive.** Enabling one
+  disables whichever was enabled before — `Controller::wp2staticToggleAddon()`
+  has always done this — and the page presented six independent switches.
+
+---
+
 ## VibeStatic 8.1.1 (2026-09-09)
 
 ### Fixed
