@@ -908,10 +908,10 @@ class CoreOptions {
 
         if ( '' === $secret_key || '' === $secret_iv ) {
             throw new WP2StaticException(
-                'VibeStatic non puo\' proteggere le credenziali salvate:' .
-                ' AUTH_KEY e AUTH_SALT non sono definite in wp-config.php.' .
-                ' Generale su https://api.wordpress.org/secret-key/1.1/salt/' .
-                ' e riprova.'
+                'VibeStatic cannot protect the credentials it stores:'
+                . ' AUTH_KEY and AUTH_SALT are not defined in wp-config.php.'
+                . ' Generate them at https://api.wordpress.org/secret-key/1.1/salt/'
+                . ' and try again.'
             );
         }
 

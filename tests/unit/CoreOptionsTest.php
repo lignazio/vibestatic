@@ -129,7 +129,7 @@ final class CoreOptionsTest extends TestCase {
          * condition.
          */
         $this->expectException( WP2StaticException::class );
-        $this->expectExceptionMessageMatches( '/AUTH_KEY e AUTH_SALT/' );
+        $this->expectExceptionMessageMatches( '/AUTH_KEY and AUTH_SALT/' );
 
         CoreOptions::encrypt_decrypt( 'encrypt', 'una-password' );
     }
