@@ -29,4 +29,4 @@ WP2Static\Modules::registerInstaller(
     [ 'WP2StaticNetlify\Controller', 'installTables' ]
 );
 
-( new WP2StaticNetlify\Controller() )->run();
+WP2StaticNetlify\Controller::boot();

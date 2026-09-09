@@ -85,24 +85,6 @@ parameters:
 			path: addons/ftp/src/Deployer.php
 
 		-
-			rawMessage: 'In method "WP2StaticNetlify\Controller::saveOptionsFromUI", you should not use the $_POST superglobal.'
-			identifier: thecodingmachine.superglobalUsed
-			count: 4
-			path: addons/netlify/src/Controller.php
-
-		-
-			rawMessage: 'Parameter #1 $query of method wpdb::query() expects string, string|null given.'
-			identifier: argument.type
-			count: 2
-			path: addons/netlify/src/Controller.php
-
-		-
-			rawMessage: 'Parameter #1 $str of function sanitize_text_field expects string, mixed given.'
-			identifier: argument.type
-			count: 2
-			path: addons/netlify/src/Controller.php
-
-		-
 			rawMessage: 'In method "WP2StaticS3\Controller::saveOptionsFromUI", you should not use the $_POST superglobal.'
 			identifier: thecodingmachine.superglobalUsed
 			count: 4

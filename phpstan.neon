@@ -69,6 +69,20 @@ parameters:
         - %currentWorkingDirectory%/tests/phpstan/wp-cli-stubs-2.2.0.php
 
     ignoreErrors:
+        # A settings form is read from $_POST; that is the mechanism WordPress
+        # gives, not a shortcut around one. thecodingmachine's rule is about
+        # business logic reaching into superglobals, and the answer to it here
+        # is Addon\Options::savePosted() — one place, which reads only the names
+        # the add-on declared and sanitises each on the expression that reads
+        # it, after \WP2Static\Controller::authorize() has run. Confined to
+        # that file so the rule still applies everywhere else.
+        #
+        # This is a rule that does not fit one method, not a defect parked in
+        # the baseline: the ten separate add-ons carried the identical exemption
+        # in their own phpstan.neon while the file lived in each of them.
+        -
+            identifier: thecodingmachine.superglobalUsed
+            path: %currentWorkingDirectory%/src/Addon/Options.php
         # WP_CLI::add_command accepts a class or a [class, method] array and
         # calls them internally; PHPStan only sees the `callable` signature.
         # `.+` and not `\S+`: an array callable is printed as

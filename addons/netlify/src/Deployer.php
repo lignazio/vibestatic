@@ -42,7 +42,9 @@ class Deployer {
             return;
         }
 
-        $site_id = Controller::getValue( 'siteID' );
+        $options = Controller::instance()->options();
+
+        $site_id = $options->get( 'siteID' );
 
         if ( '' === $site_id ) {
             WsLog::l( 'Netlify site ID is not set.' );
@@ -50,10 +52,8 @@ class Deployer {
             return;
         }
 
-        $access_token = (string) \WP2Static\CoreOptions::encrypt_decrypt(
-            'decrypt',
-            Controller::getValue( 'accessToken' )
-        );
+        // plain() decrypts; get() would hand back the ciphertext.
+        $access_token = $options->plain( 'accessToken' );
 
         if ( '' === $access_token ) {
             WsLog::l( 'Netlify access token is not set.' );
