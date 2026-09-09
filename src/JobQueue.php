@@ -78,7 +78,7 @@ class JobQueue {
     /**
      *  Get all waiting jobs
      *
-     *  @return mixed[] All waiting jobs
+     *  @return list<object{id: string, job_type: string, status: string}> All waiting jobs
      */
     public static function getProcessableJobs() : array {
         return self::repository()->getProcessableJobs();

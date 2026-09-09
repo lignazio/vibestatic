@@ -34,10 +34,27 @@ class StaticSite {
     }
 
     public static function getPath() : string {
-        return apply_filters(
-            'wp2static_crawled_site_path',
-            SiteInfo::getPath( 'uploads' ) . 'wp2static-crawled-site'
-        );
+        $default = SiteInfo::getPath( 'uploads' ) . 'wp2static-crawled-site';
+
+        /*
+         * A filter can return anything, and this method is declared to return a
+         * string: a plugin filtering `wp2static_crawled_site_path` and forgetting
+         * the return — the commonest filter mistake there is — would make this
+         * a TypeError, and the export would stop with a message about types
+         * rather than about the filter.
+         */
+        $path = apply_filters( 'wp2static_crawled_site_path', $default );
+
+        if ( ! is_string( $path ) || '' === $path ) {
+            WsLog::l(
+                'A wp2static_crawled_site_path filter returned ' . gettype( $path ) .
+                ' instead of a path; using the default.'
+            );
+
+            return $default;
+        }
+
+        return $path;
     }
 
     /**

@@ -56,7 +56,7 @@ class Addons {
          * add-on on every page load must not switch a deployer back on that the
          * user switched off.
          */
-        $wpdb->query(
+        Utils::runPrepared(
             $wpdb->prepare(
                 'INSERT INTO %i (slug, type, name, docs_url, description)
                  VALUES (%s, %s, %s, %s, %s)
@@ -151,7 +151,7 @@ class Addons {
 
         $table_name = $wpdb->prefix . 'wp2static_addons';
 
-        $wpdb->query( $wpdb->prepare( 'TRUNCATE TABLE %i', $table_name ) );
+        Utils::runPrepared( $wpdb->prepare( 'TRUNCATE TABLE %i', $table_name ) );
 
         WsLog::l( 'Deregistered all Addons' );
     }

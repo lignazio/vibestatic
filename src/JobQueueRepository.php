@@ -108,16 +108,27 @@ class JobQueueRepository {
     /**
      *  Get all waiting jobs, oldest first
      *
-     *  @return object[] All waiting jobs
+     *  The shape is the table's, declared the way every other repository here
+     *  declares one. `object[]` left the caller reading `$job->id` and
+     *  `$job->job_type` off `mixed`, which is six unchecked accesses in the one
+     *  loop that runs every export.
+     *
+     *  `id` is a string: MySQL hands an INT back as `"3"` and wpdb does not
+     *  cast it.
+     *
+     *  @return list<object{id: string, job_type: string, status: string}> All waiting jobs
      */
     public function getProcessableJobs() : array {
-        return $this->db->get_results(
+        /** @var list<object{id: string, job_type: string, status: string}> $jobs */
+        $jobs = $this->db->get_results(
             $this->db->prepare(
                 'SELECT * FROM %i WHERE status = %s ORDER BY id ASC',
                 $this->table,
                 'waiting'
             )
         ) ?? [];
+
+        return $jobs;
     }
 
     /**

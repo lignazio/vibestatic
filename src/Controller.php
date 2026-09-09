@@ -129,6 +129,7 @@ class Controller {
         }
     }
 
+
     /**
      * Create an index if it does not already exist.
      *
@@ -155,7 +156,7 @@ class Controller {
         /** @var \wpdb $wpdb */
         global $wpdb;
 
-        $indexes = $wpdb->query(
+        $indexes = Utils::runPrepared(
             $wpdb->prepare(
                 'SHOW INDEX FROM %i WHERE key_name = %s',
                 $table_name,
@@ -174,7 +175,7 @@ class Controller {
             $placeholders = implode( ', ', array_fill( 0, count( $columns ), '%i' ) );
             $create = $unique ? 'CREATE UNIQUE INDEX' : 'CREATE INDEX';
             // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders
-            $result = $wpdb->query(
+            $result = Utils::runPrepared(
                 $wpdb->prepare(
                     "$create %i ON %i ( $placeholders )",
                     array_merge( [ $index_name, $table_name ], $columns )
@@ -184,7 +185,11 @@ class Controller {
             if ( false === $result ) {
                 WsLog::l( "Failed to create $index_name index on $table_name." );
             }
-            return $result;
+
+            // `false !== $result` and not `$result`: CREATE INDEX affects no
+            // rows, so a success answers 0. The method is declared to return
+            // bool and used to return whatever query() gave it.
+            return false !== $result;
         } else {
             return true;
         }
@@ -450,7 +455,7 @@ class Controller {
 
         $table_name = $wpdb->prefix . 'wp2static_crawl_cache';
 
-        $wpdb->query( $wpdb->prepare( 'TRUNCATE TABLE %i', $table_name ) );
+        Utils::runPrepared( $wpdb->prepare( 'TRUNCATE TABLE %i', $table_name ) );
 
         $count = $wpdb->get_var(
             $wpdb->prepare( 'SELECT count(*) FROM %i', $table_name )
@@ -822,17 +827,26 @@ class Controller {
 
         foreach ( $jobs as $job ) {
             $lock = $wpdb->prefix . '.wp2static_jobs.' . $job->job_type;
-            $locked = intval(
-                $wpdb->get_row(
-                    $wpdb->prepare( 'SELECT GET_LOCK(%s, 30) AS lck', $lock )
-                )->lck
+            /*
+             * get_row() answers null when the query fails — a lost connection,
+             * a server that went away mid-export — and `->lck` on null is a
+             * fatal error in the loop that runs every export. Treated as "the
+             * lock was not acquired", which is what it means.
+             */
+            $lock_row = $wpdb->get_row(
+                $wpdb->prepare( 'SELECT GET_LOCK(%s, 30) AS lck', $lock )
             );
+
+            $locked = is_object( $lock_row ) && isset( $lock_row->lck )
+                ? intval( $lock_row->lck )
+                : 0;
+
             if ( ! $locked ) {
                 WsLog::l( "Failed to acquire \"$lock\" lock." );
                 return;
             }
             try {
-                JobQueue::setStatus( $job->id, 'processing' );
+                JobQueue::setStatus( (int) $job->id, 'processing' );
 
                 switch ( $job->job_type ) {
                     case 'detect':
@@ -868,13 +882,13 @@ class Controller {
                         WsLog::l( 'Trying to process unknown job type' );
                 }
 
-                JobQueue::setStatus( $job->id, 'completed' );
+                JobQueue::setStatus( (int) $job->id, 'completed' );
             } catch ( \Throwable $e ) {
-                JobQueue::setStatus( $job->id, 'failed' );
+                JobQueue::setStatus( (int) $job->id, 'failed' );
                 // We don't want to crawl and deploy if the detect step fails.
                 // Skip all waiting jobs when one fails.
                 $table_name = $wpdb->prefix . 'wp2static_jobs';
-                $wpdb->query(
+                Utils::runPrepared(
                     $wpdb->prepare(
                         'UPDATE %i SET status = %s WHERE status = %s',
                         $table_name,
@@ -884,7 +898,7 @@ class Controller {
                 );
                 throw $e;
             } finally {
-                $wpdb->query( $wpdb->prepare( 'DO RELEASE_LOCK(%s)', $lock ) );
+                Utils::runPrepared( $wpdb->prepare( 'DO RELEASE_LOCK(%s)', $lock ) );
             }
         }
     }

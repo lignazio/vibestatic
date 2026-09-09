@@ -1,87 +1,9 @@
 parameters:
 	ignoreErrors:
 		-
-			rawMessage: 'Parameter #1 $ftp of function ftp_close expects FTP\Connection, FTP\Connection|resource given.'
-			identifier: argument.type
-			count: 1
-			path: addons/ftp/src/Deployer.php
-
-		-
-			rawMessage: 'Parameter #1 $ftp of function ftp_delete expects FTP\Connection, FTP\Connection|resource given.'
-			identifier: argument.type
-			count: 1
-			path: addons/ftp/src/Deployer.php
-
-		-
-			rawMessage: 'Parameter #1 $ftp of function ftp_mkdir expects FTP\Connection, FTP\Connection|resource given.'
-			identifier: argument.type
-			count: 1
-			path: addons/ftp/src/Deployer.php
-
-		-
-			rawMessage: 'Parameter #1 $ftp of function ftp_put expects FTP\Connection, FTP\Connection|resource given.'
-			identifier: argument.type
-			count: 1
-			path: addons/ftp/src/Deployer.php
-
-		-
-			rawMessage: 'Parameter #1 $ftp of function ftp_rmdir expects FTP\Connection, FTP\Connection|resource given.'
-			identifier: argument.type
-			count: 1
-			path: addons/ftp/src/Deployer.php
-
-		-
-			rawMessage: 'Parameter #1 $query of method wpdb::query() expects string, string|null given.'
-			identifier: argument.type
-			count: 2
-			path: src/Addons.php
-
-		-
-			rawMessage: Binary operation "." between non-falsy-string and mixed results in an error.
-			identifier: binaryOp.invalid
-			count: 1
-			path: src/Controller.php
-
-		-
-			rawMessage: Cannot access property $id on mixed.
-			identifier: property.nonObject
-			count: 3
-			path: src/Controller.php
-
-		-
-			rawMessage: Cannot access property $job_type on mixed.
-			identifier: property.nonObject
-			count: 2
-			path: src/Controller.php
-
-		-
-			rawMessage: Cannot access property $lck on stdClass|null.
-			identifier: property.nonObject
-			count: 1
-			path: src/Controller.php
-
-		-
-			rawMessage: 'Method WP2Static\Controller::ensureIndex() should return bool but returns bool|int.'
-			identifier: return.type
-			count: 1
-			path: src/Controller.php
-
-		-
-			rawMessage: 'Parameter #1 $id of static method WP2Static\JobQueue::setStatus() expects int, mixed given.'
-			identifier: argument.type
-			count: 3
-			path: src/Controller.php
-
-		-
 			rawMessage: 'Parameter #1 $new_blog_id of function switch_to_blog expects int, string|null given.'
 			identifier: argument.type
 			count: 2
-			path: src/Controller.php
-
-		-
-			rawMessage: 'Parameter #1 $query of method wpdb::query() expects string, string|null given.'
-			identifier: argument.type
-			count: 5
 			path: src/Controller.php
 
 		-
@@ -223,12 +145,6 @@ parameters:
 			path: src/OptionRenderer.php
 
 		-
-			rawMessage: 'Method WP2Static\ProcessedSite::getPath() should return string but returns mixed.'
-			identifier: return.type
-			count: 1
-			path: src/ProcessedSite.php
-
-		-
 			rawMessage: 'Parameter #1 $value of function untrailingslashit expects string, mixed given.'
 			identifier: argument.type
 			count: 2
@@ -275,12 +191,6 @@ parameters:
 			identifier: offsetAccess.invalidOffset
 			count: 2
 			path: src/SitemapParser.php
-
-		-
-			rawMessage: 'Method WP2Static\StaticSite::getPath() should return string but returns mixed.'
-			identifier: return.type
-			count: 1
-			path: src/StaticSite.php
 
 		-
 			rawMessage: 'Method WP2Static\URLDetector::detectURLs() should return array<string> but returns array.'
@@ -353,15 +263,3 @@ parameters:
 			identifier: return.type
 			count: 1
 			path: src/WsLog.php
-
-		-
-			rawMessage: 'Parameter #1 $query of method wpdb::query() expects string, string|null given.'
-			identifier: argument.type
-			count: 2
-			path: src/WsLog.php
-
-		-
-			rawMessage: 'Parameter #1 $query of method wpdb::query() expects string, string|null given.'
-			identifier: argument.type
-			count: 1
-			path: uninstall.php

@@ -51,7 +51,19 @@ $tables_to_drop = [
 foreach ( $tables_to_drop as $table ) {
     $table_name = $wpdb->prefix . $table;
 
-    $wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $table_name ) );
+    /*
+     * Checked rather than cast. This file runs without the autoloader, so it
+     * cannot reach Utils::runPrepared() and repeats the check instead:
+     * `wpdb::prepare()` answers null when the placeholders and the arguments
+     * do not line up, and `wpdb::query( null )` is a TypeError on PHP 8 —
+     * during uninstall, which is the worst moment for a fatal error.
+     */
+    $prepared = $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $table_name );
+
+    if ( is_string( $prepared ) ) {
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $prepared is the return of $wpdb->prepare() just above; the sniff cannot follow it through a variable, and the null check is why it has to be one.
+        $wpdb->query( $prepared );
+    }
 }
 
 delete_option( 'vibestatic_schema_version' );

@@ -30,7 +30,7 @@ class Deployer extends \WP2Static\PlanDrivenDeployer {
     const DEFAULT_NAMESPACE = 'wp2static-addon-ftp';
 
     /**
-     * @var resource|\FTP\Connection|null Injectable, so the upload logic can be
+     * @var \FTP\Connection|null Injectable, so the upload logic can be
      *                                    exercised without a server.
      */
     private $connection = null;
@@ -41,7 +41,7 @@ class Deployer extends \WP2Static\PlanDrivenDeployer {
     private $made = [];
 
     /**
-     * @param resource|\FTP\Connection|null $connection Null to open one from
+     * @param \FTP\Connection|null $connection Null to open one from
      *                                                  the saved options.
      */
     public function __construct( $connection = null ) {

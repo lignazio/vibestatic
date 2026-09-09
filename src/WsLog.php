@@ -88,7 +88,9 @@ class WsLog {
             );
 
         // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders
-        $wpdb->query( $wpdb->prepare( $query, array_merge( [ $table_name ], $lines ) ) );
+        Utils::runPrepared(
+            $wpdb->prepare( $query, array_merge( [ $table_name ], $lines ) )
+        );
         // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders
     }
 
@@ -141,7 +143,7 @@ class WsLog {
 
         $table_name = $wpdb->prefix . 'wp2static_log';
 
-        $wpdb->query( $wpdb->prepare( 'TRUNCATE TABLE %i', $table_name ) );
+        Utils::runPrepared( $wpdb->prepare( 'TRUNCATE TABLE %i', $table_name ) );
 
         self::l( 'Deleted all Logs' );
     }
