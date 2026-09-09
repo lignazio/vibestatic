@@ -91,9 +91,22 @@ class OptionsCommand {
                 continue;
             }
 
+            /*
+             * plain() and not get(): whether a secret is set is a question
+             * about its value, and get() hands back the ciphertext.
+             *
+             * An empty secret does not encrypt to nothing — it encrypts to
+             * thirty-two characters — so a row holding an encrypted empty
+             * string is a row that reads as `set (hidden)` while there is
+             * nothing in it. That is not hypothetical: the modules these
+             * replace encrypted whatever the form posted, blank included, so
+             * any installation that ever opened a settings page and pressed
+             * Save carries one. Found on a database with history, which is the
+             * only place it shows.
+             */
             $rows[] = [
                 'name' => $name,
-                'value' => '' === $options->get( $name ) ? 'not set' : 'set (hidden)',
+                'value' => '' === $options->plain( $name ) ? 'not set' : 'set (hidden)',
             ];
         }
 

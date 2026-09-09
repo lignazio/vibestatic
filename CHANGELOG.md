@@ -96,6 +96,17 @@ keeping, and because one bundled module's settings page moved.
 
 ### Fixed
 
+- **`wp2static <add-on> options list` called an unset secret "set".** It judged
+  by the stored value, and an empty secret does not encrypt to nothing — it
+  encrypts to thirty-two characters. Any installation that ever opened one of
+  the old modules' settings pages and pressed Save carries a row like that,
+  because they encrypted whatever the form posted, blank included. It asks the
+  decrypted value now.
+
+  Found running the modules against real targets on a database with history,
+  which is the only place it shows: a clean install has nothing to mislead you
+  with.
+
 - **Every module's documentation link led nowhere, and did not look like it.**
   `docs_url` was `…/vibestatic#s3`, `#ftp`, `#netlify` and so on — anchors the
   README does not have. An anchor that is not there does not 404: GitHub opens

@@ -156,6 +156,30 @@ class AddonOptionsTest extends TestCase {
         return $matches[1];
     }
 
+    /**
+     * An empty secret is not an empty string once encrypted.
+     *
+     * `encrypt_decrypt( 'encrypt', '' )` answers thirty-two characters, so a
+     * row holding an encrypted blank looks set to anything that judges by the
+     * stored value. `wp2static <add-on> options list` did exactly that and
+     * reported `set (hidden)` for a passphrase nobody had ever typed — found on
+     * a development database that had been through the old modules, which
+     * encrypted whatever the form posted, blank included.
+     *
+     * plain() is the answer to "is this set", and this is what says so.
+     */
+    public function testAnEncryptedBlankReadsAsEmpty() : void {
+        $ciphertext = \WP2Static\CoreOptions::encrypt_decrypt( 'encrypt', '' );
+
+        $this->assertNotSame( '', $ciphertext, 'An empty secret encrypts to something.' );
+
+        $options = $this->options();
+        $GLOBALS['wpdb']->values['secret'] = $ciphertext;
+
+        $this->assertSame( $ciphertext, $options->get( 'secret' ) );
+        $this->assertSame( '', $options->plain( 'secret' ) );
+    }
+
     public function testSecretsAreEncryptedOnTheWayIn() : void {
         $this->options()->save( 'secret', 'hunter2' );
 
