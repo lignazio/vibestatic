@@ -5,12 +5,24 @@
 ### Fixed
 
 - **The Configure link on the Add-ons page led nowhere.** It pointed at
-  `admin.php?page=<add-on slug>` — `wp2static-addon-netlify` — but an add-on
-  gets its page through `wp2static_add_menu_items`, whose contract is
-  `key => callable` and whose key the core registers as `wp2static-<key>`. No
-  page by the first name exists, so the gear icon answered "Sorry, you are not
-  allowed to access this page" — for every add-on, the six bundled modules
-  included. The link is now built the way the page is registered.
+  `admin.php?page=<add-on slug>` — `wp2static-addon-netlify` — and no such page
+  exists, so the gear icon answered "Sorry, you are not allowed to access this
+  page" for every add-on and for all six bundled modules.
+
+  There are two ways an add-on gets a page and the fix has to cope with both.
+  Most go through `wp2static_add_menu_items`, whose contract is
+  `key => callable` and whose key the core registers as `wp2static-<key>`, so
+  `wp2static-addon-netlify` is reached at `wp2static-netlify`. The
+  directory-deployment and zip modules instead register a page that is
+  deliberately absent from the menu, under their whole slug. Transforming the
+  slug fixes the first four and leaves the other two exactly as broken, so
+  nothing is transformed: `Controller::addonSettingsPage()` asks
+  `$_registered_pages` — WordPress's own record of what `add_submenu_page()`
+  registered, and the same one `wp-admin/admin.php` consults before refusing —
+  which of the two candidates actually exists.
+
+  An add-on with neither now gets no gear at all rather than a link to an error
+  page.
 
 - **The LICENSE file said Unlicense while everything else said GPL.** The plugin
   header, `readme.txt` and `composer.json` have declared GPL-2.0-or-later since

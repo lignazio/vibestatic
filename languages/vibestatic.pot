@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-09T06:16:30+00:00\n"
+"POT-Creation-Date: 2026-09-09T06:23:19+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: vibestatic\n"
@@ -398,18 +398,18 @@ msgstr ""
 msgid "VibeStatic %s"
 msgstr ""
 
-#: src/Controller.php:436
-#: src/Controller.php:457
+#: src/Controller.php:480
+#: src/Controller.php:501
 msgid "You do not have permission to manage VibeStatic."
 msgstr ""
 
 #. translators: %s: the site title.
-#: src/Controller.php:963
+#: src/Controller.php:1007
 #, php-format
 msgid "VibeStatic deployment complete on site: %s"
 msgstr ""
 
-#: src/Controller.php:967
+#: src/Controller.php:1011
 msgid "VibeStatic deployment complete!"
 msgstr ""
 
@@ -685,51 +685,51 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: views/addons-page.php:54
-#: views/addons-page.php:93
+#: views/addons-page.php:51
+#: views/addons-page.php:90
 msgid "Enabled"
 msgstr ""
 
-#: views/addons-page.php:55
+#: views/addons-page.php:52
 #: views/diagnostics-page.php:215
 #: views/diagnostics-page.php:256
 msgid "Name"
 msgstr ""
 
-#: views/addons-page.php:56
+#: views/addons-page.php:53
 msgid "Type"
 msgstr ""
 
-#: views/addons-page.php:57
+#: views/addons-page.php:54
 msgid "Documentation URL"
 msgstr ""
 
-#: views/addons-page.php:58
+#: views/addons-page.php:55
 msgid "Configure"
 msgstr ""
 
 #. translators: %s: link to the project page, with the link text as its own string.
-#: views/addons-page.php:68
+#: views/addons-page.php:65
 #, php-format
 msgid "No add-ons are installed. %s"
 msgstr ""
 
-#: views/addons-page.php:70
+#: views/addons-page.php:67
 msgid "Get add-ons"
 msgstr ""
 
-#: views/addons-page.php:94
+#: views/addons-page.php:91
 msgid "Disabled"
 msgstr ""
 
 #. translators: %s: add-on name.
-#: views/addons-page.php:114
+#: views/addons-page.php:111
 #, php-format
 msgid "Documentation for %s"
 msgstr ""
 
 #. translators: %s: add-on name.
-#: views/addons-page.php:128
+#: views/addons-page.php:126
 #, php-format
 msgid "Configure %s"
 msgstr ""

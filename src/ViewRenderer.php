@@ -138,6 +138,24 @@ class ViewRenderer {
         $view['nonce_action'] = 'wp2static-addons-page';
         $view['addons'] = Addons::getAll();
 
+        /*
+         * Where each add-on's Configure link goes, worked out against the pages
+         * WordPress has actually registered rather than from the shape of the
+         * slug. Controller::addonSettingsPage() says why; the value is null for
+         * an add-on with no page of its own, and the view then renders no gear.
+         */
+        $view['settings_pages'] = [];
+
+        foreach ( $view['addons'] as $addon ) {
+            // Addons::getAll() hands back whatever $wpdb->get_results() found,
+            // which is typed as mixed[] because that is honestly what it is.
+            if ( ! is_object( $addon ) || ! isset( $addon->slug ) || ! is_string( $addon->slug ) ) {
+                continue;
+            }
+
+            $view['settings_pages'][ $addon->slug ] = Controller::addonSettingsPage( $addon->slug );
+        }
+
         require_once VIBESTATIC_PATH . 'views/addons-page.php';
     }
 

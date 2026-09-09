@@ -28,21 +28,18 @@ $addons = $view['addons'];
 $nonce_action = $view['nonce_action'];
 
 /**
- * Where an add-on's settings page actually lives.
+ * Where each add-on's settings page is, slug => page or null.
  *
- * The gear on this page used to link to `admin.php?page=<slug>` — the add-on's
- * own slug, `wp2static-addon-netlify`. No such page exists: an add-on gets its
- * page through `wp2static_add_menu_items`, whose contract is `key => callable`
- * and whose key the core registers as `wp2static-<key>`. Every add-on, the six
- * bundled modules included, therefore had a Configure link that led to
- * "Sorry, you are not allowed to access this page."
+ * The gear used to link to `admin.php?page=<slug>` — the add-on's own slug,
+ * `wp2static-addon-netlify` — and no such page exists, so it answered "Sorry,
+ * you are not allowed to access this page" for every add-on and for all six
+ * bundled modules. Working the page out is Controller::addonSettingsPage()'s
+ * job, because there are two registration conventions and it takes asking
+ * WordPress which one an add-on used; a view is no place for that.
  *
- * The key is the slug with `wp2static-addon-` taken off it, which is what the
- * add-ons pass and what their own save handlers redirect back to.
+ * @var array<string, string|null> $settings_pages
  */
-$settings_page = static function ( string $slug ) : string {
-    return 'wp2static-' . preg_replace( '/^wp2static-addon-/', '', $slug );
-};
+$settings_pages = $view['settings_pages'];
 ?>
 
 <div class="wrap">
@@ -119,18 +116,20 @@ $settings_page = static function ( string $slug ) : string {
                         </a>
                     </td>
                     <td>
-                        <a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $settings_page( $addon->slug ) ) ); ?>">
-                            <span class="dashicons dashicons-admin-generic"></span>
-                            <span class="screen-reader-text">
-                                <?php
-                                printf(
-                                    /* translators: %s: add-on name. */
-                                    esc_html__( 'Configure %s', 'vibestatic' ),
-                                    esc_html( $addon->name )
-                                );
-                                ?>
-                            </span>
-                        </a>
+                        <?php if ( isset( $settings_pages[ $addon->slug ] ) ) : ?>
+                            <a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $settings_pages[ $addon->slug ] ) ); ?>">
+                                <span class="dashicons dashicons-admin-generic"></span>
+                                <span class="screen-reader-text">
+                                    <?php
+                                    printf(
+                                        /* translators: %s: add-on name. */
+                                        esc_html__( 'Configure %s', 'vibestatic' ),
+                                        esc_html( $addon->name )
+                                    );
+                                    ?>
+                                </span>
+                            </a>
+                        <?php endif; ?>
                     </td>
 
                 </tr>

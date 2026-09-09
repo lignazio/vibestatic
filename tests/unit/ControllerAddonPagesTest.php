@@ -122,4 +122,109 @@ final class ControllerAddonPagesTest extends TestCase {
     public function testNoAddonsMeansNoPages() : void {
         $this->assertSame( [], $this->pagesRegisteredWhenAddonsReturn( [] ) );
     }
+
+    /**
+     * Pretend WordPress has registered exactly these pages.
+     *
+     * `$_registered_pages` is keyed by hookname, which is what
+     * `add_submenu_page()` writes and what `wp-admin/admin.php` reads before it
+     * decides to answer "Sorry, you are not allowed to access this page".
+     *
+     * @param array<string, string> $pages page slug => parent slug.
+     */
+    private function registerPages( array $pages ) : void {
+        WP_Mock::userFunction( 'get_plugin_page_hookname', [
+            'return' => function ( $page, $parent ) {
+                return ( '' === $parent ? 'admin_page_' : $parent . '_page_' ) . $page;
+            },
+        ] );
+
+        $GLOBALS['_registered_pages'] = [];
+
+        foreach ( $pages as $page => $parent ) {
+            $hook = ( '' === $parent ? 'admin_page_' : $parent . '_page_' ) . $page;
+            $GLOBALS['_registered_pages'][ $hook ] = true;
+        }
+    }
+
+    /**
+     * The `wp2static_add_menu_items` convention: the page is the slug with
+     * `wp2static-addon-` taken off and `wp2static-` put back on.
+     */
+    public function testTheConfigureLinkFindsAHookRegisteredPage() : void {
+        $this->registerPages( [ 'wp2static-netlify' => 'wp2static' ] );
+
+        $this->assertSame(
+            'wp2static-netlify',
+            Controller::addonSettingsPage( 'wp2static-addon-netlify' )
+        );
+    }
+
+    /**
+     * The hidden-page convention, which directory-deployment and zip use: the
+     * page is the whole slug. The first attempt at this fix transformed the
+     * slug unconditionally and so left these two still pointing at a page that
+     * does not exist.
+     */
+    public function testTheConfigureLinkFindsAHiddenPageUnderTheWholeSlug() : void {
+        $this->registerPages( [ 'wp2static-addon-zip' => '' ] );
+
+        $this->assertSame(
+            'wp2static-addon-zip',
+            Controller::addonSettingsPage( 'wp2static-addon-zip' )
+        );
+    }
+
+    /**
+     * No page registered, no link. A gear leading to an error page is worse
+     * than no gear, and a third-party add-on need not have a settings page at
+     * all.
+     */
+    public function testAnAddonWithNoPageGetsNoLink() : void {
+        $this->registerPages( [ 'wp2static-netlify' => 'wp2static' ] );
+
+        $this->assertNull( Controller::addonSettingsPage( 'wp2static-addon-bunnycdn' ) );
+    }
+
+    /**
+     * With both registered the hidden page wins, because that is the one the
+     * add-on asked for by its own name.
+     */
+    public function testTheWholeSlugIsPreferredWhenBothExist() : void {
+        $this->registerPages( [
+            'wp2static-addon-zip' => '',
+            'wp2static-zip' => 'wp2static',
+        ] );
+
+        $this->assertSame(
+            'wp2static-addon-zip',
+            Controller::addonSettingsPage( 'wp2static-addon-zip' )
+        );
+    }
+
+    /**
+     * A slug that does not start with `wp2static-addon-` is left alone rather
+     * than mangled: the only candidates are itself and `wp2static-` in front.
+     */
+    public function testASlugWithoutTheUsualPrefixIsNotMangled() : void {
+        $this->registerPages( [ 'strano' => '' ] );
+
+        $this->assertSame( 'strano', Controller::addonSettingsPage( 'strano' ) );
+    }
+
+    /**
+     * Before `admin_menu` has run there is no register at all. Reading a global
+     * that is not there must answer "no page", not warn.
+     */
+    public function testNoRegisterAtAllMeansNoPage() : void {
+        WP_Mock::userFunction( 'get_plugin_page_hookname', [
+            'return' => function ( $page, $parent ) {
+                return ( '' === $parent ? 'admin_page_' : $parent . '_page_' ) . $page;
+            },
+        ] );
+
+        unset( $GLOBALS['_registered_pages'] );
+
+        $this->assertNull( Controller::addonSettingsPage( 'wp2static-addon-netlify' ) );
+    }
 }

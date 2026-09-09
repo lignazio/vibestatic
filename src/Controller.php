@@ -381,6 +381,50 @@ class Controller {
     }
 
     /**
+     * The page an add-on's Configure link should open, or null if it has none.
+     *
+     * There are two ways an add-on gets a page, and the Add-ons list has to
+     * cope with both. Most go through `wp2static_add_menu_items`, whose key the
+     * core registers as `wp2static-<key>`: the key is the slug with
+     * `wp2static-addon-` taken off it, so `wp2static-addon-netlify` is reached
+     * at `wp2static-netlify`. The directory-deployment and zip modules instead
+     * call addHiddenPage() above with the whole slug, because their pages are
+     * deliberately not in the menu — `wp2static-addon-zip` is the page.
+     *
+     * Guessing one convention gets the other wrong, which is how the first
+     * attempt at this fix left those two still broken. So nothing is guessed:
+     * each candidate is asked of `$_registered_pages`, WordPress's own record
+     * of what `add_submenu_page()` has registered, and the first one actually
+     * there wins. That is the same register `wp-admin/admin.php` consults
+     * before deciding to answer "Sorry, you are not allowed to access this
+     * page" — that is, the exact thing that produced the defect.
+     *
+     * Null when neither is registered. A third-party add-on may register no
+     * page at all, or register one under a name of its own; a link to a page
+     * that is not there is worse than no link, so the caller renders no gear.
+     */
+    public static function addonSettingsPage( string $slug ) : ?string {
+        $registered = isset( $GLOBALS['_registered_pages'] ) && is_array( $GLOBALS['_registered_pages'] )
+            ? $GLOBALS['_registered_pages']
+            : [];
+
+        $candidates = [
+            // The hidden-page convention: the slug is the page.
+            [ $slug, '' ],
+            // The `wp2static_add_menu_items` convention.
+            [ 'wp2static-' . preg_replace( '/^wp2static-addon-/', '', $slug ), 'wp2static' ],
+        ];
+
+        foreach ( $candidates as list( $page, $parent ) ) {
+            if ( isset( $registered[ get_plugin_page_hookname( $page, $parent ) ] ) ) {
+                return $page;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Give the hidden page being opened a title.
      *
      * Runs on `current_screen`, which WordPress fires before including
