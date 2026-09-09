@@ -53,12 +53,10 @@ class DetectThemeAssets {
                     );
 
                 if ( $path_crawlable ) {
-                    if ( is_string( $detected_filename ) ) {
-                        array_push(
-                            $files,
-                            $detected_filename
-                        );
-                    }
+                    array_push(
+                        $files,
+                        $detected_filename
+                    );
                 }
             }
         }

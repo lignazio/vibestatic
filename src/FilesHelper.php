@@ -225,10 +225,6 @@ class FilesHelper {
     ) : array {
         $site_path = SiteInfo::getPath( 'site' );
 
-        if ( ! is_string( $site_path ) ) {
-            return [];
-        }
-
         $files = [];
 
         if ( is_dir( $dir ) ) {
@@ -251,11 +247,7 @@ class FilesHelper {
                 );
 
                 if ( $path_crawlable ) {
-                    $url = str_replace( $site_path, '/', $filename );
-
-                    if ( is_string( $url ) ) {
-                        $files[] = $url;
-                    }
+                    $files[] = str_replace( $site_path, '/', $filename );
                 }
             }
         }
@@ -345,12 +337,6 @@ class FilesHelper {
     public static function cleanDetectedURLs( array $urls ) : array {
         $home_url = SiteInfo::getUrl( 'home' );
 
-        if ( ! is_string( $home_url ) ) {
-            $err = 'Home URL not defined ';
-            WsLog::l( $err );
-            throw new WP2StaticException( esc_html( $err ) );
-        }
-
         $cleaned_urls = array_map(
             // trim hashes/query strings
             function ( $url ) use ( $home_url ) {
@@ -371,10 +357,6 @@ class FilesHelper {
                     '/',
                     $url
                 );
-
-                if ( ! is_string( $url ) ) {
-                    return;
-                }
 
                 $url = strtok( $url, '#' );
 

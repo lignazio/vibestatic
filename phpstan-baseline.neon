@@ -1,12 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			rawMessage: 'Method WP2StaticFTP\Deployer::openConnection() never returns resource so it can be removed from the return type.'
-			identifier: return.unusedType
-			count: 1
-			path: addons/ftp/src/Deployer.php
-
-		-
 			rawMessage: 'Parameter #1 $ftp of function ftp_close expects FTP\Connection, FTP\Connection|resource given.'
 			identifier: argument.type
 			count: 1
@@ -37,56 +31,14 @@ parameters:
 			path: addons/ftp/src/Deployer.php
 
 		-
-			rawMessage: 'Method WP2Static\Addons::getAll() should return array<mixed> but returns list<stdClass>|null.'
-			identifier: return.type
-			count: 2
-			path: src/Addons.php
-
-		-
 			rawMessage: 'Parameter #1 $query of method wpdb::query() expects string, string|null given.'
 			identifier: argument.type
 			count: 2
 			path: src/Addons.php
 
 		-
-			rawMessage: Cannot access property $description on mixed.
-			identifier: property.nonObject
-			count: 2
-			path: src/CLI.php
-
-		-
-			rawMessage: Cannot access property $docs_url on mixed.
-			identifier: property.nonObject
-			count: 1
-			path: src/CLI.php
-
-		-
-			rawMessage: Cannot access property $enabled on mixed.
-			identifier: property.nonObject
-			count: 2
-			path: src/CLI.php
-
-		-
-			rawMessage: Cannot access property $name on mixed.
-			identifier: property.nonObject
-			count: 2
-			path: src/CLI.php
-
-		-
-			rawMessage: Cannot access property $slug on mixed.
-			identifier: property.nonObject
-			count: 2
-			path: src/CLI.php
-
-		-
 			rawMessage: Binary operation "." between non-falsy-string and mixed results in an error.
 			identifier: binaryOp.invalid
-			count: 1
-			path: src/Controller.php
-
-		-
-			rawMessage: 'Call to function is_string() with string will always evaluate to true.'
-			identifier: function.alreadyNarrowedType
 			count: 1
 			path: src/Controller.php
 
@@ -105,12 +57,6 @@ parameters:
 		-
 			rawMessage: Cannot access property $lck on stdClass|null.
 			identifier: property.nonObject
-			count: 1
-			path: src/Controller.php
-
-		-
-			rawMessage: 'In method "WP2Static\Controller::wp2staticProcessQueueAdminPost", you should not use the $_COOKIE superglobal.'
-			identifier: thecodingmachine.superglobalUsed
 			count: 1
 			path: src/Controller.php
 
@@ -151,12 +97,6 @@ parameters:
 			path: src/Controller.php
 
 		-
-			rawMessage: 'In method "WP2Static\CoreOptions::savePosted", you should not use the $_POST superglobal.'
-			identifier: thecodingmachine.superglobalUsed
-			count: 23
-			path: src/CoreOptions.php
-
-		-
 			rawMessage: 'Method WP2Static\CoreOptions::getValue() should return string but returns mixed.'
 			identifier: return.type
 			count: 1
@@ -193,88 +133,10 @@ parameters:
 			path: src/Crawler.php
 
 		-
-			rawMessage: 'Call to function is_string() with string will always evaluate to true.'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/DetectAuthorPaginationURLs.php
-
-		-
-			rawMessage: Cannot access property $ID on mixed.
-			identifier: property.nonObject
-			count: 2
-			path: src/DetectAuthorPaginationURLs.php
-
-		-
-			rawMessage: Cannot access property $pagination_base on mixed.
-			identifier: property.nonObject
-			count: 1
-			path: src/DetectAuthorPaginationURLs.php
-
-		-
-			rawMessage: 'Parameter #1 $author_id of function get_author_posts_url expects int, mixed given.'
-			identifier: argument.type
-			count: 1
-			path: src/DetectAuthorPaginationURLs.php
-
-		-
-			rawMessage: 'Parameter #1 $userid of function count_user_posts expects int, mixed given.'
-			identifier: argument.type
-			count: 1
-			path: src/DetectAuthorPaginationURLs.php
-
-		-
-			rawMessage: 'Part $pagination_base (mixed) of encapsed string cannot be cast to string.'
-			identifier: encapsedStringPart.nonString
-			count: 1
-			path: src/DetectAuthorPaginationURLs.php
-
-		-
-			rawMessage: 'Call to function is_string() with string will always evaluate to true.'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/DetectAuthorsURLs.php
-
-		-
-			rawMessage: Cannot access property $ID on mixed.
-			identifier: property.nonObject
-			count: 1
-			path: src/DetectAuthorsURLs.php
-
-		-
-			rawMessage: 'Parameter #1 $author_id of function get_author_posts_url expects int, mixed given.'
-			identifier: argument.type
-			count: 1
-			path: src/DetectAuthorsURLs.php
-
-		-
 			rawMessage: Binary operation "/" between int and mixed results in an error.
 			identifier: binaryOp.invalid
 			count: 1
 			path: src/DetectCategoryPaginationURLs.php
-
-		-
-			rawMessage: Cannot access property $pagination_base on mixed.
-			identifier: property.nonObject
-			count: 1
-			path: src/DetectCategoryPaginationURLs.php
-
-		-
-			rawMessage: 'Parameter #2 $deprecated of function get_terms expects '''', array{hide_empty: true} given.'
-			identifier: argument.type
-			count: 1
-			path: src/DetectCategoryPaginationURLs.php
-
-		-
-			rawMessage: 'Part $pagination_base (mixed) of encapsed string cannot be cast to string.'
-			identifier: encapsedStringPart.nonString
-			count: 1
-			path: src/DetectCategoryPaginationURLs.php
-
-		-
-			rawMessage: 'Parameter #2 $deprecated of function get_terms expects '''', array{hide_empty: true} given.'
-			identifier: argument.type
-			count: 1
-			path: src/DetectCategoryURLs.php
 
 		-
 			rawMessage: 'Parameter #1 $post of function get_post_permalink expects int|WP_Post, string|null given.'
@@ -337,40 +199,10 @@ parameters:
 			path: src/DetectSitemapsURLs.php
 
 		-
-			rawMessage: 'Call to function is_string() with string will always evaluate to true.'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/DetectThemeAssets.php
-
-		-
-			rawMessage: 'Call to function is_string() with string will always evaluate to true.'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/DetectVendorCache.php
-
-		-
 			rawMessage: Binary operation "." between string and mixed results in an error.
 			identifier: binaryOp.invalid
 			count: 1
 			path: src/DetectVendorFiles.php
-
-		-
-			rawMessage: 'Call to function is_string() with string will always evaluate to true.'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/DetectWPIncludesAssets.php
-
-		-
-			rawMessage: 'Call to function is_string() with non-falsy-string will always evaluate to true.'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/FilesHelper.php
-
-		-
-			rawMessage: 'Call to function is_string() with string will always evaluate to true.'
-			identifier: function.alreadyNarrowedType
-			count: 3
-			path: src/FilesHelper.php
 
 		-
 			rawMessage: 'Parameter #2 $filenames_to_ignore of static method WP2Static\FilesHelper::pathLooksCrawlable() expects array<string>, mixed given.'
@@ -401,12 +233,6 @@ parameters:
 			identifier: argument.type
 			count: 2
 			path: src/SimpleRewriter.php
-
-		-
-			rawMessage: 'Static property WP2Static\SiteInfo::$info (array<mixed>) does not accept mixed.'
-			identifier: assign.propertyType
-			count: 1
-			path: src/SiteInfo.php
 
 		-
 			rawMessage: 'Argument of an invalid type mixed supplied for foreach, only iterables are supported.'
@@ -485,24 +311,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: src/URLHelper.php
-
-		-
-			rawMessage: 'In method "WP2Static\ViewRenderer::handleBulkRemoval", you should not use the $_POST superglobal.'
-			identifier: thecodingmachine.superglobalUsed
-			count: 4
-			path: src/ViewRenderer.php
-
-		-
-			rawMessage: 'In method "WP2Static\ViewRenderer::requestValue", you should not use the $_GET superglobal.'
-			identifier: thecodingmachine.superglobalUsed
-			count: 3
-			path: src/ViewRenderer.php
-
-		-
-			rawMessage: 'In method "WP2Static\ViewRenderer::requestValue", you should not use the $_POST superglobal.'
-			identifier: thecodingmachine.superglobalUsed
-			count: 3
-			path: src/ViewRenderer.php
 
 		-
 			rawMessage: 'Parameter #1 $callback of function array_map expects (callable(mixed): mixed)|null, ''absint'' given.'

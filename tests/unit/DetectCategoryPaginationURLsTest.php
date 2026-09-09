@@ -96,9 +96,15 @@ final class DetectCategoryPaginationURLsTest extends TestCase {
                 'get_terms',
                 [
                     'times' => 1,
+                    // The current signature, one argument: `get_terms( $args )`.
+                    // It used to assert the pre-4.5 shape, which WordPress
+                    // still honours but only by detecting it and moving the
+                    // arguments across.
                     'args' => [
-                        $taxonomy->name,
-                        [ 'hide_empty' => true ],
+                        [
+                            'taxonomy' => $taxonomy->name,
+                            'hide_empty' => true,
+                        ],
                     ],
                     'return' => $terms[ $taxonomy->name ],
                 ]

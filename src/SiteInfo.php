@@ -30,9 +30,7 @@ class SiteInfo {
         $site_url = trailingslashit( site_url() );
 
         // properties which should not change during plugin execution
-        self::$info = apply_filters(
-            'wp2static_siteinfo',
-            [
+        $defaults = [
                 // Core
                 'site_path' => ABSPATH,
                 'site_url' => $site_url,
@@ -73,8 +71,33 @@ class SiteInfo {
                 'child_theme_path' => trailingslashit( get_stylesheet_directory() ),
                 'child_theme_url' =>
                     trailingslashit( get_stylesheet_directory_uri() ),
-            ]
-        );
+        ];
+
+        /*
+         * A filter can return anything, and this one is a third party's.
+         *
+         * `apply_filters()` answers whatever the last callback returned: a
+         * plugin that filtered `wp2static_siteinfo` and forgot to return the
+         * array — the commonest filter mistake there is — used to leave every
+         * path and URL in the plugin reading from null. What that looks like
+         * from the outside is an export that writes to the wrong place, or to
+         * nowhere, with nothing in the log about a filter.
+         *
+         * The defaults are what this class computed; a filter that returns
+         * something other than an array does not get to replace them.
+         */
+        $filtered = apply_filters( 'wp2static_siteinfo', $defaults );
+
+        if ( ! is_array( $filtered ) ) {
+            WsLog::l(
+                'A wp2static_siteinfo filter returned ' . gettype( $filtered ) .
+                ' instead of an array; ignoring it.'
+            );
+
+            $filtered = $defaults;
+        }
+
+        self::$info = $filtered;
     }
 
     /**
@@ -96,10 +119,19 @@ class SiteInfo {
             throw new WP2StaticException( esc_html( $err ) );
         }
 
-        /**
-         * @var string $original_path
-         */
         $original_path = self::$info[ $key ];
+
+        /*
+         * Checked rather than asserted. It used to be an inline `@var string`,
+         * which tells the analysis what to believe instead of finding out — and
+         * the value comes from a filter, so believing it is exactly the wrong
+         * move.
+         */
+        if ( ! is_string( $original_path ) ) {
+            $err = "SiteInfo path '$key' is not a string";
+            WsLog::l( $err );
+            throw new WP2StaticException( esc_html( $err ) );
+        }
 
         // Standardise all paths to use / (Windows support)
         $standardised_path = str_replace( '\\', '/', $original_path );
@@ -125,10 +157,13 @@ class SiteInfo {
             throw new WP2StaticException( esc_html( $err ) );
         }
 
-        /**
-         * @var string $url
-         */
         $url = self::$info[ $key ];
+
+        if ( ! is_string( $url ) ) {
+            $err = "SiteInfo URL '$key' is not a string";
+            WsLog::l( $err );
+            throw new WP2StaticException( esc_html( $err ) );
+        }
 
         return $url;
     }

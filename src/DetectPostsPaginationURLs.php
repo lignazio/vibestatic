@@ -11,8 +11,7 @@ class DetectPostsPaginationURLs {
      */
     public static function detect( string $wp_site_url ) : array {
         /** @var \wpdb $wpdb */
-        /** @var \WP_Rewrite $wp_rewrite */
-        global $wpdb, $wp_rewrite;
+        global $wpdb;
 
         $post_urls = [];
         $unique_post_types = [];
@@ -36,7 +35,7 @@ class DetectPostsPaginationURLs {
 
         // get all pagination links for each post_type
         $post_types = array_unique( $unique_post_types );
-        $pagination_base = $wp_rewrite->pagination_base;
+        $pagination_base = URLHelper::paginationBase();
         $default_posts_per_page = get_option( 'posts_per_page' );
 
         $urls_to_include = [];

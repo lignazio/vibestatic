@@ -23,6 +23,37 @@ class URLHelper {
         return sanitize_text_field( wp_unslash( $_SERVER[ $key ] ) );
     }
 
+    /**
+     * WordPress's pagination segment: the `page` in `/category/news/page/2/`.
+     *
+     * `$wp_rewrite` is a global, so it is `mixed` as far as any analysis is
+     * concerned, and it genuinely is not there before `init` — a detector run
+     * from WP-CLI or from cron can arrive early. Four of the URL detectors read
+     * `$wp_rewrite->pagination_base` straight off it; one of them asserted the
+     * type with an inline `@var` and the other three did not bother, which is
+     * three ways of saying the same unchecked thing.
+     *
+     * `page` is what WordPress itself falls back to — it is the value
+     * WP_Rewrite's constructor sets — so a site that has not built its rewrite
+     * rules yet gets the same answer it would have got.
+     *
+     * The check is for the shape rather than for `instanceof WP_Rewrite`: what
+     * this needs is an object carrying a string, and insisting on the class
+     * would be insisting on more than the code uses.
+     */
+    public static function paginationBase() : string {
+        global $wp_rewrite;
+
+        if ( ! is_object( $wp_rewrite )
+            || ! isset( $wp_rewrite->pagination_base )
+            || ! is_string( $wp_rewrite->pagination_base )
+        ) {
+            return 'page';
+        }
+
+        return $wp_rewrite->pagination_base;
+    }
+
     public static function isSecure() : bool {
         // WordPress's is_ssl() also covers proxies in front of the site, which
         // speak http to the origin and https to the world.

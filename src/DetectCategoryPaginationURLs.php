@@ -10,7 +10,7 @@ class DetectCategoryPaginationURLs {
      * @return string[] list of URLs
      */
     public static function detect() : array {
-        global $wp_rewrite, $wpdb;
+        global $wpdb;
 
         // first we get each category with total posts as an array
         // similar to getting regular category URLs, but with extra
@@ -20,16 +20,36 @@ class DetectCategoryPaginationURLs {
         $category_links = [];
         $urls_to_include = [];
         $taxonomies = get_taxonomies( $args, 'objects' );
-        $pagination_base = $wp_rewrite->pagination_base;
+        $pagination_base = URLHelper::paginationBase();
         $default_posts_per_page = get_option( 'posts_per_page' );
 
         foreach ( $taxonomies as $taxonomy ) {
-            /** @var list<\WP_Term> $terms */
+            /*
+             * The current signature. `get_terms( $taxonomy, $args )` is the
+             * pre-4.5 one: WordPress still honours it — it detects the legacy
+             * shape and moves the arguments across — but it is the reason this
+             * call carried an ignore comment, and an ignore comment over a
+             * deprecated call is two problems written as none.
+             *
+             * The phrase had to be paraphrased rather than quoted: PHPStan
+             * reads its own directives out of any comment, including one
+             * explaining that a directive used to be here.
+             */
             $terms = get_terms(
-                // @phpstan-ignore-next-line
-                $taxonomy->name,
-                [ 'hide_empty' => true ]
+                [
+                    'taxonomy' => $taxonomy->name,
+                    'hide_empty' => true,
+                ]
             );
+
+            /*
+             * get_terms() answers a WP_Error for a taxonomy that does not
+             * exist. Iterating one walks its public properties instead of any
+             * terms, silently.
+             */
+            if ( ! is_array( $terms ) ) {
+                continue;
+            }
 
             foreach ( $terms as $term ) {
                 $term_link = get_term_link( $term );

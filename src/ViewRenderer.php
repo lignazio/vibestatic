@@ -147,12 +147,6 @@ class ViewRenderer {
         $view['settings_pages'] = [];
 
         foreach ( $view['addons'] as $addon ) {
-            // Addons::getAll() hands back whatever $wpdb->get_results() found,
-            // which is typed as mixed[] because that is honestly what it is.
-            if ( ! is_object( $addon ) || ! isset( $addon->slug ) || ! is_string( $addon->slug ) ) {
-                continue;
-            }
-
             $view['settings_pages'][ $addon->slug ] = Controller::addonSettingsPage( $addon->slug );
         }
 

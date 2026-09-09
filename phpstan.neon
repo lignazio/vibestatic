@@ -83,6 +83,33 @@ parameters:
         -
             identifier: thecodingmachine.superglobalUsed
             path: %currentWorkingDirectory%/src/Addon/Options.php
+        # The four places that read a request, and nowhere else.
+        #
+        # thecodingmachine's rule is about business logic reaching into
+        # superglobals. These are not that: they are the request-reading layer,
+        # which in a WordPress plugin has to be written by hand because
+        # WordPress gives no request object. Each is already guarded —
+        # savePosted() and handleBulkRemoval() after
+        # Controller::authorize(), requestValue() read-only and sanitised on
+        # the expression that reads it — and wp2staticProcessQueueAdminPost()
+        # forwards the caller's cookies so the background request it makes to
+        # admin-post.php is the same session.
+        #
+        # Named by method rather than by file: a new $_POST anywhere else in
+        # these files still fails, which is the point of exempting a decision
+        # instead of a location. Thirty-four baseline entries were these.
+        -
+            identifier: thecodingmachine.superglobalUsed
+            message: '#^In method "WP2Static\\CoreOptions::savePosted"#'
+            path: %currentWorkingDirectory%/src/CoreOptions.php
+        -
+            identifier: thecodingmachine.superglobalUsed
+            message: '#^In method "WP2Static\\ViewRenderer::(requestValue|handleBulkRemoval)"#'
+            path: %currentWorkingDirectory%/src/ViewRenderer.php
+        -
+            identifier: thecodingmachine.superglobalUsed
+            message: '#^In method "WP2Static\\Controller::wp2staticProcessQueueAdminPost"#'
+            path: %currentWorkingDirectory%/src/Controller.php
         # WP_CLI::add_command accepts a class or a [class, method] array and
         # calls them internally; PHPStan only sees the `callable` signature.
         # `.+` and not `\S+`: an array callable is printed as

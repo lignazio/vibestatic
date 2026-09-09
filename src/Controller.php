@@ -978,11 +978,17 @@ class Controller {
             $post->ID
         );
 
-        $site_url = SiteInfo::getUrl( 'site' );
-
-        if ( ! is_string( $permalink ) || ! is_string( $site_url ) ) {
+        /*
+         * `get_permalink()` returns string|false — false for a post that does
+         * not exist. The check on $site_url beside this one was genuinely
+         * redundant, and taking the whole condition away with it would leave
+         * str_replace() a boolean to work on.
+         */
+        if ( ! is_string( $permalink ) ) {
             return;
         }
+
+        $site_url = SiteInfo::getUrl( 'site' );
 
         $url = str_replace(
             $site_url,

@@ -79,7 +79,17 @@ class Addons {
     /**
      * Get all Addons
      *
-     * @return mixed[] array of Addon objects
+     * The shape is the table's, declared the way every repository in this
+     * plugin declares one: a database schema is a guarantee PHP's type system
+     * cannot see, and `mixed[]` meant nine places reading `$addon->slug` were
+     * unchecked.
+     *
+     * `enabled` is a **string**. MySQL hands a TINYINT back as `"0"` or `"1"`
+     * and wpdb does not cast it; the neighbouring getType() said `int`, which
+     * was a lie nobody had been bitten by only because every reader tests it
+     * for truth rather than comparing it.
+     *
+     * @return list<object{slug: string, type: string, name: string, docs_url: string, description: string, enabled: string}> array of Addon objects
      */
     public static function getAll( string $type = 'all' ) : array {
         /** @var \wpdb $wpdb */
@@ -88,25 +98,31 @@ class Addons {
         $table_name = $wpdb->prefix . 'wp2static_addons';
 
         if ( $type === 'all' ) {
-            return $wpdb->get_results(
+            /** @var list<object{slug: string, type: string, name: string, docs_url: string, description: string, enabled: string}> $addons */
+            $addons = $wpdb->get_results(
                 $wpdb->prepare( 'SELECT * FROM %i ORDER BY type DESC', $table_name )
-            );
+            ) ?? [];
+
+            return $addons;
         }
 
-        return $wpdb->get_results(
+        /** @var list<object{slug: string, type: string, name: string, docs_url: string, description: string, enabled: string}> $addons */
+        $addons = $wpdb->get_results(
             $wpdb->prepare(
                 'SELECT * FROM %i WHERE type = %s ORDER BY type DESC',
                 $table_name,
                 $type
             )
-        );
+        ) ?? [];
+
+        return $addons;
     }
 
     /**
      * Get enabled Addons of a given type
      *
      * @param string $type Type of addon to return
-     * @return list<object{slug: string, type: string, enabled: int}> array of Addon objects
+     * @return list<object{slug: string, type: string, enabled: string}> array of Addon objects
      */
     public static function getType( string $type ) : array {
         /** @var \wpdb $wpdb */
@@ -114,7 +130,7 @@ class Addons {
 
         $table_name = $wpdb->prefix . 'wp2static_addons';
 
-        /** @var list<object{slug: string, type: string, enabled: int}> $addons */
+        /** @var list<object{slug: string, type: string, enabled: string}> $addons */
         $addons = $wpdb->get_results(
             $wpdb->prepare(
                 'SELECT * FROM %i WHERE type = %s AND enabled = 1 ORDER BY slug',

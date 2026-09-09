@@ -91,8 +91,12 @@ class Deployer extends \WP2Static\PlanDrivenDeployer {
     /**
      * Open the connection described by the saved options.
      *
-     * @return resource|\FTP\Connection|null Null when the options are
-     *                                       incomplete or the login fails.
+     * `\FTP\Connection` and not `resource`: since PHP 8.1 `ftp_connect()`
+     * returns an object, and the union said this could still be a resource on
+     * a plugin whose minimum is 8.2. It never can.
+     *
+     * @return \FTP\Connection|null Null when the options are incomplete or the
+     *                              login fails.
      */
     private function openConnection() {
         $host = Controller::instance()->options()->get( 'host' );
