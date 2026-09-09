@@ -8,12 +8,12 @@ The six bundled modules were run against real targets before this candidate,
 and each module's README says what happened. In short: `directory-deployment`
 and `zip` end to end; `ftp` against a real FTP server, `sftp` against a real
 sFTP one and **`s3` against a real bucket**, all three with the files compared
-byte for byte against the source; `netlify` as far as its real API with an
-invalid token, which proves the request reaches the service and — the part its
-ancestor got wrong — that a refusal is recorded as a failure and not as a
-deploy.
+byte for byte against the source; and `netlify` against a real site on the free plan,
+where the second deploy came back "0 uploaded, 1,806 unchanged" — which is how
+you know the first one declared the whole site and not just the 75 files it
+physically sent.
 
-For each of the five that could be run end to end, the three things that matter:
+For each of the six, the three things that matter:
 a second deploy with nothing changed sends **nothing**, a post deleted in
 WordPress **disappears** from the published site, and an error appears in the log
 as an error.

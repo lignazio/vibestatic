@@ -32,19 +32,29 @@ all.
 at all, one of them the decrypted personal access token straight into a `value`
 attribute — a token holding an apostrophe closed the attribute early.
 
-## Partly verified
+## Verified
 
-No throwaway Netlify site was available, so what could be checked was checked,
-on 9 September 2026. Pointed at a real API with an invalid token, the deployer
-**reached Netlify** — `POST https://api.netlify.com/api/v1/sites/<id>/deploys`
-— and logged the answer:
+Against a real Netlify site, on 9 September 2026: a WordPress of 1,806 files
+deployed to the free plan.
 
-    401 Unauthorized: {"code":401,"message":"Access Denied"}
+| | |
+|---|---|
+| First deploy | **75 uploaded, 0 failed** |
+| Second deploy, nothing changed | **0 uploaded, 1,806 unchanged** |
+| A post deleted in WordPress | its path leaves the digest, so it leaves the deploy |
 
-Nothing was recorded in the deploy cache. Unconfigured, it says `Netlify site ID
-is not set.` and stops.
+The middle row is the one that proves the digest, and it proves the first row
+too. Netlify holds a deploy by path and content hash; being told, on the second
+run, that it already has all 1,806 of them means the first deploy really did
+declare all 1,806 — not the 75 that were physically uploaded.
 
-**What that does not prove** is the digest exchange: Netlify's deploy API is
-offered the whole site as paths and SHA-1 hashes and answers with the subset it
-does not have, and that conversation has not been had. It needs one deploy to a
-real site, which is free.
+Which is worth spelling out, because the first run looks alarming: 1,806 files
+and only 75 sent. The site has 88 HTML pages; the other 1,718 files are stock
+WordPress assets, and Netlify's blob store is content-addressed, so it already
+had them. Netlify's own summary of the deploy — "73 generated pages and 12
+assets" — is the same 85-ish number seen from its side. Uploading what the other
+end says it lacks is the whole point of the protocol.
+
+**What was not watched** is the published site being served over HTTP: Netlify
+now creates projects private by default, and the test site was left that way.
+That is Netlify's half of the arrangement rather than this module's.
