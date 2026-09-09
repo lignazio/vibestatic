@@ -11,6 +11,17 @@
  * @package WP2StaticS3
  */
 
+/*
+ * A file that runs something when it is included has to be able to refuse being
+ * included on its own. This one does — an spl_autoload_register(), and in one
+ * module a require of its functions — and a file that merely declares a class
+ * does not, which is why the guard is here and not in front of all sixty of
+ * them.
+ */
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 spl_autoload_register(
     function ( string $class ) : void {
         $prefix = 'WP2StaticS3\\';

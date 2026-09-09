@@ -12,6 +12,16 @@
 
 namespace WP2StaticDirectoryDeployer;
 
+/*
+ * A file that runs something when it is included has to be able to refuse being
+ * included on its own. This one does — a define(), a function declaration, an
+ * spl_autoload_register() — and a file that merely declares a class does not,
+ * which is why the guard is here and not in front of all sixty of them.
+ */
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 /**
  * Delete a directory and everything in it.
  *
