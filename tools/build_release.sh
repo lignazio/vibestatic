@@ -145,6 +145,49 @@ if [ -d "$BUILD/$SLUG/addons" ]; then
         -delete
 fi
 
+# What the dependencies ship for their own developers, and which has no business
+# being in a WordPress plugin. This is not tidiness: wordpress.org's uploader
+# refused the package outright over one of these files —
+#
+#   Error: The plugin contains unexpected files. The following files are not
+#   permitted in plugins: build-phar.sh.
+#
+# — which is `paragonie/random_compat/build-phar.sh`, a five-line wrapper for
+# building a phar, in a polyfill for PHP 5 that phpseclib requires and that does
+# nothing at all on 8.2. The directory's own Plugin Check does not look at this,
+# so only the upload found it.
+#
+# Deleted by category rather than by name. A dependency shipping a shell script,
+# a psalm config or a docs/ directory is the normal case, not this one package's
+# quirk, and naming the file would leave the next one to be found the same way.
+#
+# What is NOT touched: anything a library needs at runtime. phpseclib's
+# `openssl.cnf` is a real data file — it is passed to OpenSSL when generating
+# keys — which is why this is a list of what development material looks like and
+# not an allowlist of `*.php` plus licences.
+if [ -d "$BUILD/$SLUG/vendor-prefixed" ]; then
+    find "$BUILD/$SLUG/vendor-prefixed" -mindepth 2 \
+        \( -name '*.sh' -o -name '*.bat' -o -name '*.ps1' -o -name '*.phar' \
+           -o -name '*.md' -o -name '*.asc' -o -name '*.pubkey' \
+           -o -name 'psalm.xml' -o -name 'psalm-autoload.php' \
+           -o -name 'phpunit.xml*' -o -name 'phpstan*' -o -name '.editorconfig' \
+           -o -name 'composer.json' -o -name 'composer.lock' \) \
+        -type f -delete
+
+    find "$BUILD/$SLUG/vendor-prefixed" -mindepth 2 \
+        \( -name docs -o -name tests -o -name test -o -name build -o -name dist \
+           -o -name '.github' \) \
+        -type d -exec rm -rf {} +
+
+    # Licences stay: guideline 1 is about being able to see what everything in
+    # here is licensed under, and every one of the eleven ships its own.
+    LICENCES="$(find "$BUILD/$SLUG/vendor-prefixed" -iname 'LICENSE*' -type f | wc -l | tr -d ' ')"
+    [ "$LICENCES" -ge 11 ] || {
+        echo "Solo $LICENCES licenze in vendor-prefixed/: la potatura ne ha prese di troppo." >&2
+        exit 1
+    }
+fi
+
 # From vendor/ only the autoloader is needed: the third-party libraries are in
 # vendor-prefixed/, and everything else in here is development material.
 #
