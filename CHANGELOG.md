@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased — 9.0.0
+## VibeStatic 9.0.0 (2026-09-09)
 
 A major because the add-on API gains a public surface it is now committed to
 keeping, and because one bundled module's settings page moved.
@@ -38,6 +38,15 @@ keeping, and because one bundled module's settings page moved.
 - **`Addon\Controller::notices()`**, for what an add-on can only know at render
   time. The FTP module uses it to say that this PHP build has no ext-ftp or no
   FTPS, rather than offering a form that cannot work.
+
+- **`Addon\Updater`**, so an add-on installed from a zip gets updates. The
+  core's own Updater cannot serve them: it asks GitHub for `/releases/latest`,
+  which is the newest release of a *repository*, and the add-ons share one. A
+  site with BunnyCDN installed would be offered whatever came out last, Azure
+  included, and WordPress would install it over the top — the version compares
+  as newer and the zip is a valid plugin. This one matches releases by tag
+  prefix (`bunnycdn-v1.0.1`), and fetches the release list once per repository
+  rather than once per add-on.
 
 ### Changed
 
