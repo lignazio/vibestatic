@@ -51,6 +51,21 @@ select.wp2static-select {
 </style>
 
 <div class="wrap">
+    <?php
+    /*
+     * The page's own title, asked of WordPress rather than written again here.
+     *
+     * An admin page is expected to carry exactly one h1 inside `.wrap`: it is
+     * what a screen reader announces on arrival, and what WordPress hangs
+     * `.wp-header-end` off when it decides where to put admin notices. Every
+     * view in this plugin but two opened with a `<br>` instead.
+     *
+     * get_admin_page_title() returns what add_submenu_page() was given, so the
+     * heading cannot drift from the menu entry — and for the pages that have no
+     * menu entry, Controller::setHiddenPageTitle() has already filled it in.
+     */
+    ?>
+    <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
     <p><i>
         <?php
         printf(

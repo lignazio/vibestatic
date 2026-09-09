@@ -34,7 +34,15 @@ $row = function ( string $name ) use ( $options ) : string {
         method="POST"
         action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 
-    <h1><?php esc_html_e( 'Advanced Options', 'vibestatic' ); ?></h1>
+    <?php
+    /*
+     * The registered title, like every other page here. It used to say
+     * "Advanced Options" while the menu entry and the browser tab said
+     * "VibeStatic Advanced": two names for one page, and the one a screen
+     * reader announces on arrival was not the one on the screen.
+     */
+    ?>
+    <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
 
     <h2><?php esc_html_e( 'Detection Options', 'vibestatic' ); ?></h2>
 
