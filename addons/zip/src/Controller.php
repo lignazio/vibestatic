@@ -41,9 +41,19 @@ class Controller {
     const PAGE = 'wp2static-addon-zip';
 
     /**
-     * The archive's filename under uploads.
+     * The archive's filename inside the plugin's storage directory.
      */
-    const FILENAME = 'wp2static-processed-site.zip';
+    const FILENAME = 'processed-site.zip';
+
+    /**
+     * The name the archive is offered under when it is downloaded.
+     *
+     * Not the same as the name on disk, and deliberately: on disk the file sits
+     * in a directory that already says which plugin wrote it, while in a user's
+     * Downloads folder `processed-site.zip` next to eleven other downloads says
+     * nothing at all.
+     */
+    const DOWNLOAD_FILENAME = 'vibestatic-processed-site.zip';
 
     public function run() : void {
         add_action(
@@ -91,7 +101,7 @@ class Controller {
      * Absolute path of the archive.
      */
     public static function path() : string {
-        return \WP2Static\SiteInfo::getPath( 'uploads' ) . self::FILENAME;
+        return \WP2Static\StorageDir::path() . self::FILENAME;
     }
 
     public static function renderZipPage() : void {
@@ -160,16 +170,15 @@ class Controller {
     /**
      * Hand the archive over as a download.
      *
-     * Through admin-post rather than as a link straight at the uploads URL: a
-     * guessable address that can be pasted anywhere becomes an action that asks
-     * who is asking.
+     * Through admin-post rather than as a link straight at the archive's URL:
+     * a guessable address that can be pasted anywhere becomes an action that
+     * asks who is asking.
      *
-     * **It does not make the archive private, and it should not be read as
-     * doing so.** The file stays where it was written, under uploads, and is
-     * still readable there — as is `wp2static-processed-site/`, the whole
-     * generated site as loose files, which answers 200 today. Where generated
-     * artefacts live is a question for the core, and worth asking properly
-     * rather than half-answering here.
+     * This is the only way in, and now it is the only way in on every server as
+     * well. The archive lives in `uploads/vibestatic/`, which WP2Static\StorageDir
+     * creates with an `.htaccess`, a `web.config` and an `index.php`; nginx
+     * honours none of the three, and that is precisely why the download is a
+     * capability and nonce check in front of readfile() rather than a link.
      */
     public function downloadZip() : void {
         \WP2Static\Controller::authorize( 'wp2static-zip-actions' );
@@ -182,7 +191,7 @@ class Controller {
         }
 
         header( 'Content-Type: application/zip' );
-        header( 'Content-Disposition: attachment; filename="' . self::FILENAME . '"' );
+        header( 'Content-Disposition: attachment; filename="' . self::DOWNLOAD_FILENAME . '"' );
         header( 'Content-Length: ' . (string) filesize( $zip_path ) );
         header( 'X-Content-Type-Options: nosniff' );
 

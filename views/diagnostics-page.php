@@ -116,7 +116,7 @@ $site_info = $view['site_info'];
                     $yes_no( $uploads_writable );
                     ?>
                 </td>
-                <td><?php esc_html_e( 'By default VibeStatic writes the generated static site under the wp-content/uploads directory. Make sure VibeStatic has permission to do so.', 'vibestatic' ); ?></td>
+                <td><?php esc_html_e( 'By default VibeStatic writes the generated static site into wp-content/uploads/vibestatic/, a directory it creates itself. Make sure VibeStatic has permission to do so.', 'vibestatic' ); ?></td>
             </tr>
             <tr>
                 <td><?php esc_html_e( 'PHP version', 'vibestatic' ); ?></td>

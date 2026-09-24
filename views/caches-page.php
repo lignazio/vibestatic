@@ -21,8 +21,10 @@ $crawl_cache_total_urls = $view['crawlCacheTotalURLs'];
 /** @var int $exported_site_file_count */
 $exported_site_file_count = $view['exportedSiteFileCount'];
 
-/** @var string $uploads_path */
-$uploads_path = $view['uploads_path'];
+/** @var string $exported_site_path */
+$exported_site_path = $view['exported_site_path'];
+/** @var string $processed_site_path */
+$processed_site_path = $view['processed_site_path'];
 
 /** @var int $processed_site_file_count */
 $processed_site_file_count = $view['processedSiteFileCount'];
@@ -43,12 +45,6 @@ $show_urls = __( 'Show URLs', 'vibestatic' );
 $show_paths = __( 'Show Paths', 'vibestatic' );
 
 ?>
-
-<style>
-select.wp2static-select {
-    width: 165px;
-}
-</style>
 
 <div class="wrap">
     <?php
@@ -154,7 +150,7 @@ select.wp2static-select {
                     );
                     ?>
                     <br>
-                    <a href="<?php echo esc_url( 'file://' . $uploads_path . 'wp2static-exported-site' ); ?>"><?php esc_html_e( 'Path', 'vibestatic' ); ?></a>
+                    <a href="<?php echo esc_url( 'file://' . $exported_site_path ); ?>"><?php esc_html_e( 'Path', 'vibestatic' ); ?></a>
                 </td>
                 <td>
                     <?php
@@ -186,7 +182,7 @@ select.wp2static-select {
                     );
                     ?>
                     <br>
-                    <a href="<?php echo esc_url( 'file://' . $uploads_path . 'wp2static-processed-site' ); ?>"><?php esc_html_e( 'Path', 'vibestatic' ); ?></a>
+                    <a href="<?php echo esc_url( 'file://' . $processed_site_path ); ?>"><?php esc_html_e( 'Path', 'vibestatic' ); ?></a>
                 </td>
                 <td>
                     <?php

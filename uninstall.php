@@ -69,14 +69,14 @@ foreach ( $tables_to_drop as $table ) {
 delete_option( 'vibestatic_schema_version' );
 
 /*
- * The directories under uploads. This was the "TODO: delete crawl_cache,
+ * What the plugin wrote under uploads. This was the "TODO: delete crawl_cache,
  * processed_site and zip if exist" the original authors left: without it, a
  * fifteen-hundred-page site left two complete copies on disk after uninstalling
  * the plugin that wrote them.
  *
- * The names are the ones StaticSite and ProcessedSite produce. Only what we
- * recognise is deleted, by exact name and under uploads: a recursive delete at
- * uninstall time is the worst possible place to be generous with paths.
+ * Only what we recognise is deleted, by exact name and under uploads: a
+ * recursive delete at uninstall time is the worst possible place to be generous
+ * with paths.
  */
 $uploads = wp_upload_dir();
 $uploads_path = trailingslashit( $uploads['basedir'] );
@@ -118,16 +118,27 @@ function wp2static_uninstall_rmdir( string $path ) : void {
     rmdir( $path );
 }
 
+/*
+ * The plugin's own directory, which holds the crawled site, the post-processed
+ * site and the ZIP module's archive. Removing it removes all three — including
+ * the archive, which used to survive uninstalling: the ZIP module had an
+ * uninstall.php of its own, which WordPress runs only for a plugin it is
+ * uninstalling, and which called `unlink()` with no arguments at all, so it was
+ * a fatal error rather than a deletion. A whole site's worth of it, left behind.
+ */
+wp2static_uninstall_rmdir( $uploads_path . 'vibestatic' );
+
+/*
+ * The places earlier versions wrote to, directly in the uploads root.
+ * StorageDir::migrateLegacyPaths() moves these into the directory above on
+ * upgrade, so normally there is nothing here — but a site that was never loaded
+ * in the admin between the upgrade and the uninstall never ran that migration,
+ * and the copies are still where 9.1.1 put them.
+ */
 foreach ( [ 'wp2static-crawled-site', 'wp2static-processed-site' ] as $directory ) {
     wp2static_uninstall_rmdir( $uploads_path . $directory );
 }
 
-/*
- * The ZIP module's archive. It used to have an uninstall.php of its own, which
- * WordPress runs only for a plugin it is uninstalling — and which called
- * `unlink()` with no arguments at all, so it was a fatal error during uninstall
- * and the archive stayed on disk regardless. A whole site's worth of it.
- */
 $wp2static_zip = $uploads_path . 'wp2static-processed-site.zip';
 
 if ( is_file( $wp2static_zip ) ) {

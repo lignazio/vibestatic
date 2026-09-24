@@ -102,8 +102,16 @@ $zip_created = $view['zip_created'];
     <p>
         <em>
             <?php
+            /*
+             * It used to read "readable by anyone who knows the address", and
+             * it was true: the archive sat in the root of the uploads
+             * directory. It is now in the plugin's own directory, which is
+             * protected — on the two servers that can be protected by dropping
+             * a file in it. Saying so, and naming the one that cannot, is the
+             * point of the sentence.
+             */
             esc_html_e(
-                'The archive also stays on disk under the uploads directory, where — like the generated site itself — it is readable by anyone who knows the address.',
+                'The archive stays on disk in wp-content/uploads/vibestatic/, which the plugin protects from direct access with an .htaccess file for Apache, a web.config for IIS and an index.php. nginx reads none of the three: on nginx, deny access to that directory in the server configuration.',
                 'vibestatic'
             );
             ?>

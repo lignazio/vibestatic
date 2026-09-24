@@ -11,7 +11,12 @@ Enable **ZIP** on the Add-ons page, run a deployment, then open its page from
 the gear icon: it shows the archive's size and when it was made, with a button
 to download it and one to delete it.
 
-The archive is written to `wp-content/uploads/wp2static-processed-site.zip`.
+The archive is written to `wp-content/uploads/vibestatic/processed-site.zip`, a
+directory the plugin creates with an `.htaccess`, a `web.config` and an
+`index.php` so that no web server serves what is in it. The download goes
+through an admin-post handler that checks the capability and the nonce — which
+is what protects the archive on nginx, where none of those three files mean
+anything.
 
 ```bash
 wp2static zip

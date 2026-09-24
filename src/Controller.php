@@ -41,8 +41,6 @@ class Controller {
         WordPressAdmin::registerHooks( $bootstrap_file );
         WordPressAdmin::addAdminUIElements();
 
-        Utils::set_max_execution_time();
-
         return $plugin_instance;
     }
 
@@ -207,8 +205,20 @@ class Controller {
         }
     }
 
+    /**
+     * The hook suffix WordPress gave each of the plugin's pages, by slug.
+     *
+     * `admin_enqueue_scripts` names the page it is running on by that suffix,
+     * and this is how enqueueAdminAssets() recognises its own: kept rather
+     * than recomputed, because the suffix is derived from the menu title and
+     * a guess at that derivation is a script quietly not loading.
+     *
+     * @var array<string, string> page slug => hook suffix
+     */
+    private static $page_hooks = [];
+
     public static function registerOptionsPage() : void {
-        add_menu_page(
+        self::$page_hooks['wp2static'] = add_menu_page(
             'VibeStatic',
             'VibeStatic',
             'manage_options',
@@ -263,7 +273,7 @@ class Controller {
         ];
 
         foreach ( $submenu_pages as $menu_slug => $page ) {
-            add_submenu_page(
+            $hook = add_submenu_page(
                 'wp2static',
                 self::pageTitle( $page[0] ),
                 $page[0],
@@ -271,6 +281,10 @@ class Controller {
                 $menu_slug,
                 $page[1]
             );
+
+            if ( is_string( $hook ) ) {
+                self::$page_hooks[ $menu_slug ] = $hook;
+            }
         }
 
         /** @var array<string, array{0: string, 1: callable}> slug => [ titolo, callback ] */
@@ -348,6 +362,69 @@ class Controller {
     }
 
     /**
+     * The plugin's stylesheet and the Run page's script, on its own pages only.
+     *
+     * Hooked to `admin_enqueue_scripts` by WordPressAdmin. The script used to
+     * be a `<script>` block at the top of the Run view and the stylesheet a
+     * `<style>` block at the top of the Caches view, each printed into the
+     * page by hand: the directory asks that both go through the enqueue API,
+     * where a second copy of jQuery cannot be loaded and another plugin can
+     * dequeue or defer them.
+     *
+     * What the script needs from PHP — the nonce, and the two strings it
+     * shows — goes ahead of it through wp_add_inline_script(). The strings go
+     * through wp_json_encode() for the same reason they did in the view: a
+     * translation with an apostrophe in it must not end the literal.
+     *
+     * @param string $hook_suffix The page being rendered, as WordPress names it.
+     */
+    public static function enqueueAdminAssets( string $hook_suffix ) : void {
+        if ( ! in_array( $hook_suffix, self::$page_hooks, true ) ) {
+            return;
+        }
+
+        wp_enqueue_style(
+            'vibestatic-admin',
+            VIBESTATIC_URL . 'assets/admin.css',
+            [],
+            VIBESTATIC_VERSION
+        );
+
+        if ( ! isset( self::$page_hooks['wp2static'] ) || $hook_suffix !== self::$page_hooks['wp2static'] ) {
+            return;
+        }
+
+        wp_enqueue_script(
+            'vibestatic-run-page',
+            VIBESTATIC_URL . 'assets/run-page.js',
+            [ 'jquery' ],
+            VIBESTATIC_VERSION,
+            true
+        );
+
+        $settings = [
+            'nonce' => wp_create_nonce( 'wp2static-run-page' ),
+            'strings' => [
+                'httpError' => sprintf(
+                    /* translators: %s: HTTP status code returned by the server. */
+                    __( '%s error code returned from server.', 'vibestatic' ),
+                    '{status}'
+                ),
+                'httpErrorAdvice' => __(
+                    "Please check your server's error logs, or try increasing the max_execution_time limit in PHP if this consistently fails after the same duration. More information about the error may be logged in your browser's console.",
+                    'vibestatic'
+                ),
+            ],
+        ];
+
+        wp_add_inline_script(
+            'vibestatic-run-page',
+            'var vibestaticRun = ' . wp_json_encode( $settings ) . ';',
+            'before'
+        );
+    }
+
+    /**
      * "VibeStatic Jobs", but with the word order in the translator's hands.
      * Concatenating the plugin name in front of the label works in English and
      * in little else.
@@ -388,7 +465,11 @@ class Controller {
      * @param callable $callback What renders it.
      */
     public static function addHiddenPage( string $title, string $slug, $callback ) : void {
-        add_submenu_page( '', $title, $title, 'manage_options', $slug, $callback );
+        $hook = add_submenu_page( '', $title, $title, 'manage_options', $slug, $callback );
+
+        if ( is_string( $hook ) ) {
+            self::$page_hooks[ $slug ] = $hook;
+        }
 
         if ( ! self::$hidden_page_titles ) {
             add_action( 'current_screen', [ self::class, 'setHiddenPageTitle' ] );
@@ -449,37 +530,21 @@ class Controller {
      * already set, keep it", so filling it in here is all it takes.
      */
     public static function setHiddenPageTitle() : void {
-        $page = filter_input( INPUT_GET, 'page' );
+        // A read that decides which title to show, on a page WordPress has
+        // already gated on `manage_options`: nothing is written, so there is
+        // no nonce to verify.
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- see above.
+        $page = isset( $_GET['page'] ) && is_string( $_GET['page'] )
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- see above.
+            ? sanitize_key( wp_unslash( $_GET['page'] ) )
+            : '';
 
-        if ( ! is_string( $page ) || ! isset( self::$hidden_page_titles[ $page ] ) ) {
+        if ( ! isset( self::$hidden_page_titles[ $page ] ) ) {
             return;
         }
 
         // @phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- this is our own page's title.
         $GLOBALS['title'] = self::$hidden_page_titles[ $page ];
-    }
-
-    // TODO: why is this here? Move to CrawlQueue if still needed
-    public function deleteCrawlCache() : void {
-        // we now have modified file list in DB
-        /** @var \wpdb $wpdb */
-        global $wpdb;
-
-        $table_name = $wpdb->prefix . 'wp2static_crawl_cache';
-
-        Utils::runPrepared( $wpdb->prepare( 'TRUNCATE TABLE %i', $table_name ) );
-
-        $count = $wpdb->get_var(
-            $wpdb->prepare( 'SELECT count(*) FROM %i', $table_name )
-        );
-
-        if ( $count === '0' ) {
-            http_response_code( 200 );
-
-            echo 'SUCCESS';
-        } else {
-            http_response_code( 500 );
-        }
     }
 
     /**
@@ -523,14 +588,6 @@ class Controller {
                 403
             );
         }
-    }
-
-    public function resetDefaultSettings() : void {
-        CoreOptions::seedOptions();
-    }
-
-    public function deleteDeployCache() : void {
-        DeployCache::truncateAll();
     }
 
     public static function wp2staticUISaveOptions() : void {
@@ -600,7 +657,7 @@ class Controller {
     public static function wp2staticDeployCacheDelete() : void {
         self::authorize( 'wp2static-caches-page' );
 
-        $deploy_namespace = strval( filter_input( INPUT_POST, 'deploy_namespace' ) );
+        $deploy_namespace = Utils::postedText( 'deploy_namespace' );
         if ( $deploy_namespace !== '' ) {
             DeployCache::truncate( $deploy_namespace );
         } else {
@@ -614,7 +671,7 @@ class Controller {
     public static function wp2staticDeployCacheShow() : void {
         self::authorize( 'wp2static-caches-page' );
 
-        $deploy_namespace = strval( filter_input( INPUT_POST, 'deploy_namespace' ) );
+        $deploy_namespace = Utils::postedText( 'deploy_namespace' );
         if ( $deploy_namespace !== '' ) {
             wp_safe_redirect(
                 admin_url(
@@ -753,7 +810,7 @@ class Controller {
         } else {
             self::authorize( 'wp2static-addons-page' );
 
-            $addon_slug = sanitize_text_field( strval( filter_input( INPUT_POST, 'addon_slug' ) ) );
+            $addon_slug = Utils::postedText( 'addon_slug' );
         }
 
         /** @var \wpdb $wpdb */
@@ -821,6 +878,10 @@ class Controller {
         /** @var \wpdb $wpdb */
         global $wpdb;
 
+        // Lifted here, where an export is about to run, and nowhere earlier:
+        // this used to be done in init(), on every request the site served.
+        Utils::set_max_execution_time();
+
         JobQueue::markFailedJobs();
         // skip any earlier jobs of same type still in 'waiting' status
         JobQueue::squashQueue();
@@ -873,9 +934,6 @@ class Controller {
                     case 'post_process':
                         WsLog::l( 'Starting post-processing' );
                         $post_processor = new PostProcessor();
-                        $processed_site_dir =
-                            SiteInfo::getPath( 'uploads' ) . 'wp2static-processed-site';
-                        $processed_site = new ProcessedSite();
                         $post_processor->processStaticSite( StaticSite::getPath() );
                         WsLog::l( 'Post-processing completed' );
                         break;
@@ -917,7 +975,16 @@ class Controller {
     }
 
     /**
-     *  Make a non-blocking POST request to run wp2staticProcessQueue.
+     * Make a non-blocking POST request to run wp2staticProcessQueue.
+     *
+     * The request goes to this same site, and it has to arrive as the current
+     * user: admin-post.php hands it to adminPostProcessQueue(), which asks for
+     * `manage_options` and a nonce made for that user. So the session travels
+     * with it — but only the session. This used to forward the whole of
+     * `$_COOKIE`, every cookie the browser sent for this domain, unread. The
+     * three WordPress authentication cookies are the ones the receiving end
+     * looks at, and they are the only ones sent now, each one read as a plain
+     * string.
      */
     public static function wp2staticProcessQueueAdminPost() : void {
         $url = admin_url( 'admin-post.php' ) . '?action=wp2static_process_queue';
@@ -927,8 +994,11 @@ class Controller {
             [
                 'blocking' => false,
                 'body' => [ '_wpnonce' => $nonce ],
-                'cookies' => $_COOKIE,
-                'sslverify' => false,
+                'cookies' => self::sessionCookies(),
+                // A request the site makes to itself, on the same terms WP-Cron
+                // uses for its own: a self-signed certificate on a staging
+                // server would otherwise stop the queue from ever running.
+                'sslverify' => (bool) apply_filters( 'https_local_ssl_verify', false ),
                 'timeout' => 0.01,
             ]
         );
@@ -941,7 +1011,44 @@ class Controller {
         }
     }
 
+    /**
+     * The current user's WordPress session, as the cookies that carry it.
+     *
+     * @return array<string, string> cookie name => value
+     */
+    private static function sessionCookies() : array {
+        $cookies = [];
+
+        foreach ( [ 'AUTH_COOKIE', 'SECURE_AUTH_COOKIE', 'LOGGED_IN_COOKIE' ] as $constant ) {
+            if ( ! defined( $constant ) ) {
+                continue;
+            }
+
+            $name = constant( $constant );
+
+            if ( ! is_string( $name ) || ! isset( $_COOKIE[ $name ] ) || ! is_string( $_COOKIE[ $name ] ) ) {
+                continue;
+            }
+
+            // A WordPress auth cookie is `user|expiry|token|hmac`: a user
+            // name sanitize_user() has already been through, two hexadecimal
+            // strings and a number. sanitize_text_field() leaves a valid one
+            // exactly as it is, and a value it does change was not one.
+            $value = sanitize_text_field( wp_unslash( $_COOKIE[ $name ] ) );
+
+            if ( '' === $value ) {
+                continue;
+            }
+
+            $cookies[ $name ] = $value;
+        }
+
+        return $cookies;
+    }
+
     public static function wp2staticHeadless() : void {
+        Utils::set_max_execution_time();
+
         WsLog::l( 'Running VibeStatic in Headless mode' );
         WsLog::l( 'Starting URL detection' );
         $detected_count = URLDetector::enqueueURLs();
@@ -951,9 +1058,6 @@ class Controller {
 
         WsLog::l( 'Starting post-processing' );
         $post_processor = new PostProcessor();
-        $processed_site_dir =
-            SiteInfo::getPath( 'uploads' ) . 'wp2static-processed-site';
-        $processed_site = new ProcessedSite();
         $post_processor->processStaticSite( StaticSite::getPath() );
         WsLog::l( 'Post-processing completed' );
 

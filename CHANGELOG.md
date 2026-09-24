@@ -1,5 +1,118 @@
 # Changelog
 
+## VibeStatic 9.1.2 (2026-09-23)
+
+The second review from the wordpress.org plugin directory. One item: the ZIP
+module wrote its archive into the root of the uploads directory, where anyone
+who guessed the filename could download it. That was true of everything the
+plugin wrote, not only the archive, and all of it has moved.
+
+### Changed
+
+- **Everything the plugin writes lives in `wp-content/uploads/vibestatic/`.**
+  Three entries used to sit in the uploads root — `wp2static-crawled-site/`,
+  `wp2static-processed-site/` and `wp2static-processed-site.zip` — and each of
+  them answered 200 to anyone who knew the name. That is a whole copy of the
+  site, including whatever the crawl picked up, published before the user had
+  chosen to publish anything. They are now `crawled-site/`, `processed-site/`
+  and `processed-site.zip` inside one directory named after the plugin, which
+  `WP2Static\StorageDir` creates together with an `.htaccess`, a `web.config`
+  and an `index.php`. The path is resolved at runtime from `wp_upload_dir()`,
+  so a site with a moved uploads directory, or a multisite where each site has
+  its own, gets its own.
+- **The archive is reachable only through the download handler.** It always
+  was the only link offered; now it is the only way in on Apache and IIS as
+  well. nginx honours none of those three files, which is exactly why the
+  handler checks the capability and the nonce rather than the page linking at
+  the archive's URL.
+- **Upgrading moves what is already on disk.** `StorageDir::migrateLegacyPaths()`
+  runs from `Schema::install()`, so on activation and on the upgrade that
+  raises the schema version to 11. The two directories are caches and could
+  have been deleted; they are moved because the archive cannot be — somebody
+  who exported last week and has not downloaded it yet should not find it
+  gone. Uninstalling removes the new directory and the old paths both.
+
+### Fixed
+
+- **The crawler cannot pick up its own output any more.** The plugin's
+  directories were kept out of the crawl by two entries in the user-editable
+  "Directory and File Names to Ignore" list — a preference standing in for an
+  invariant. Prune the list and the crawler publishes the previous run's copy
+  of the site inside this one, which doubles again on the run after that. It is
+  now a rule in `FilesHelper::getListOfLocalFilesByDir()`: what is under the
+  plugin's storage directory is never crawled.
+- **The ZIP module writes where the page looks.** `ZipArchiver` built the
+  archive's path by taking the processed site's directory and appending `.zip`,
+  while the page that offers it for download asked `Controller::path()`. The
+  two agree on a default installation and stop agreeing the moment anybody
+  filters `wp2static_processed_site_path`. There is one answer now, and it is
+  `Controller::path()`.
+- **The "Path" link under "Generated Static Site" pointed at nothing.** The
+  Caches page rebuilt both paths by hand from the uploads directory, and one of
+  the two names it used, `wp2static-exported-site`, is a directory the plugin
+  has never written. Both links now come from `StaticSite::getPath()` and
+  `ProcessedSite::getPath()`.
+- **The downloaded file has a name that says what it is.** The archive is
+  `processed-site.zip` on disk, inside a directory that already names the
+  plugin; it arrives in a browser's Downloads folder as
+  `vibestatic-processed-site.zip`.
+
+### Removed
+
+- Two assignments in `Controller` — `$processed_site_dir` and a `ProcessedSite`
+  instance — that nothing read, in both the queue runner and the headless run.
+
+## VibeStatic 9.1.1 (2026-09-15)
+
+The first review from the wordpress.org plugin directory, answered. Every item
+in it that was a defect is fixed here; the ones that were not are explained in
+the reply, and in a comment at the place in the code the review pointed at.
+
+### Changed
+
+- **The Run page's script and the Caches page's stylesheet are enqueued.** They
+  were a `<script>` and a `<style>` block printed at the top of their views.
+  Now `assets/run-page.js` and `assets/admin.css`, registered on
+  `admin_enqueue_scripts` for the plugin's own pages only, with the nonce and
+  the two translated strings the script displays handed over through
+  `wp_add_inline_script()`. The Snipcart markup is not enqueued and cannot be:
+  it goes into a file on disk, a page of the exported site, which no
+  `wp_head()` will ever run in.
+- **`set_time_limit()` runs only for an export.** It was called from
+  `Controller::init()`, that is, on every request the site served, admin and
+  front end alike: a limit the host had chosen, removed for everything. It is
+  called from the two places a run starts and from nowhere else.
+- **One way to read a posted value.** `filter_input()` with no filter named
+  applies `FILTER_DEFAULT`, which sanitises nothing, and the plugin had nine of
+  those. They are gone: `Utils::postedText()`, `postedUrl()` and `postedInt()`
+  read `$_POST`, unslash it and sanitise it on the expression that reads it,
+  and every caller sits behind `Controller::authorize()`. The five list views
+  no longer read the request at all — the search term arrives in `$view`, and
+  the page slug is written into the view that is that page.
+- **The background request that processes the queue forwards three cookies,
+  not all of them.** `wp2staticProcessQueueAdminPost()` sent `$_COOKIE` whole
+  to `admin-post.php`. The receiving end reads the WordPress authentication
+  cookies and nothing else; those are what travel now, each one sanitised.
+  `sslverify` goes through `https_local_ssl_verify`, the filter WP-Cron uses
+  for its own request to the same site.
+- **`load_plugin_textdomain()` is gone.** WordPress has loaded a directory
+  plugin's translations by itself since 4.6, and the plugin requires 6.5.
+- **`composer.json` ships in the package**, so that what `vendor-prefixed/` was
+  built from can be read and rebuilt. `composer.lock` does not.
+- **Three methods nothing called** — `deleteCrawlCache()`, which echoed to the
+  browser, `resetDefaultSettings()` and `deleteDeployCache()` — are removed.
+
+### Fixed
+
+- The search box on the five list pages showed the term only when it had
+  arrived over GET. The form posts, so a search made from it came back with the
+  box empty.
+- Searching the Deploy Cache page dropped the namespace it had been opened
+  with.
+- Snipcart's terms and privacy links in `readme.txt` answered 404: the pages
+  moved. `tools/check_links.php` now checks the readme's links as well, which
+  is how it should have been found.
+
 ## VibeStatic 9.1.0 (2026-09-09)
 
 ### Changed

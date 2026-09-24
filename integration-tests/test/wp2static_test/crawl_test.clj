@@ -4,7 +4,7 @@
             [wp2static-test.test :as test]))
 
 (defn get-crawled-file [path]
-  (slurp (str "wordpress/wp-content/uploads/wp2static-crawled-site/" path)))
+  (slurp (str "wordpress/wp-content/uploads/vibestatic/crawled-site/" path)))
 
 (deftest test-crawled-site
   (test/with-test-system [_]

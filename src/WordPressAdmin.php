@@ -390,6 +390,10 @@ class WordPressAdmin {
                 'admin_menu',
                 [ Controller::class, 'registerOptionsPage' ]
             );
+            add_action(
+                'admin_enqueue_scripts',
+                [ Controller::class, 'enqueueAdminAssets' ]
+            );
             add_filter( 'custom_menu_order', '__return_true' );
             add_filter( 'menu_order', [ Controller::class, 'setMenuOrder' ] );
         }

@@ -4,7 +4,7 @@
             [wp2static-test.test :as test]))
 
 (defn get-crawled-file [path]
-  (slurp (str "wordpress/wp-content/uploads/wp2static-crawled-site/" path)))
+  (slurp (str "wordpress/wp-content/uploads/vibestatic/crawled-site/" path)))
 
 (def robots-sitemap-404
   "User-agent: *

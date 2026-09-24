@@ -1,0 +1,8 @@
+/*
+ * The plugin's admin pages. Enqueued by Controller::enqueueAdminAssets() on
+ * those pages only; it used to be a <style> block at the top of the Caches
+ * view.
+ */
+select.wp2static-select {
+    width: 165px;
+}

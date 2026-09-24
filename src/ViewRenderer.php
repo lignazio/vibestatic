@@ -198,6 +198,7 @@ class ViewRenderer {
         $paginator = new Paginator( $urls, $page_size, $page );
         $view = [
             'nonce_action' => $nonce_action,
+            'searchTerm' => $search_term,
             'paginatorFirstPage' => $paginator->firstPage(),
             'paginatorLastPage' => $paginator->lastPage(),
             'paginatorPage' => $paginator->page(),
@@ -242,6 +243,7 @@ class ViewRenderer {
         $paginator = new Paginator( $urls, $page_size, $page );
         $view = [
             'nonce_action' => $nonce_action,
+            'searchTerm' => $search_term,
             'paginatorFirstPage' => $paginator->firstPage(),
             'paginatorLastPage' => $paginator->lastPage(),
             'paginatorPage' => $paginator->page(),
@@ -275,6 +277,7 @@ class ViewRenderer {
         $page = max( 1, intval( self::requestValue( 'paged' ) ) );
         $paginator = new Paginator( $paths, $page_size, $page );
         $view = [
+            'searchTerm' => $search_term,
             'paginatorFirstPage' => $paginator->firstPage(),
             'paginatorLastPage' => $paginator->lastPage(),
             'paginatorPage' => $paginator->page(),
@@ -308,6 +311,7 @@ class ViewRenderer {
         $page = max( 1, intval( self::requestValue( 'paged' ) ) );
         $paginator = new Paginator( $paths, $page_size, $page );
         $view = [
+            'searchTerm' => $search_term,
             'paginatorFirstPage' => $paginator->firstPage(),
             'paginatorLastPage' => $paginator->lastPage(),
             'paginatorPage' => $paginator->page(),
@@ -324,7 +328,7 @@ class ViewRenderer {
             die( 'Forbidden' );
         }
 
-        $deploy_namespace = strval( filter_input( INPUT_GET, 'deploy_namespace' ) );
+        $deploy_namespace = self::requestValue( 'deploy_namespace' );
         $paths = $deploy_namespace !== ''
             ? DeployCache::getPaths( $deploy_namespace )
             : DeployCache::getPaths();
@@ -344,6 +348,8 @@ class ViewRenderer {
         $page = max( 1, intval( self::requestValue( 'paged' ) ) );
         $paginator = new Paginator( $paths, $page_size, $page );
         $view = [
+            'searchTerm' => $search_term,
+            'deployNamespace' => $deploy_namespace,
             'paginatorFirstPage' => $paginator->firstPage(),
             'paginatorLastPage' => $paginator->lastPage(),
             'paginatorPage' => $paginator->page(),
@@ -462,7 +468,15 @@ class ViewRenderer {
         $view['crawlQueueTotalURLs'] = CrawlQueue::getTotal();
         $view['crawlCacheTotalURLs'] = CrawlCache::getTotal();
         $view['deployCacheTotalPaths'] = DeployCache::getTotal();
-        $view['uploads_path'] = SiteInfo::getPath( 'uploads' );
+        /*
+         * The paths themselves, not the uploads directory they used to be
+         * rebuilt from in the view. One of the two names spelled out there —
+         * `wp2static-exported-site` — was a directory the plugin has never
+         * written, so the "Path" link under "Generated Static Site" pointed at
+         * nothing at all.
+         */
+        $view['exported_site_path'] = $exported_site_dir;
+        $view['processed_site_path'] = $processed_site_dir;
         $view['nonce_action'] = 'wp2static-caches-page';
 
         require_once VIBESTATIC_PATH . 'views/caches-page.php';

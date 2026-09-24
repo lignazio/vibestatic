@@ -14,6 +14,7 @@ define( 'WP_PLUGIN_DIR', '' );
  */
 define( 'VIBESTATIC_VERSION', '' );
 define( 'VIBESTATIC_PATH', '' );
+define( 'VIBESTATIC_URL', '' );
 
 // The two old names, kept as aliases for add-ons.
 define( 'WP2STATIC_VERSION', '' );

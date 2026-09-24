@@ -5,7 +5,7 @@ only what changed.
 
 This add-on is part of [VibeStatic](https://github.com/lignazio/vibestatic).
 VibeStatic writes its post-processed static site under
-`wp-content/uploads/wp2static-processed-site`; most deployment add-ons target an
+`wp-content/uploads/vibestatic/processed-site`; most deployment add-ons target an
 external API such as S3, Netlify or Cloudflare, while this one copies to a local
 path.
 

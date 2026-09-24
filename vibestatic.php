@@ -3,7 +3,7 @@
  * Plugin Name: VibeStatic
  * Plugin URI:  https://github.com/lignazio/vibestatic
  * Description: Static site generation for WordPress, with incremental deployment.
- * Version:     9.1.0
+ * Version:     9.1.2
  * Requires at least: 6.5
  * Requires PHP: 8.2
  * Author:      Ignazio Lucenti
@@ -49,8 +49,9 @@ if ( ! defined( 'ABSPATH' ) ) {
     die;
 }
 
-define( 'VIBESTATIC_VERSION', '9.1.0' );
+define( 'VIBESTATIC_VERSION', '9.1.2' );
 define( 'VIBESTATIC_PATH', plugin_dir_path( __FILE__ ) );
+define( 'VIBESTATIC_URL', plugin_dir_url( __FILE__ ) );
 
 /*
  * The two old names stay defined. None of the twenty-one add-ons uses them —
@@ -124,33 +125,13 @@ add_filter(
     'vibestatic_plugin_action_links'
 );
 
-/**
- * Load the plugin's translations.
- *
- * This is genuinely needed, not ceremonial: WordPress's textdomain registry
- * looks on its own in `WP_LANG_DIR/plugins` and `WP_LANG_DIR/themes` — where
- * translations downloaded from wordpress.org land — and nowhere else. The
- * `languages/` directory the plugin ships with enters that list only because
- * `load_plugin_textdomain()` registers it as a custom path; see
- * `WP_Textdomain_Registry::get_paths_for_domain()`.
- *
- * On `init`, and that is where it belongs: since WordPress 6.7, asking for a
- * translation before `after_setup_theme` triggers a `_doing_it_wrong`. The
- * catch is that the check sits behind `$wp_textdomain_registry->has( $domain )`,
- * so it only notices the problem where a translation actually exists: on an
- * English installation nothing happens and the defect stays invisible to
- * whoever is developing, only to surface for whoever runs the plugin
- * translated.
+/*
+ * No load_plugin_textdomain() call, and that is deliberate. Since WordPress
+ * 4.6 the translations of a plugin hosted on wordpress.org are downloaded to
+ * `WP_LANG_DIR/plugins` and loaded from there on first use, and the plugin
+ * requires 6.5. What `languages/` ships is the .pot the translators start
+ * from, which nothing loads.
  */
-function vibestatic_load_textdomain() : void {
-    load_plugin_textdomain(
-        'vibestatic',
-        false,
-        dirname( plugin_basename( __FILE__ ) ) . '/languages'
-    );
-}
-
-add_action( 'init', 'vibestatic_load_textdomain' );
 
 /**
  * Strip from WordPress's output the things a static site does not need.

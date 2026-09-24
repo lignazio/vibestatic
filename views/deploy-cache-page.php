@@ -12,14 +12,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /** @var array<string, mixed> $view */
 
-/** @var string $paginator_index */
-$paginator_index = (string) ( filter_input( INPUT_GET, 'page' ) ?? '' );
+/*
+ * The slug of this very page, for the form to come back to. It used to be read
+ * back out of the request, which is a roundabout way of learning a constant.
+ *
+ * @var string $paginator_index
+ */
+$paginator_index = 'wp2static-deploy-cache';
 
 /** @var int $paginator_page */
 $paginator_page = $view['paginatorPage'];
 
 /** @var string $search_term */
-$search_term = (string) ( filter_input( INPUT_GET, 's', FILTER_SANITIZE_URL ) ?? '' );
+$search_term = $view['searchTerm'];
+
+/** @var string $deploy_namespace */
+$deploy_namespace = $view['deployNamespace'];
 
 /** @var int $paginator_total_records */
 $paginator_total_records = $view['paginatorTotalRecords'];
@@ -56,6 +64,9 @@ $paginator_label = __( 'Deploy Cache', 'vibestatic' );
     <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
     <form id="posts-filter" method="GET">
         <input type="hidden" name="page" value="<?php echo esc_attr( $paginator_index ); ?>" />
+        <?php if ( '' !== $deploy_namespace ) : ?>
+            <input type="hidden" name="deploy_namespace" value="<?php echo esc_attr( $deploy_namespace ); ?>" />
+        <?php endif; ?>
         <input type="hidden" name="paged" value="<?php echo esc_attr( (string) $paginator_page ); ?>" />
 
         <p class="search-box">

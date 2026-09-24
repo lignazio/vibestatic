@@ -130,7 +130,7 @@ mkdir -p "$BUILD/$SLUG"
 # addons/ is in this list, and that is the whole point of it being here: the
 # bundled deployers used to be separate plugins outside the package, so a zip
 # install could crawl a site and process it and then had nowhere to put it.
-for item in src views languages vendor-prefixed addons; do
+for item in src views assets languages vendor-prefixed addons; do
     [ -e "$ROOT/$item" ] && cp -R "$ROOT/$item" "$BUILD/$SLUG/"
 done
 
@@ -202,6 +202,13 @@ find "$ROOT/vendor/composer" -maxdepth 1 -type f -exec cp {} "$BUILD/$SLUG/vendo
 cp "$ROOT"/*.php "$BUILD/$SLUG/"
 [ -f "$ROOT/readme.txt" ] && cp "$ROOT/readme.txt" "$BUILD/$SLUG/"
 [ -f "$ROOT/LICENSE" ] && cp "$ROOT/LICENSE" "$BUILD/$SLUG/"
+
+# composer.json ships, composer.lock does not. Nothing in the package runs it:
+# it is the declaration of what vendor-prefixed/ was built from, and the
+# directory asks for it precisely so that whoever reads the package can see
+# that and rebuild it. Its first review of this plugin named its absence. The
+# lock is the pinned tree of development dependencies, which are not in here.
+cp "$ROOT/composer.json" "$BUILD/$SLUG/"
 
 # macOS leaves one of these in every directory it has been looked at in, and
 # they were going into the zip.

@@ -41,8 +41,12 @@ class Schema {
      * 8 — the FTP module's options table.
      * 9 — the S3 module's options table.
      * 10 — the `snipcartApiKey` option.
+     * 11 — not a table at all: everything the plugin writes moved out of the
+     *      uploads root into `uploads/vibestatic/`. This is the version that
+     *      makes StorageDir::migrateLegacyPaths() run once on sites that
+     *      already have the plugin.
      */
-    const VERSION = 10;
+    const VERSION = 11;
 
     /**
      * @var string Where the applied version is remembered.
@@ -69,6 +73,15 @@ class Schema {
          * activated with the addons/ directory missing from a partial install.
          */
         Modules::installTables();
+
+        /*
+         * Not a table, and it is here because this is the one method that runs
+         * on activation and again on every upgrade that bumps the version —
+         * which is exactly when the files written by an earlier version need
+         * moving. It is idempotent: the second time there is nothing left in
+         * the old places to move.
+         */
+        StorageDir::migrateLegacyPaths();
 
         update_option( self::OPTION, (string) self::VERSION, false );
     }

@@ -34,7 +34,7 @@ class StaticSite {
     }
 
     public static function getPath() : string {
-        $default = SiteInfo::getPath( 'uploads' ) . 'wp2static-crawled-site';
+        $default = StorageDir::path() . 'crawled-site';
 
         /*
          * A filter can return anything, and this method is declared to return a

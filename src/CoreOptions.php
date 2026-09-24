@@ -559,6 +559,15 @@ class CoreOptions {
                         'wp-static-html-output', // exclude earlier version exports
                         'vibestatic-addon',
                         'wp2static-addon',
+                        /*
+                         * Not what keeps the plugin's own output out of the
+                         * crawl any more — that is StorageDir::contains(), a
+                         * rule rather than a preference, since editing this
+                         * list used to be enough to make the crawler publish
+                         * the previous run's copy of the site inside this one.
+                         * They stay for the directories a site arriving from
+                         * WP2Static still has in its uploads root.
+                         */
                         'wp2static-crawled-site',
                         'wp2static-processed-site',
                         'wp2static-working-files',
@@ -975,7 +984,7 @@ class CoreOptions {
                     'deploymentURL',
                     [
                         'value' =>
-                        esc_url_raw( strval( filter_input( INPUT_POST, 'deploymentURL' ) ) ),
+                        Utils::postedUrl( 'deploymentURL' ),
                     ]
                 );
 
@@ -983,9 +992,7 @@ class CoreOptions {
                     'basicAuthUser',
                     [
                         'value' =>
-                        sanitize_text_field(
-                            strval( filter_input( INPUT_POST, 'basicAuthUser' ) )
-                        ),
+                        Utils::postedText( 'basicAuthUser' ),
                     ]
                 );
 
@@ -995,9 +1002,7 @@ class CoreOptions {
                         'value' =>
                         self::encrypt_decrypt(
                             'encrypt',
-                            sanitize_text_field(
-                                strval( filter_input( INPUT_POST, 'basicAuthPassword' ) )
-                            )
+                            Utils::postedText( 'basicAuthPassword' )
                         ),
                     ]
                 );
@@ -1015,7 +1020,7 @@ class CoreOptions {
                 foreach ( [ 'formAction', 'formProvider', 'snipcartApiKey' ] as $form_option ) {
                     self::repository()->update(
                         $form_option,
-                        [ 'value' => sanitize_text_field( strval( filter_input( INPUT_POST, $form_option ) ) ) ]
+                        [ 'value' => Utils::postedText( $form_option ) ]
                     );
                 }
 
@@ -1027,7 +1032,7 @@ class CoreOptions {
                 foreach ( [ 'crawlChunkSize', 'crawlProgressReportInterval' ] as $crawl_number ) {
                     self::repository()->update(
                         $crawl_number,
-                        [ 'value' => max( 0, intval( filter_input( INPUT_POST, $crawl_number ) ) ) ]
+                        [ 'value' => Utils::postedInt( $crawl_number ) ]
                     );
                 }
 
@@ -1035,9 +1040,7 @@ class CoreOptions {
                     'completionEmail',
                     [
                         'value' =>
-                        sanitize_text_field(
-                            strval( filter_input( INPUT_POST, 'completionEmail' ) )
-                        ),
+                        Utils::postedText( 'completionEmail' ),
                     ]
                 );
 
@@ -1045,7 +1048,7 @@ class CoreOptions {
                     'completionWebhook',
                     [
                         'value' =>
-                        esc_url_raw( strval( filter_input( INPUT_POST, 'completionWebhook' ) ) ),
+                        Utils::postedUrl( 'completionWebhook' ),
                     ]
                 );
 
@@ -1053,9 +1056,7 @@ class CoreOptions {
                     'completionWebhookMethod',
                     [
                         'value' =>
-                        sanitize_text_field(
-                            strval( filter_input( INPUT_POST, 'completionWebhookMethod' ) )
-                        ),
+                        Utils::postedText( 'completionWebhookMethod' ),
                     ]
                 );
 

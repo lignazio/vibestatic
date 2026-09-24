@@ -28,9 +28,17 @@ class ZipArchiver {
             return;
         }
 
-        $archive_path = rtrim( $processed_site_path, '/' );
-        $temp_zip = $archive_path . '.tmp';
-        $zip_path = $archive_path . '.zip';
+        /*
+         * Where the archive goes is Controller's answer, not one derived here
+         * from the directory being packed. It used to be the second: the
+         * processed site's path with `.zip` stuck on the end. That happens to
+         * agree with Controller::path() on a default installation and stops
+         * agreeing the moment somebody filters `wp2static_processed_site_path`
+         * — and then the archive is written in one place and the page that
+         * offers it for download looks in another.
+         */
+        $zip_path = Controller::path();
+        $temp_zip = $zip_path . '.tmp';
 
         $zip_archive = new ZipArchive();
 
@@ -52,8 +60,8 @@ class ZipArchiver {
          * one of those, `WP_Filesystem::move()` would send this archive over
          * the network to reach a path that is already on this machine. The file
          * being renamed is a temporary file this class wrote, inside the
-         * uploads directory, and the permissions are the ones WordPress gives
-         * its own uploads.
+         * plugin's own storage directory under uploads, and the permissions are
+         * the ones WordPress gives its own uploads.
          */
         // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename,WordPress.WP.AlternativeFunctions.file_system_operations_rename -- a temporary file this class just wrote.
         rename( $temp_zip, $zip_path );

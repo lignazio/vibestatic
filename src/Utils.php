@@ -42,9 +42,76 @@ class Utils {
         return $wpdb->query( $prepared );
     }
 
-    /*
-     * Adjusts the max_execution_time ini option
+    /**
+     * A field of the current POST request, as one line of text.
      *
+     * Read from `$_POST` rather than through `filter_input()`: the latter with
+     * no filter named applies FILTER_DEFAULT, which sanitises nothing, and the
+     * three readers below are the only place in the plugin a posted value is
+     * turned into a string, a URL or a number. WordPress has already slashed
+     * the superglobal by the time a plugin sees it, hence `wp_unslash()`
+     * before anything else.
+     *
+     * The empty string when the field was not sent, or was sent as an array.
+     * Every caller sits behind Controller::authorize(), which has verified the
+     * nonce and the capability before this is asked anything.
+     */
+    public static function postedText( string $key ) : string {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified by Controller::authorize() in every caller; this only reads.
+        if ( ! isset( $_POST[ $key ] ) || ! is_scalar( $_POST[ $key ] ) ) {
+            return '';
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- see above.
+        return sanitize_text_field( wp_unslash( (string) $_POST[ $key ] ) );
+    }
+
+    /**
+     * A field of the current POST request, as a URL fit for storing.
+     *
+     * `esc_url_raw()` rather than `esc_url()`: the value goes into the
+     * database, not into an attribute, and the entities the latter adds would
+     * be stored as data.
+     */
+    public static function postedUrl( string $key ) : string {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified by Controller::authorize() in every caller; this only reads.
+        if ( ! isset( $_POST[ $key ] ) || ! is_scalar( $_POST[ $key ] ) ) {
+            return '';
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- see above.
+        return esc_url_raw( wp_unslash( (string) $_POST[ $key ] ) );
+    }
+
+    /**
+     * A field of the current POST request, as a non-negative integer.
+     *
+     * Zero when absent: the callers are numeric options that treat 0 as
+     * "default", which is also what an empty field means.
+     */
+    public static function postedInt( string $key ) : int {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified by Controller::authorize() in every caller; this only reads.
+        if ( ! isset( $_POST[ $key ] ) || ! is_scalar( $_POST[ $key ] ) ) {
+            return 0;
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- see above.
+        return absint( wp_unslash( (string) $_POST[ $key ] ) );
+    }
+
+    /**
+     * Lift the execution time limit for the request doing an export.
+     *
+     * Called from the two places a run starts — the job queue and the headless
+     * workflow — and from nowhere else. It used to be called from
+     * Controller::init(), which is every request WordPress serves, admin or
+     * front end: a limit the host had chosen, quietly removed for everything
+     * on the site. A crawl of eighteen hundred pages does need more than
+     * thirty seconds; the page that lists them does not.
+     *
+     * The first call is a probe. `set_time_limit()` answers true even when a
+     * host forbids the change, so the value is written and then read back:
+     * only where it actually changed is the limit then removed.
      */
     public static function set_max_execution_time() : void {
         if (

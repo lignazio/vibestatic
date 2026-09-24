@@ -260,6 +260,21 @@ class FilesHelper {
                  * @var string $filename
                  */
 
+                /*
+                 * The plugin's own output is never crawlable, and that is not a
+                 * preference. `uploads/vibestatic/` holds the previous crawl
+                 * and the previous post-processing, and this method is called
+                 * with the uploads directory: without this line the crawler
+                 * publishes last run's copy of the site inside this run's,
+                 * which doubles again on the run after that. It used to be kept
+                 * out by two entries in the user-editable "Directory and File
+                 * Names to Ignore" list — a preference standing in for an
+                 * invariant, and one edit away from not holding.
+                 */
+                if ( StorageDir::contains( $filename ) ) {
+                    continue;
+                }
+
                 $path_crawlable = self::pathLooksCrawlable(
                     $filename,
                     $filenames_to_ignore,

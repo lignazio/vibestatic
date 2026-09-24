@@ -4,7 +4,7 @@ Tags: static site generator, static, deployment, performance, security
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 9.1.0
+Stable tag: 9.1.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -136,24 +136,29 @@ VibeStatic contacts nothing on its own. Two kinds of external communication are
 possible, and both happen only because you configured them:
 
 **The destination you choose.** Enabling the Amazon S3 destination and entering
-your keys makes the plugin upload the generated site to Amazon Web Services
-(<https://aws.amazon.com/service-terms/>, <https://aws.amazon.com/privacy/>), and
-optionally ask CloudFront to invalidate the paths that changed. Enabling the
-Netlify destination uploads it to Netlify
+your keys makes the plugin upload the generated site to Amazon Web Services, at
+`<bucket>.s3.<region>.amazonaws.com`, and — if you enter a distribution ID — ask
+CloudFront at `cloudfront.amazonaws.com` to invalidate the paths that changed
+(<https://aws.amazon.com/service-terms/>, <https://aws.amazon.com/privacy/>).
+Enabling the Netlify destination uploads it to `api.netlify.com`
 (<https://www.netlify.com/legal/terms-of-use/>,
 <https://www.netlify.com/privacy/>). The FTP, sFTP, directory and ZIP
 destinations contact no third party: they write to a server or a disk you name.
 What is sent is the static copy of your own site, plus the credentials needed to
-authenticate. Nothing is sent unless a destination is enabled and configured.
+authenticate, and it is sent when a deploy runs — from the Run page, from
+WP-Cron or from WP-CLI. Nothing is sent unless a destination is enabled and
+configured.
 
 **Snipcart, for a WooCommerce shop.** WooCommerce's cart is PHP and cannot be
 published as static files. If — and only if — you enter a Snipcart public key in
 Options, the exported pages get Snipcart's stylesheet and script added from
 `cdn.snipcart.com`, and its add-to-cart buttons in place of WooCommerce's. Those
 two files are then loaded by visitors *of the published static site*, not by
-your WordPress installation. See <https://snipcart.com/legal/terms> and
-<https://snipcart.com/legal/privacy-policy>. Leaving the key empty leaves every
-page untouched.
+your WordPress installation. Snipcart's terms of service, with its privacy
+policy as a section of the same page:
+<https://snipcart.com/terms-of-service> and
+<https://snipcart.com/terms-of-service#privacy-policy>. Leaving the key empty
+leaves every page untouched.
 
 The plugin sends no analytics, no usage statistics and no error reports
 anywhere, and it does not check in with any server of ours — there is not one.
@@ -166,6 +171,38 @@ anywhere, and it does not check in with any server of ours — there is not one.
 4. Caches: how much has been detected, crawled and published, and what each destination already holds.
 
 == Changelog ==
+
+= 9.1.2 =
+* Everything the plugin writes now lives in one directory, `wp-content/uploads/vibestatic/`,
+  created with an `.htaccess`, a `web.config` and an `index.php` so that no web
+  server serves what is in it. The crawled site, the post-processed site and
+  the ZIP module's archive used to sit in the root of the uploads directory,
+  where anyone who guessed the name could download a whole copy of the site.
+  Upgrading moves what is already on disk; nothing is lost and there is nothing
+  to configure.
+* The crawler can no longer pick up its own output. That was kept out by two
+  entries in the editable "Directory and File Names to Ignore" list; it is now
+  a rule, so pruning the list cannot make the crawler publish the previous
+  run's copy of the site inside this one.
+* The ZIP module wrote the archive to a path it worked out itself and the page
+  looked for it at another. They agreed unless you filtered
+  `wp2static_processed_site_path`, and then the download was never there.
+* The "Path" link under "Generated Static Site" on the Caches page pointed at a
+  directory the plugin has never written.
+
+= 9.1.1 =
+* Changes asked for by the wordpress.org plugin review. The Run page's script
+  and the Caches page's stylesheet are enqueued from `assets/` rather than
+  printed into the page. The execution time limit is lifted only for the
+  request that runs an export, not on every page load. Every posted value is
+  read from the request through one sanitising reader; `filter_input()` with
+  no filter, which sanitises nothing, is gone. The background request that
+  processes the job queue forwards the three WordPress authentication cookies
+  rather than every cookie the browser sent. `composer.json` ships in the
+  package. Snipcart's legal links, which had moved, are corrected.
+* The search box on the five list pages kept its term only when the search
+  arrived over GET; searching from the form, which posts, showed it empty.
+* The Deploy Cache page lost its namespace filter on search.
 
 = 9.1.0 =
 * The PHPStan baseline is empty and the file is gone: 155 suppressed findings
@@ -238,6 +275,15 @@ Earlier history, including WP2Static's own, is in `CHANGELOG.md` in the
 repository.
 
 == Upgrade Notice ==
+
+= 9.1.2 =
+The crawled site, the post-processed site and the ZIP archive move from the
+root of the uploads directory into `uploads/vibestatic/`, which is protected
+from direct access. The move happens by itself on the first admin page load
+after updating. No settings change.
+
+= 9.1.1 =
+Review corrections. No settings change and no migration.
 
 = 9.1.0 =
 Internal corrections and stricter analysis. No settings change and no migration.

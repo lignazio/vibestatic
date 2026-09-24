@@ -24,14 +24,16 @@ class CLI {
                 break;
             case 'get_url':
                 /*
-                 * Still the uploads URL, and it is worth being plain about it:
-                 * the archive is readable there by anyone who knows the
-                 * address, exactly as the generated site already is. The admin
-                 * download goes through admin-post so a link is not the only
-                 * way in; this command reports where the file actually is.
+                 * Where the file is, not a way in. The directory it sits in
+                 * carries an `.htaccess` and a `web.config` that deny access,
+                 * so on Apache and IIS this address answers 403 — as it should.
+                 * The way to the archive is the admin page's Download button,
+                 * which checks the capability and the nonce; on disk it is
+                 * `get_path` below.
                  */
                 WP_CLI::line(
-                    \WP2Static\SiteInfo::getUrl( 'uploads' ) . Controller::FILENAME
+                    \WP2Static\SiteInfo::getUrl( 'uploads' ) .
+                    \WP2Static\StorageDir::DIRNAME . '/' . Controller::FILENAME
                 );
                 break;
             default:

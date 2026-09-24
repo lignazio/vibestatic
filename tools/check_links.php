@@ -44,6 +44,15 @@ foreach ( array_merge( [ "$root/vibestatic.php" ], glob( "$root/addons/*/module.
     }
 }
 
+// The terms and privacy links under `== External services ==` in readme.txt.
+// The directory's first review of this plugin found two of them answering 404:
+// Snipcart had moved its legal pages, and nothing here was looking.
+if ( preg_match_all( '#<(https://[^>\s]+)>#', (string) file_get_contents( "$root/readme.txt" ), $matches ) ) {
+    foreach ( $matches[1] as $url ) {
+        $links[ $url ][] = 'readme.txt';
+    }
+}
+
 if ( ! $links ) {
     fwrite( STDERR, "Nessun link trovato: il rilevamento e' rotto.\n" );
     exit( 1 );

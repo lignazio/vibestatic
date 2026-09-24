@@ -4,7 +4,7 @@
             [wp2static-test.test :as test]))
 
 (defn get-processed-file [path]
-  (slurp (str "wordpress/wp-content/uploads/wp2static-processed-site/" path)))
+  (slurp (str "wordpress/wp-content/uploads/vibestatic/processed-site/" path)))
 
 (deftest test-processed-site
   (test/with-test-system [_]
