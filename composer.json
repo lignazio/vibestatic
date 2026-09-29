@@ -30,7 +30,7 @@
     },
     "require-dev": {
         "10up/wp_mock": "^1.1",
-        "brianhenryie/strauss": "^0.29",
+        "brianhenryie/strauss": "^0.30",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
         "mikey179/vfsstream": "^1.6",
         "php-parallel-lint/php-parallel-lint": "^1.4",
