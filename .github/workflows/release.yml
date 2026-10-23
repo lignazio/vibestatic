@@ -41,7 +41,7 @@ jobs:
           tools: composer:v2
 
       - name: Install dependencies
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
 
       # The tag is what people install: if it does not match the version
       # declared in the plugin, whoever downloads `v8.1.0` ends up with a plugin
